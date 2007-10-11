@@ -45,7 +45,7 @@
 					<td onclick='show_event_edit(<!-- TMPL_VAR name='id' -->)'>
 						<!-- TMPL_IF done -->
 						<span class='done'>
-							<!-- TMPL_VAR name='event' -->
+							<!-- TMPL_VAR name='event' escape='html' -->
 						</span>
 						<!-- TMPL_ELSE -->
 						<span>
@@ -88,10 +88,18 @@
 			<br />
 			<table width='100%'>
 				<tr>
-					<td style='width: 50%; text-align: left'>
+					<td style='width: 33%; text-align: left'>
 						<strong>Previous week</strong>
 						<br />
 						<a href='<!-- TMPL_VAR name='url' --><!-- TMPL_VAR name='prev_week' -->/'>Week of <!-- TMPL_VAR name='prev_week_display' --></a>
+					</td>
+					<td style='width: 34%; text-align: center'>
+						<!-- TMPL_UNLESS current_week -->
+						<br />
+						<a href='<!-- TMPL_VAR name='url' -->'>
+							View current week
+						</a>
+						<!-- /TMPL_UNLESS -->
 					</td>
 					<td style='text-align: right'>
 						<strong>Next week</strong>

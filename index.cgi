@@ -108,6 +108,10 @@ sub show_list()
 		$html->param(next_week  => $next_week);
 		$html->param(prev_week_display => $prev_week_display);
 		$html->param(next_week_display => $next_week_display);
+
+		if (time() >= $week->{'time'} && time() < ($week->{'time'} + $seven_days)) {
+			$html->param(current_week => 1);
+		}
 	} else {
 		$html->param(week_id  => $week->{'id'});
 		$html->param(template => 1);
