@@ -1,0 +1,13 @@
+tr.front	{ background-color: white; }
+tr.head		{ background-color: #343434; color: white; }
+table			{ width: 100%; }
+td.back		{ background-color: black; width: 95%; padding: 0px; }
+td.day		{ font-variant: small-caps; }
+tr.front:hover	{ background-color: #ffffcc; }
+
+input.time { width: 2.5em; }
+
+fieldset { border: 0; margin: 0; padding: 0; }
+
+span.done { text-decoration: line-through; }
+input.done { border: 1px solid black; }

@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.1//EN' 'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
+	<head>
+		<!-- TMPL_IF week_start -->
+		<title>Todo - Week of <!-- TMPL_VAR name='week_start' --></title>
+		<!-- TMPL_ELSE -->
+			<!-- TMPL_IF template -->
+		<title>Todo - Template</title>
+			<!-- TMPL_ELSE -->
+		<title>Todo</title>
+			<!-- /TMPL_IF -->
+		<!-- /TMPL_IF -->
+		<link href='<!-- TMPL_VAR name='url' -->list.css' type='text/css' rel='stylesheet' />
+		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->todo.js'></script>
+	</head>
+ 	<body onkeypress="key_handler(event)">
+		<form action='javascript:dispatch()' method='post' id='form'>
+		<fieldset>
+		<input type='hidden' name='week' id='week' value='<!-- TMPL_VAR name='week_id' -->' />
+		<table><tr><td class='back'>
+			<table cellspacing='1' cellpadding='1' id='content'>
+				<tr class='head' id='header'>
+					<td style='width: 6%;'>
+						Day
+					</td>
+					<td>
+						Event
+					</td>
+					<td style='width: 33%'>
+						Location
+					</td>
+					<td style='width: 10%;'>
+						Time
+					</td>
+					<td style='width: 1.5em'>
+						&nbsp;
+					</td>
+				</tr>
+				<!-- TMPL_LOOP name='events' -->
+				<tr class='front' id='item<!-- TMPL_VAR name='id' -->'>
+					<td class='day' onclick='show_day_edit(<!-- TMPL_VAR name='id' -->)'>
+						<!-- TMPL_VAR name='day_name' -->
+					</td>
+					<td onclick='show_event_edit(<!-- TMPL_VAR name='id' -->)'>
+						<!-- TMPL_IF done -->
+						<span class='done'>
+							<!-- TMPL_VAR name='event' -->
+						</span>
+						<!-- TMPL_ELSE -->
+						<span>
+							<!-- TMPL_VAR name='event' -->
+						</span>
+						<!-- /TMPL_IF -->
+					</td>
+					<td onclick='show_location_edit(<!-- TMPL_VAR name='id' -->)'>
+						<!-- TMPL_VAR name='location' -->
+					</td>
+					<td onclick='show_times_edit(<!-- TMPL_VAR name='id' -->)'>
+						<!-- TMPL_VAR name='start' -->
+						<!-- TMPL_IF end -->
+						&ndash; <!-- TMPL_VAR name='end' -->
+						<!-- /TMPL_IF -->
+					</td>
+					<td>
+						<input type='button' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' value='*' class='done' />
+					</td>
+				</tr>
+				<!-- /TMPL_LOOP -->
+			</table>
+		</td></tr></table>
+		</fieldset>
+		</form>
+		<div>
+			<!-- TMPL_UNLESS events -->
+				<!-- TMPL_UNLESS template -->
+			<form action='<!-- TMPL_VAR name='url' -->index.cgi' method='post' id='template'>
+			<fieldset>
+				<input type='hidden' name='act' value='template' />
+				<input type='hidden' name='week' value='<!-- TMPL_VAR name='week_id' -->' />
+				<input type='submit' value='Load template' />
+			</fieldset>
+			</form>
+				<!-- /TMPL_UNLESS -->
+			<!-- /TMPL_UNLESS -->
+			<a href="javascript:new_item_form()">Add new item</a>
+			<!-- TMPL_IF prev_week -->
+			<br />
+			<table width='100%'>
+				<tr>
+					<td style='width: 50%; text-align: left'>
+						<strong>Previous week</strong>
+						<br />
+						<a href='<!-- TMPL_VAR name='url' --><!-- TMPL_VAR name='prev_week' -->/'>Week of <!-- TMPL_VAR name='prev_week_display' --></a>
+					</td>
+					<td style='text-align: right'>
+						<strong>Next week</strong>
+						<br />
+						<a href='<!-- TMPL_VAR name='url' --><!-- TMPL_VAR name='next_week' -->/'>Week of <!-- TMPL_VAR name='next_week_display' --></a>
+					</td>
+				</tr>
+			</table>
+			<!-- /TMPL_IF -->
+		</div>
+	</body>
+</html>
+
