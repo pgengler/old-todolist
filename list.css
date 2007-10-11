@@ -10,4 +10,5 @@ input.time { width: 2.5em; }
 fieldset { border: 0; margin: 0; padding: 0; }
 
 span.done { text-decoration: line-through; }
-input.done { border: 1px solid black; }
+input.done { border: 1px solid black; width: 75%; background-color: transparent; }
+input.done:hover { background-color: #ccc; }

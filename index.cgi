@@ -118,7 +118,7 @@ sub show_list()
 		SELECT id, day, event, location, start, end, done
 		FROM todo
 		WHERE week = ?
-		ORDER BY day, start, done
+		ORDER BY day, start, event, done
 	~;
 	$db->prepare($query);
 	my $sth = $db->execute($week->{'id'} || 1);
@@ -241,9 +241,11 @@ sub get_day_name()
 {
 	my $day = shift;
 
-	my @days = ( '--', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
+	return '--' unless defined($day);
 
-	return $days[$day + 1];
+	my @days = ( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
+
+	return $days[$day];
 }
 
 #######

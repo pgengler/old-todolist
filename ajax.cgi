@@ -65,10 +65,14 @@ sub add_new_item()
 	}
 
 	# A day value of '-' should be emptied to be NULL in the DB for "no day"
-	my $origday= $day;
+	my $origday = $day;
 	if ($day eq '-') {
 		$day = '';
 	}
+
+	undef $start unless $start;
+	undef $end unless $end;
+	undef $location unless $location;
 
 	# Add the new record to the DB
 	my $query = qq~
@@ -107,6 +111,8 @@ sub change_day()
 	# Get CGI parameters
 	my $id  = $cgi->param('id');
 	my $day = $cgi->param('day');
+
+	undef $day if $day == -1;
 
 	# Update the record
 	my $query = qq~
@@ -162,6 +168,7 @@ sub save_item()
 	}
 
 	if ($changed & 2) {
+		undef $location unless $location;
 		my $query = qq~
 			UPDATE todo SET
 				location = ?
@@ -172,6 +179,8 @@ sub save_item()
 	}
 
 	if ($changed & 4) {
+		undef $start unless $start;
+		undef $end unless $end;
 		my $query = qq~
 			UPDATE todo SET
 				start = ?,

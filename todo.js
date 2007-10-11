@@ -151,6 +151,12 @@ function new_item_form()
 
 	row.appendChild(time_cell);
 
+	// Create empty cell for "done"
+	var done_cell = document.createElement('td');
+	done_cell.innerHTML = '&nbsp;';
+
+	row.appendChild(done_cell);
+
 	// Add the new row to the table
 	tbody.appendChild(row);
 
@@ -198,7 +204,11 @@ function update_list(response)
 
 	var root  = response.getElementsByTagName('item')[0];
 	var id    = root.getElementsByTagName('id')[0].firstChild.nodeValue;
-	var day   = root.getElementsByTagName('day')[0].firstChild.nodeValue;
+	// Day can come back empty, meaning null
+	var day = -1;
+	if (root.getElementsByTagName('day')[0].firstChild) {
+		day = root.getElementsByTagName('day')[0].firstChild.nodeValue;
+	}
 	var event = root.getElementsByTagName('event')[0].firstChild.nodeValue;
 	// These fields are optional and so might not have any data coming back
 	var location = '', start = -1, end = -1, done = 0;
@@ -206,13 +216,13 @@ function update_list(response)
 		location = root.getElementsByTagName('location')[0].firstChild.nodeValue;
 	}
 	if (root.getElementsByTagName('start')[0].firstChild) {
-		start    = root.getElementsByTagName('start')[0].firstChild.nodeValue;
+		start = root.getElementsByTagName('start')[0].firstChild.nodeValue;
 	}
 	if (root.getElementsByTagName('end')[0].firstChild) {
-		end      = root.getElementsByTagName('end')[0].firstChild.nodeValue;
+		end = root.getElementsByTagName('end')[0].firstChild.nodeValue;
 	}
 	if (root.getElementsByTagName('done')[0].firstChild) {
-		done     = root.getElementsByTagName('done')[0].firstChild.nodeValue;
+		done = root.getElementsByTagName('done')[0].firstChild.nodeValue;
 	}
 
 	// Now, we need to figure out where this belongs
@@ -250,32 +260,32 @@ function update_list(response)
 		} else if (day == row_day) {
 			// Same day, check for differing times and sort appropriately
 			var row_times  = row_cells[3];
-			var row_event  = row_cells[1];
+			var row_event  = row_cells[1].getElementsByTagName('span')[0].innerHTML.trim();
 
 			var start_time = get_start_time(row_times);
 			var end_time   = get_end_time(row_times);
 
-			if (!start && !end) {
-				if (event < row_event) {
+			if (start == -1 && end == -1) {
+				if ((event.toUpperCase() < row_event.toUpperCase()) || (start_time != -1 || end_time != -1)) {
 					new_row = tbody.insertRow(i);
 					break;
 				}
-			} else if (start && !end) {
+			} else if (start != -1 && end == -1) {
 				if (start < start_time) {
 					new_row = tbody.insertRow(i);
 					break;
 				} else if (start == start_time) {
-					if (event < row_event) {
+					if (event.toUpperCase() < row_event.toUpperCase()) {
 						new_row = tbody.insertRow(i);
 						break;
 					}
 				}
-			} else if (!start && end) {
+			} else if (start == -1 && end != -1) {
 				if (end < end_time) {
 					new_row = tbody.insertRow(i);
 					break;
 				} else if (end == end_time) {
-					if (event < row_event) {
+					if (event.toUpperCase() < row_event.toUpperCase()) {
 						new_row = tbody.insertRow(i);
 						break;
 					}
@@ -284,7 +294,7 @@ function update_list(response)
 				new_row = tbody.insertRow(i);
 				break;
 			} else if (start == start_time) {
-				if (event < row_event) {
+				if (event.toUpperCase() < row_event.toUpperCase()) {
 					new_row = tbody.insertRow(i);
 					break;
 				}
@@ -311,7 +321,7 @@ function update_list(response)
 	var event_cell = document.createElement('td');
 	var event_container = document.createElement('span');
 	event_container.innerHTML = event;
-	if (done) {
+	if (done != 0) {
 		event_container.setAttribute('class', 'done');
 	}
 	event_cell.appendChild(event_container);
@@ -807,6 +817,10 @@ function get_start_time(time_cell)
 {
 	// If there's no data, there's no time
 	if (!time_cell || time_cell.innerHTML.indexOf('&nbsp;') != -1) {
+		return -1;
+	}
+
+	if (time_cell.innerHTML.trim().length < 4) {
 		return -1;
 	}
 
