@@ -222,7 +222,7 @@ sub load_template()
 	$db->prepare($query);
 
 	while (my $item = $sth->fetchrow_hashref()) {
-		$db->execute($item->{'day'}, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'done'});
+		$db->execute($week->{'id'}, $item->{'day'}, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'done'});
 	}
 
 	# $week->{'start'} comes with hyphens that we don't want
