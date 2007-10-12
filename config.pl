@@ -3,7 +3,7 @@ package Config;
 use strict;
 
 # URL info
-our $url       = 'http://projects.pgengler.net/newtodo/';
+our $url       = 'http://personal.pgengler.net/newtodo/';
 
 # Database connection info
 our $db_host   = "localhost";

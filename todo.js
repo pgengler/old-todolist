@@ -1,4 +1,4 @@
-var base_url = 'http://projects.pgengler.net/newtodo/ajax.cgi';
+var base_url = 'http://personal.pgengler.net/newtodo/ajax.cgi';
 
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
