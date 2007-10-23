@@ -228,7 +228,9 @@ function update_list(response)
 	// Remove the current row
 	// This is done after the AJAX call to prevent lag or loss of synchronization when the server is slow or down
 	var row = document.getElementById('item' + id);
-	row.parentNode.removeChild(row);
+	if (row) {
+		row.parentNode.removeChild(row);
+	}
 
 	// Now, we need to figure out where this belongs
 	// Items without a date go in front of this with; otherwise, normal week order applies (Sunday-Saturday)
