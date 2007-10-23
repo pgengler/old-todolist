@@ -1,4 +1,4 @@
-var base_url = 'http://personal.pgengler.net/newtodo/ajax.cgi';
+var base_url = 'http://personal.pgengler.net/todo/ajax.cgi';
 
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
@@ -79,9 +79,9 @@ function dispatch()
 		}
 
 		// Remove this row (it'll be added back when the AJAX call is done)
-		var row = document.getElementById('item' + currently_editing);
-		var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
-		tbody.removeChild(row);
+//		var row = document.getElementById('item' + currently_editing);
+//		var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
+//		tbody.removeChild(row);
 
 		// set up AJAX
 		var xmlHttpReq = false;
@@ -224,6 +224,11 @@ function update_list(response)
 	if (root.getElementsByTagName('done')[0].firstChild) {
 		done = root.getElementsByTagName('done')[0].firstChild.nodeValue;
 	}
+
+	// Remove the current row
+	// This is done after the AJAX call to prevent lag or loss of synchronization when the server is slow or down
+	var row = document.getElementById('item' + id);
+	row.parentNode.removeChild(row);
 
 	// Now, we need to figure out where this belongs
 	// Items without a date go in front of this with; otherwise, normal week order applies (Sunday-Saturday)
@@ -424,9 +429,9 @@ function save_day(id)
 	var newday = daybox.value;
 
 	// Remove the existing row
-	var row = document.getElementById('item' + id);
-	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
-	tbody.removeChild(row);
+//	var row = document.getElementById('item' + id);
+//	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
+//	tbody.removeChild(row);
 
 	// set up AJAX
 	var xmlHttpReq = false;
@@ -591,8 +596,8 @@ function show_times_edit(id)
 function toggle_done(id)
 {
 	// Remove the current row
-	var row = document.getElementById('item' + id);
-	row.parentNode.removeChild(row);
+//	var row = document.getElementById('item' + id);
+//	row.parentNode.removeChild(row);
 
 	// set up AJAX
 	var xmlHttpReq = false;
@@ -622,8 +627,8 @@ function toggle_done(id)
 function delete_item(id)
 {
 	// remove the row for this item
-	var row = document.getElementById('item' + id);
-	row.parentNode.removeChild(row);
+//	var row = document.getElementById('item' + id);
+//	row.parentNode.removeChild(row);
 
 	// set up AJAX
 	var xmlHttpReq = false;
