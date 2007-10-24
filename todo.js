@@ -629,8 +629,8 @@ function toggle_done(id)
 function delete_item(id)
 {
 	// remove the row for this item
-//	var row = document.getElementById('item' + id);
-//	row.parentNode.removeChild(row);
+	var row = document.getElementById('item' + id);
+	row.parentNode.removeChild(row);
 
 	// set up AJAX
 	var xmlHttpReq = false;
