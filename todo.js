@@ -497,6 +497,9 @@ function show_event_edit(id)
 
 	// Focus the new box
 	textbox.focus();
+
+	// Select the text in the box
+	textbox.select();
 }
 
 function show_location_edit(id)
@@ -533,6 +536,9 @@ function show_location_edit(id)
 
 	// Focus the new textbox
 	textbox.focus();
+
+	// Select the text in the box
+	textbox.select();
 }
 
 function show_times_edit(id)
@@ -590,6 +596,10 @@ function show_times_edit(id)
 
 	// Focus the start time box
 	startbox.focus();
+
+	// Select the text in the box
+	startbox.select();
+
 }
 
 ///////
