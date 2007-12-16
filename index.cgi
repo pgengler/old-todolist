@@ -132,6 +132,8 @@ sub show_list()
 	while (my $event = $sth->fetchrow_hashref()) {
 		my %event_info;
 
+		$event->{'event'} =~ s/&/&amp;/g;
+
 		$event_info{'day_name'} = &get_day_name($event->{'day'});
 		$event_info{'id'}       = $event->{'id'};
 		$event_info{'event'}    = $event->{'event'};
