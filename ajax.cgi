@@ -268,6 +268,9 @@ sub item_to_xml()
 {
 	my $item = shift;
 
+	$item->{'event'} =~ s/&/&amp;/g;
+	$item->{'location'} =~ s/&/&amp;/g;
+
 	my $output;
 	$output = qq~<item>
 	<id>$item->{'id'}</id>

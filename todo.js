@@ -477,7 +477,7 @@ function show_event_edit(id)
 	var container = cell.getElementsByTagName('span')[0];
 
 	// Save current into
-	saved_event = container.innerHTML.trim();
+	saved_event = decode(container.innerHTML.trim());
 	saved_done  = (container.getAttribute('class') == 'done');
 	currently_editing = id;
 
@@ -871,6 +871,11 @@ function get_end_time(time_cell)
 	}
 
 	return time_cell.innerHTML.trim().substring(pos + 1).trim();
+}
+
+function decode(str)
+{
+	return str.replace(/\&amp\;/, "&");
 }
 
 String.prototype.trim = function() {
