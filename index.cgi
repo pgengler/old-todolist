@@ -133,6 +133,11 @@ sub show_list()
 		my %event_info;
 
 		$event->{'event'} =~ s/&/&amp;/g;
+		$event->{'event'} =~ s/</&lt;/g;
+		$event->{'event'} =~ s/>/&gt;/g;
+		$event->{'location'} =~ s/&/&amp;/g;
+		$event->{'location'} =~ s/</&lt;/g;
+		$event->{'location'} =~ s/>/&gt;/g;
 
 		$event_info{'day_name'} = &get_day_name($event->{'day'});
 		$event_info{'id'}       = $event->{'id'};

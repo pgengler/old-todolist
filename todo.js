@@ -327,7 +327,7 @@ function update_list(response)
 
 	var event_cell = document.createElement('td');
 	var event_container = document.createElement('span');
-	event_container.innerHTML = event;
+	event_container.innerHTML = event.replace(/</, "&lt;").replace(/>/, "&gt;");
 	if (done != 0) {
 		event_container.setAttribute('class', 'done');
 	}
@@ -339,7 +339,7 @@ function update_list(response)
 	var location_cell = document.createElement('td');
 	location_cell.setAttribute('onclick', 'show_location_edit(' + id + ')');
 	if (location) {
-		location_cell.innerHTML = location;
+		location_cell.innerHTML = location.replace(/</, "&lt;").replace(/>/, "&gt;");
 	}
 
 	new_row.appendChild(location_cell);
@@ -520,7 +520,7 @@ function show_location_edit(id)
 	cell.setAttribute('onclick', '');
 
 	// Save current info
-	saved_location = cell.innerHTML.trim();
+	saved_location = decode(cell.innerHTML.trim());
 	currently_editing = id;
 
 	// Create new textbox
@@ -875,7 +875,10 @@ function get_end_time(time_cell)
 
 function decode(str)
 {
-	return str.replace(/\&amp\;/, "&");
+	var tmp = str.replace(/\&amp\;/, "&");
+	tmp = tmp.replace(/\&lt\;/, "<");
+	tmp = tmp.replace(/\&gt\;/, ">");
+	return tmp;
 }
 
 String.prototype.trim = function() {
