@@ -132,7 +132,6 @@ sub show_list()
 	while (my $event = $sth->fetchrow_hashref()) {
 		my %event_info;
 
-		$event->{'event'} =~ s/&/&amp;/g;
 		$event->{'event'} =~ s/</&lt;/g;
 		$event->{'event'} =~ s/>/&gt;/g;
 		$event->{'location'} =~ s/&/&amp;/g;
