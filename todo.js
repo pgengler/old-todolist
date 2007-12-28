@@ -845,10 +845,12 @@ function get_start_time(time_cell)
 	var pos = time_cell.innerHTML.trim().indexOf('&ndash;');
 
 	if (pos == -1) {
-		pos = time_cell.innerHTML.indexOf(String.fromCharCode(8211));
+		pos = time_cell.innerHTML.trim().indexOf(String.fromCharCode(8211));
 	}
 	if (pos == -1) {
 		return time_cell.innerHTML.trim();
+	} else if (pos == 0 || pos == 1) {
+		return '';
 	}
 
 	if (pos > 4) {
