@@ -281,7 +281,7 @@ sub create_week()
 	my $start_date = $unix_date - ($date_parts[6] * 24 * 60 * 60);
 
 	# Add 6 days to start date to get end date
-	my $end_date = $unix_date + (6 * 24 * 60 * 60);
+	my $end_date = $start_date + (6 * 24 * 60 * 60);
 
 	# Get component parts for start date
 	my @start_date  = localtime($start_date);
