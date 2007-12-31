@@ -5,6 +5,8 @@ var base_url = 'http://personal.pgengler.net/todo/ajax.cgi';
 // if the user cancels or edits another one
 var saved_day, saved_event, saved_location, saved_start, saved_end, saved_done, currently_editing;
 
+var timeout = null;
+
 ///////
 // KEYBOARD HANDLER
 ///////
@@ -83,24 +85,8 @@ function dispatch()
 //		var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
 //		tbody.removeChild(row);
 
-		// set up AJAX
-		var xmlHttpReq = false;
-		var self = this;
-		if (window.XMLHttpRequest) { // sane browsers
-			self.xmlHttpReq = new XMLHttpRequest();
-		} else if (window.ActiveXObject) { // IE
-			self.xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
-		}
+		init_ajax(update_list);
 
-		// make an AJAX request for the current info
-		self.xmlHttpReq.onreadystatechange = function()
-		{
-			if (self.xmlHttpReq.readyState == 4) {
-				update_list(self.xmlHttpReq.responseXML);
-			}
-		}
-		self.xmlHttpReq.open('POST', base_url, true);
-		self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		self.xmlHttpReq.send(param_string);
 	}
 }
@@ -168,32 +154,40 @@ function new_item_form()
 function submit_new_item()
 {
 	// Get values
-	var week     = document.getElementById('week').value;
-	var day      = document.getElementById('newday').value;
-	var event    = document.getElementById('newevent').value;
-	var location = document.getElementById('newlocation').value;
-	var start    = document.getElementById('newstart').value;
-	var end      = document.getElementById('newend').value;
+	var week = document.getElementById('week').value;
 
-	// set up AJAX
-	var xmlHttpReq = false;
-	var self = this;
-	if (window.XMLHttpRequest) { // sane browsers
-		self.xmlHttpReq = new XMLHttpRequest();
-	} else if (window.ActiveXObject) { // IE
-		self.xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
-	}
+	var day_box      = document.getElementById('newday');
+	var event_box    = document.getElementById('newevent');
+	var location_box = document.getElementById('newlocation');
+	var start_box    = document.getElementById('newstart');
+	var end_box      = document.getElementById('newend');
 
-	// make an AJAX request for the current info
-	self.xmlHttpReq.onreadystatechange = function()
-	{
-		if (self.xmlHttpReq.readyState == 4) {
-			update_list(self.xmlHttpReq.responseXML);
-		}
-	}
-	self.xmlHttpReq.open('POST', base_url, true);
-	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	var day      = day_box.value;
+	var event    = event_box.value;
+	var location = location_box.value;
+	var start    = start_box.value;
+	var end      = end_box.value;
+
+	init_ajax(update_list);
+
 	self.xmlHttpReq.send('action=add&week=' + week + '&day=' + day + '&event=' + escape(event) + '&location=' + escape(location) + '&start=' + start + '&end=' + end);
+
+	// Provide some feedback to let the user know that something's happening
+	var row = document.getElementById('newrow');
+	var parent = row.parentNode;
+	parent.removeChild(row);
+
+	row = document.createElement('tr');
+	row.setAttribute('id', 'newrow');
+	row.setAttribute('class', 'front');
+
+	var cell = document.createElement('td');
+	cell.setAttribute('colspan', '5');
+	cell.setAttribute('style', 'font-style: italic; text-align: center');
+	cell.innerHTML = 'Processing...';
+
+	row.appendChild(cell);
+	parent.appendChild(row);
 }
 
 function update_list(response)
@@ -435,24 +429,8 @@ function save_day(id)
 //	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
 //	tbody.removeChild(row);
 
-	// set up AJAX
-	var xmlHttpReq = false;
-	var self = this;
-	if (window.XMLHttpRequest) { // sane browsers
-		self.xmlHttpReq = new XMLHttpRequest();
-	} else if (window.ActiveXObject) { // IE
-		self.xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
-	}
+	init_ajax(update_list);
 
-	// make an AJAX request for the current info
-	self.xmlHttpReq.onreadystatechange = function()
-	{
-		if (self.xmlHttpReq.readyState == 4) {
-			update_list(self.xmlHttpReq.responseXML);
-		}
-	}
-	self.xmlHttpReq.open('POST', base_url, true);
-	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	self.xmlHttpReq.send('action=day&id=' + id + '&day=' + newday);
 }
 
@@ -611,24 +589,8 @@ function toggle_done(id)
 //	var row = document.getElementById('item' + id);
 //	row.parentNode.removeChild(row);
 
-	// set up AJAX
-	var xmlHttpReq = false;
-	var self = this;
-	if (window.XMLHttpRequest) { // sane browsers
-		self.xmlHttpReq = new XMLHttpRequest();
-	} else if (window.ActiveXObject) { // IE
-		self.xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
-	}
+	init_ajax(update_list);
 
-	// make an AJAX request for the current info
-	self.xmlHttpReq.onreadystatechange = function()
-	{
-		if (self.xmlHttpReq.readyState == 4) {
-			update_list(self.xmlHttpReq.responseXML);
-		}
-	}
-	self.xmlHttpReq.open('POST', base_url, true);
-	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	self.xmlHttpReq.send('action=done&id=' + id);
 
 }
@@ -642,17 +604,8 @@ function delete_item(id)
 	var row = document.getElementById('item' + id);
 	row.parentNode.removeChild(row);
 
-	// set up AJAX
-	var xmlHttpReq = false;
-	var self = this;
-	if (window.XMLHttpRequest) { // sane browsers
-		self.xmlHttpReq = new XMLHttpRequest();
-	} else if (window.ActiveXObject) { // IE
-		self.xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
-	}
+	init_ajax();
 
-	self.xmlHttpReq.open('POST', base_url, true);
-	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	self.xmlHttpReq.send('action=delete&id=' + id);
 }
 
@@ -873,6 +826,45 @@ function get_end_time(time_cell)
 	}
 
 	return time_cell.innerHTML.trim().substring(pos + 1).trim();
+}
+
+function init_ajax(callback, timeout_int, timeout_expr)
+{
+	// set up AJAX
+	var xmlHttpReq = false;
+	var self = this;
+	if (window.XMLHttpRequest) { // sane browsers
+		self.xmlHttpReq = new XMLHttpRequest();
+	} else if (window.ActiveXObject) { // IE
+		self.xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+
+	if (timeout_int && timeout_int != 0 && timeout_expr) {
+		timeout = setTimeout(timeout_expr, timeout_int);
+	} else if (timeout_int && timeout_int != 0) {
+		timeout = setTimeout("ajax_timeout()", timeout_int);
+	}
+
+	// make an AJAX request for the current info
+	if (callback) {
+		self.xmlHttpReq.onreadystatechange = function()
+		{
+			if (self.xmlHttpReq.readyState == 4) {
+				callback(self.xmlHttpReq.responseXML);
+				if (timeout != null) {
+					clearTimeout(timeout);
+					timeout = null;
+				}
+			}
+		}
+	}
+	self.xmlHttpReq.open('POST', base_url, true);
+	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+}
+
+function ajax_timeout()
+{
+	self.xmlHttpReq.abort();
 }
 
 function decode(str)
