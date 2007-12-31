@@ -99,7 +99,7 @@ function dispatch()
 				update_list(self.xmlHttpReq.responseXML);
 			}
 		}
-		self.xmlHttpReq.open('POST', base_url);
+		self.xmlHttpReq.open('POST', base_url, true);
 		self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		self.xmlHttpReq.send(param_string);
 	}
@@ -191,7 +191,7 @@ function submit_new_item()
 			update_list(self.xmlHttpReq.responseXML);
 		}
 	}
-	self.xmlHttpReq.open('POST', base_url);
+	self.xmlHttpReq.open('POST', base_url, true);
 	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	self.xmlHttpReq.send('action=add&week=' + week + '&day=' + day + '&event=' + escape(event) + '&location=' + escape(location) + '&start=' + start + '&end=' + end);
 }
@@ -451,7 +451,7 @@ function save_day(id)
 			update_list(self.xmlHttpReq.responseXML);
 		}
 	}
-	self.xmlHttpReq.open('POST', base_url);
+	self.xmlHttpReq.open('POST', base_url, true);
 	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	self.xmlHttpReq.send('action=day&id=' + id + '&day=' + newday);
 }
@@ -627,7 +627,7 @@ function toggle_done(id)
 			update_list(self.xmlHttpReq.responseXML);
 		}
 	}
-	self.xmlHttpReq.open('POST', base_url);
+	self.xmlHttpReq.open('POST', base_url, true);
 	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	self.xmlHttpReq.send('action=done&id=' + id);
 
@@ -651,7 +651,7 @@ function delete_item(id)
 		self.xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
 	}
 
-	self.xmlHttpReq.open('POST', base_url);
+	self.xmlHttpReq.open('POST', base_url, true);
 	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	self.xmlHttpReq.send('action=delete&id=' + id);
 }
