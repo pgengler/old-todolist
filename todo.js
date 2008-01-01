@@ -19,7 +19,7 @@ function key_handler(event)
 		if (event.altKey && String.fromCharCode(key).toLowerCase() == 'n') { // Alt+N (new)
 			new_item_form();
 		} else if (key == 27) {
-			clear_edits()
+			clear_edits();
 		}
   }
 }
@@ -80,10 +80,17 @@ function dispatch()
 			param_string += "start=" + start + "&end=" + end;
 		}
 
-		// Remove this row (it'll be added back when the AJAX call is done)
-//		var row = document.getElementById('item' + currently_editing);
-//		var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
-//		tbody.removeChild(row);
+		// Replace the row with a processing message
+		var row = document.getElementById('item' + currently_editing);
+		var len = row.getElementsByTagName('td').length;
+		for (var i = 0; i < len; i++) {
+			row.removeChild(row.getElementsByTagName('td')[0]);
+		}
+		var cell = document.createElement('td');
+		cell.setAttribute('colspan', '5');
+		cell.setAttribute('style', 'font-style: italic; text-align: center');
+		cell.innerHTML = 'Processing...';
+		row.appendChild(cell);
 
 		init_ajax(update_list);
 
