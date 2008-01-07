@@ -25,6 +25,30 @@ function key_handler(event)
 }
 
 ///////
+// HIGHLIGHT CURRENT DAY'S ITEMS
+///////
+var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function highlight()
+{
+	var today = new Date();
+	var day = days[today.getDay()];
+
+	// Get table
+	var table = document.getElementById('content');
+
+	var rows = table.getElementsByTagName('tr');
+	for (var i = 1; i < rows.length; i++) {
+		var date = rows[i].getElementsByTagName('td')[0].innerHTML;
+		if (date.trim() == day) {
+			rows[i].setAttribute('class', 'today');
+		} else {
+			rows[i].setAttribute('class', 'front');
+		}
+	}
+}
+
+///////
 // DISPATCH
 ///////
 function dispatch()
@@ -871,6 +895,7 @@ function init_ajax(callback, timeout_int, timeout_expr)
 
 function ajax_timeout()
 {
+	self.xmlHttpReq.onreadystatechange = null;
 	self.xmlHttpReq.abort();
 }
 
@@ -890,4 +915,9 @@ String.prototype.ltrim = function() {
 }
 String.prototype.rtrim = function() {
 	return this.replace(/\s+$/,"");
+}
+
+window.onload = function() {
+	highlight();
+	setInterval("highlight()", 300000);
 }

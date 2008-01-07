@@ -1,9 +1,10 @@
 tr.front	{ background-color: white; }
+tr.today  { background-color: #E5F3FF; }
 tr.head		{ background-color: #343434; color: white; }
 table			{ width: 100%; }
 td.back		{ background-color: black; width: 95%; padding: 0px; }
 td.day		{ font-variant: small-caps; }
-tr.front:hover	{ background-color: #ffffcc; }
+tr.front:hover, tr.today:hover	{ background-color: #ffffcc; }
 
 input.time { width: 2.5em; }
 
