@@ -397,6 +397,7 @@ function update_list(response)
 	if (append == 1) {
 		tbody.appendChild(new_row);
 	}
+	highlight();
 }
 
 ///////
