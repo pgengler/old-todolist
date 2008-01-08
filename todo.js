@@ -121,9 +121,9 @@ function dispatch()
 		cell.innerHTML = 'Processing...';
 		row.appendChild(cell);
 
-		init_ajax(update_list);
+		var ajax = init_ajax(update_list);
 
-		self.xmlHttpReq.send(param_string);
+		ajax.send(param_string);
 	}
 }
 
@@ -204,9 +204,9 @@ function submit_new_item()
 	var start    = start_box.value;
 	var end      = end_box.value;
 
-	init_ajax(update_list);
+	var ajax = init_ajax(update_list);
 
-	self.xmlHttpReq.send('action=add&week=' + week + '&day=' + day + '&event=' + escape(event) + '&location=' + escape(location) + '&start=' + start + '&end=' + end);
+	ajax.send('action=add&week=' + week + '&day=' + day + '&event=' + escape(event) + '&location=' + escape(location) + '&start=' + start + '&end=' + end);
 
 	// Provide some feedback to let the user know that something's happening
 	var row = document.getElementById('newrow');
@@ -466,9 +466,9 @@ function save_day(id)
 //	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
 //	tbody.removeChild(row);
 
-	init_ajax(update_list);
+	var ajax = init_ajax(update_list);
 
-	self.xmlHttpReq.send('action=day&id=' + id + '&day=' + newday);
+	ajax.send('action=day&id=' + id + '&day=' + newday);
 }
 
 function show_event_edit(id)
@@ -626,9 +626,9 @@ function toggle_done(id)
 //	var row = document.getElementById('item' + id);
 //	row.parentNode.removeChild(row);
 
-	init_ajax(update_list);
+	var ajax = init_ajax(update_list);
 
-	self.xmlHttpReq.send('action=done&id=' + id);
+	ajax.send('action=done&id=' + id);
 
 }
 
@@ -641,9 +641,9 @@ function delete_item(id)
 	var row = document.getElementById('item' + id);
 	row.parentNode.removeChild(row);
 
-	init_ajax();
+	var ajax = init_ajax();
 
-	self.xmlHttpReq.send('action=delete&id=' + id);
+	ajax.send('action=delete&id=' + id);
 }
 
 ///////
@@ -869,25 +869,25 @@ function init_ajax(callback, timeout_int, timeout_expr)
 {
 	// set up AJAX
 	var xmlHttpReq = false;
-	var self = this;
+
 	if (window.XMLHttpRequest) { // sane browsers
-		self.xmlHttpReq = new XMLHttpRequest();
+		xmlHttpReq = new XMLHttpRequest();
 	} else if (window.ActiveXObject) { // IE
-		self.xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+		xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
 	}
 
 	if (timeout_int && timeout_int != 0 && timeout_expr) {
-		timeout = setTimeout(timeout_expr, timeout_int);
+		timeout = setTimeout(function() { timeout_expr(xmlHttpReq); }, timeout_int);
 	} else if (timeout_int && timeout_int != 0) {
-		timeout = setTimeout("ajax_timeout()", timeout_int);
+		timeout = setTimeout(function() { ajax_timeout(xmlHttpReq); }, timeout_int);
 	}
 
 	// make an AJAX request for the current info
 	if (callback) {
-		self.xmlHttpReq.onreadystatechange = function()
+		xmlHttpReq.onreadystatechange = function()
 		{
-			if (self.xmlHttpReq.readyState == 4) {
-				callback(self.xmlHttpReq.responseXML);
+			if (xmlHttpReq.readyState == 4) {
+				callback(xmlHttpReq.responseXML);
 				if (timeout != null) {
 					clearTimeout(timeout);
 					timeout = null;
@@ -895,14 +895,16 @@ function init_ajax(callback, timeout_int, timeout_expr)
 			}
 		}
 	}
-	self.xmlHttpReq.open('POST', base_url, true);
-	self.xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xmlHttpReq.open('POST', base_url, true);
+	xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+	return xmlHttpReq;
 }
 
-function ajax_timeout()
+function ajax_timeout(ajax)
 {
-	self.xmlHttpReq.onreadystatechange = null;
-	self.xmlHttpReq.abort();
+	ajax.onreadystatechange = null;
+	ajax.abort();
 }
 
 function decode(str)
