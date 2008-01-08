@@ -18,6 +18,9 @@
 		<form action='javascript:dispatch()' method='post' id='form'>
 		<fieldset>
 		<input type='hidden' name='week' id='week' value='<!-- TMPL_VAR name='week_id' -->' />
+		<!-- TMPL_IF template -->
+		<input type='hidden' name='template' id='template' value='1' />
+		<!-- /TMPL_IF -->
 		<table><tr><td class='back'>
 			<table cellspacing='1' cellpadding='1' id='content'>
 				<tr class='head' id='header'>
@@ -96,7 +99,7 @@
 					<td style='width: 34%; text-align: center'>
 						<!-- TMPL_UNLESS current_week -->
 						<br />
-						<a href='<!-- TMPL_VAR name='url' -->'>
+						<a href='<!-- TMPL_VAR name='url' -->' id='currweek'>
 							View current week
 						</a>
 						<!-- /TMPL_UNLESS -->

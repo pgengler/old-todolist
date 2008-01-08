@@ -31,6 +31,11 @@ var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function highlight()
 {
+	// Skip unless this is the current week
+	if (document.getElementById('currweek') || document.getElementById('template')) {
+		return;
+	}
+
 	var today = new Date();
 	var day = days[today.getDay()];
 
