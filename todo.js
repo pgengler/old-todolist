@@ -5,8 +5,6 @@ var base_url = 'http://personal.pgengler.net/todo/ajax.cgi';
 // if the user cancels or edits another one
 var saved_day, saved_event, saved_location, saved_start, saved_end, saved_done, currently_editing;
 
-var timeout = null;
-
 ///////
 // KEYBOARD HANDLER
 ///////
@@ -121,7 +119,7 @@ function dispatch()
 		cell.innerHTML = 'Processing...';
 		row.appendChild(cell);
 
-		var ajax = init_ajax(update_list);
+		var ajax = new AJAX(base_url, update_list);
 
 		ajax.send(param_string);
 	}
@@ -204,7 +202,7 @@ function submit_new_item()
 	var start    = start_box.value;
 	var end      = end_box.value;
 
-	var ajax = init_ajax(update_list);
+	var ajax = new AJAX(base_url, update_list);
 
 	ajax.send('action=add&week=' + week + '&day=' + day + '&event=' + escape(event) + '&location=' + escape(location) + '&start=' + start + '&end=' + end);
 
@@ -466,7 +464,7 @@ function save_day(id)
 //	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
 //	tbody.removeChild(row);
 
-	var ajax = init_ajax(update_list);
+	var ajax = new AJAX(base_url, update_list);
 
 	ajax.send('action=day&id=' + id + '&day=' + newday);
 }
@@ -626,7 +624,7 @@ function toggle_done(id)
 //	var row = document.getElementById('item' + id);
 //	row.parentNode.removeChild(row);
 
-	var ajax = init_ajax(update_list);
+	var ajax = new AJAX(base_url, update_list);
 
 	ajax.send('action=done&id=' + id);
 
@@ -641,7 +639,7 @@ function delete_item(id)
 	var row = document.getElementById('item' + id);
 	row.parentNode.removeChild(row);
 
-	var ajax = init_ajax();
+	var ajax = new AJAX(base_url);
 
 	ajax.send('action=delete&id=' + id);
 }
@@ -863,48 +861,6 @@ function get_end_time(time_cell)
 	}
 
 	return time_cell.innerHTML.trim().substring(pos + 1).trim();
-}
-
-function init_ajax(callback, timeout_int, timeout_expr)
-{
-	// set up AJAX
-	var xmlHttpReq = false;
-
-	if (window.XMLHttpRequest) { // sane browsers
-		xmlHttpReq = new XMLHttpRequest();
-	} else if (window.ActiveXObject) { // IE
-		xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
-	}
-
-	if (timeout_int && timeout_int != 0 && timeout_expr) {
-		timeout = setTimeout(function() { timeout_expr(xmlHttpReq); }, timeout_int);
-	} else if (timeout_int && timeout_int != 0) {
-		timeout = setTimeout(function() { ajax_timeout(xmlHttpReq); }, timeout_int);
-	}
-
-	// make an AJAX request for the current info
-	if (callback) {
-		xmlHttpReq.onreadystatechange = function()
-		{
-			if (xmlHttpReq.readyState == 4) {
-				callback(xmlHttpReq.responseXML);
-				if (timeout != null) {
-					clearTimeout(timeout);
-					timeout = null;
-				}
-			}
-		}
-	}
-	xmlHttpReq.open('POST', base_url, true);
-	xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-	return xmlHttpReq;
-}
-
-function ajax_timeout(ajax)
-{
-	ajax.onreadystatechange = null;
-	ajax.abort();
 }
 
 function decode(str)
