@@ -387,6 +387,7 @@ function update_list(response)
 	new_row.appendChild(time_cell);
 
 	var done_cell = document.createElement('td');
+	done_cell.setAttribute('style', 'text-align: center');
 	var done_button = document.createElement('input');
 	done_button.setAttribute('type', 'button');
 	done_button.setAttribute('id', 'done' + id);
