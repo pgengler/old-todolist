@@ -39,4 +39,10 @@ function AJAX(url, callback, timeout_int, timeout_func, param)
 	{
 		xmlHttpReq.send(paramstr);
 	}
+
+	this.abort = function()
+	{
+		xmlHttpReq.onreadystatechange = null;
+		xmlHttpReq.abort();
+	}
 }
