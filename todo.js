@@ -1,4 +1,5 @@
 var base_url = 'http://personal.pgengler.net/todo/ajax.cgi';
+var undated_last = 1;
 
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
@@ -234,7 +235,7 @@ function update_list(response)
 	var id    = root.getElementsByTagName('id')[0].firstChild.nodeValue;
 	var week  = root.getElementsByTagName('week')[0].firstChild.nodeValue;
 	// Day can come back empty, meaning null
-	var day = -1;
+	var day = (undated_last == 1) ? 7 : -1;
 	if (root.getElementsByTagName('day')[0].firstChild) {
 		day = root.getElementsByTagName('day')[0].firstChild.nodeValue;
 	}

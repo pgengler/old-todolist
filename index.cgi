@@ -119,13 +119,13 @@ sub show_list()
 
 	# Get all items for the current week
 	my $query = qq~
-		SELECT id, day, event, location, start, end, done
+		SELECT id, IF(day, day, ?) day, event, location, start, end, done
 		FROM todo
 		WHERE week = ?
 		ORDER BY day, start, event, done
 	~;
 	$db->prepare($query);
-	my $sth = $db->execute($week->{'id'} || 1);
+	my $sth = $db->execute($Config::undated_last ? 7 : -1, $week->{'id'});
 
 	my @events;
 
@@ -251,7 +251,7 @@ sub get_day_name()
 {
 	my $day = shift;
 
-	return '--' unless defined($day);
+	return '--' if ($day == -1 || $day == 7);
 
 	my @days = ( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
 
