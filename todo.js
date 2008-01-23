@@ -1,5 +1,5 @@
 var base_url = 'http://personal.pgengler.net/todo/ajax.cgi';
-var undated_last = 1;
+var undated_last = 0;
 
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
@@ -785,7 +785,7 @@ function clear_edits(id)
 function get_day_from_value(value)
 {
 	// For some reason, switch/case doesn't want to work here
-	if (value == -1) {
+	if (value == ((undated_last == 1) ? 7 : -1)) {
 		return '--';
 	} else if (value == 0) {
 		return 'Sun';
@@ -810,7 +810,7 @@ function get_value_of_day(day)
 {
 	switch (day) {
 		case '--':
-			return -1;
+			return (undated_last == 1) ? 7 : -1;
 		case 'Sun':
 			return 0;
 		case 'Mon':

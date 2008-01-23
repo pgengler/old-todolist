@@ -5,8 +5,6 @@ use strict;
 # URL info
 our $url       = 'http://personal.pgengler.net/todo/';
 
-our $undated_last = 1;
-
 # Database connection info
 our $db_host   = "localhost";
 our $db_user   = "jsurrati_pgphil"; # username used to connect to the database
