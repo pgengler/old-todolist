@@ -1,0 +1,11 @@
+<item>
+	<id><!-- TMPL_VAR name='id' --></id>
+	<week><!-- TMPL_VAR name='week' --></week>
+	<day><!-- TMPL_VAR name='day' --></day>
+	<event><!-- TMPL_VAR name='event' escape='html' --></event>
+	<location><!-- TMPL_VAR name='location' escape='html' --></location>
+	<start><!-- TMPL_VAR name='start' --></start>
+	<end><!-- TMPL_VAR name='end' --></end>
+	<done><!-- TMPL_VAR name='done' --></done>
+</item>
+

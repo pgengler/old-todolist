@@ -10,6 +10,7 @@ use lib ('.');
 
 use Database;
 use CGI;
+use HTML::Template;
 use XML::Simple;
 
 require 'config.pl';
@@ -159,11 +160,18 @@ sub change_day()
 		~;
 		$db->prepare($query);
 		$db->execute($new_week->{'id'}, $item->{'id'});
-	} else {
-		if ($day eq '1') {
-			$day = 'NULL';
-		}
+	} elsif ($day eq '-') {
+		## Set to NULL
 
+		# Update the record
+		my $query = qq~
+			UPDATE todo SET
+				day = NULL
+			WHERE id = ?
+		~;
+		$db->prepare($query);
+		$db->execute($id);
+	} else {
 		# Update the record
 		my $query = qq~
 			UPDATE todo SET
@@ -319,27 +327,20 @@ sub item_to_xml()
 {
 	my $item = shift;
 
-	$item->{'event'} =~ s/&/&amp;/g;
-	$item->{'event'} =~ s/\</\&lt;/g;
-	$item->{'event'} =~ s/\>/\&gt;/g;
+	# Load XML template
+	my $xml = new HTML::Template(filename => 'item.xtmpl');
 
-	$item->{'location'} =~ s/&/&amp;/g;
-	$item->{'location'} =~ s/\</\&lt;/g;
-	$item->{'location'} =~ s/\>/\&gt;/g;
-
-	my $output;
-	$output = qq~<item>
-	<id>$item->{'id'}</id>
-	<week>$item->{'week'}</week>
-	<day>$item->{'day'}</day>
-	<event>$item->{'event'}</event>
-	<location>$item->{'location'}</location>
-	<start>$item->{'start'}</start>
-	<end>$item->{'end'}</end>
-	<done>$item->{'done'}</done>
-</item>~;
+	# Set template params
+	$xml->param(id       => $item->{'id'});
+	$xml->param(week     => $item->{'week'});
+	$xml->param(day      => $item->{'day'});
+	$xml->param(event    => $item->{'event'});
+	$xml->param(location => $item->{'location'});
+	$xml->param(start    => $item->{'start'});
+	$xml->param(end      => $item->{'end'});
+	$xml->param(done     => $item->{'done'});
 	
-	return $output;
+	return $xml->output();
 }
 
 #######
