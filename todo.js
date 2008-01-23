@@ -30,12 +30,30 @@ var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function highlight()
 {
-	// Skip unless this is the current week
-	if (document.getElementById('currweek') || document.getElementById('template')) {
+	// Skip if this is the template
+	if (document.getElementById('template')) {
 		return;
 	}
 
+	// Skip if this wasn't the current week when loaded
+	if (document.getElementById('currweek')) {
+		return;
+	}
+
+	// Skip if this is no longer the current week
+	var next_week_link = document.getElementById('nextweek');
+	var next_week_url  = next_week_link.getAttribute('href');
+	var next_week_date = next_week_url.substr(next_week_url.length - 9, 8);
+	var next_week_year = next_week_date.substr(0, 4);
+	var next_week_mon  = next_week_date.substr(4, 2) - 1;
+	var next_week_day  = next_week_date.substr(6, 2);
+	var next_week = new Date(next_week_year, next_week_mon, next_week_day);
+
 	var today = new Date();
+	if (today > next_week) {
+		return;
+	}
+
 	var day = days[today.getDay()];
 
 	// Get table
