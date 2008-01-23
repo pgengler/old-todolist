@@ -232,6 +232,7 @@ function update_list(response)
 
 	var root  = response.getElementsByTagName('item')[0];
 	var id    = root.getElementsByTagName('id')[0].firstChild.nodeValue;
+	var week  = root.getElementsByTagName('week')[0].firstChild.nodeValue;
 	// Day can come back empty, meaning null
 	var day = -1;
 	if (root.getElementsByTagName('day')[0].firstChild) {
@@ -258,6 +259,12 @@ function update_list(response)
 	var row = document.getElementById('item' + id);
 	if (row) {
 		row.parentNode.removeChild(row);
+	}
+
+	// Check if the item stills belongs in this this week
+	var curr_week = document.getElementById('week').value;
+	if (week != curr_week) {
+		return;
 	}
 
 	// Now, we need to figure out where this belongs
@@ -449,6 +456,12 @@ function show_day_edit(id)
 		}
 		dropdown.appendChild(option);
 	}
+
+	var next_week_option = document.createElement('option');
+	next_week_option.setAttribute('value', '8');
+	next_week_option.appendChild(document.createTextNode('->'));
+	dropdown.appendChild(next_week_option);
+
 	cell.appendChild(dropdown);
 	dropdown.focus();
 }
@@ -459,11 +472,6 @@ function save_day(id)
 	var daybox = document.getElementById('day');
 
 	var newday = daybox.value;
-
-	// Remove the existing row
-//	var row = document.getElementById('item' + id);
-//	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
-//	tbody.removeChild(row);
 
 	var ajax = new AJAX(base_url, update_list);
 

@@ -90,7 +90,7 @@ sub add_new_item()
 
 	# Get the new item
 	$query = qq~
-		SELECT id, day, event, location, start, end, done
+		SELECT id, week, day, event, location, start, end, done
 		FROM todo
 		WHERE id = ?
 	~;
@@ -112,20 +112,71 @@ sub change_day()
 	my $id  = $cgi->param('id');
 	my $day = $cgi->param('day');
 
-	undef $day if $day == -1;
+	if ($day eq '8') {
+		# Move to next week
 
-	# Update the record
-	my $query = qq~
-		UPDATE todo SET
-			day = ?
-		WHERE id = ?
-	~;
-	$db->prepare($query);
-	$db->execute($day, $id);
+		## Get item info
+		my $query = qq~
+			SELECT id, week
+			FROM todo
+			WHERE id = ?
+		~;
+		$db->prepare($query);
+		my $sth = $db->execute($id);
+		my $item = $sth->fetchrow_hashref();
+
+		return unless ($item && $item->{'id'});
+
+		## Get the week the item's currently in
+		$query = qq~
+			SELECT id, start, end
+			FROM todo_weeks
+			WHERE id = ?
+		~;
+		$db->prepare($query);
+		$sth = $db->execute($item->{'week'});
+		my $old_week = $sth->fetchrow_hashref();
+
+		## Check if the next week already exists
+		$query = qq~
+			SELECT id, start, end
+			FROM todo_weeks
+			WHERE start = DATE_ADD(?, INTERVAL 1 DAY)
+		~;
+		$db->prepare($query);
+		$sth = $db->execute($old_week->{'end'});
+		my $new_week = $sth->fetchrow_hashref();
+
+		unless ($new_week && $new_week->{'id'}) {
+			$new_week = &create_week($old_week);
+		}
+
+		## Update item
+		$query = qq~
+			UPDATE todo SET
+				week = ?
+			WHERE id = ?
+		~;
+		$db->prepare($query);
+		$db->execute($new_week->{'id'}, $item->{'id'});
+	} else {
+		if ($day eq '1') {
+			$day = 'NULL';
+		}
+
+		# Update the record
+		my $query = qq~
+			UPDATE todo SET
+				day = ?
+			WHERE id = ?
+		~;
+		$db->prepare($query);
+		$db->execute($day, $id);
+	}
 
 	# Load the item
-	$query = qq~
-		SELECT id, day, event, location, start, end, done
+	my $query = qq~
+		SELECT id, week, day, event, location, start, end, done
 		FROM todo
 		WHERE id = ?
 	~;
@@ -193,7 +244,7 @@ sub save_item()
 
 	# Get the item
 	my $query = qq~
-		SELECT id, day, event, location, start, end, done
+		SELECT id, week, day, event, location, start, end, done
 		FROM todo
 		WHERE id = ?
 	~;
@@ -236,7 +287,7 @@ sub toggle_item_done()
 
 	# Get the item
 	my $query = qq~
-		SELECT id, day, event, location, start, end, done
+		SELECT id, week, day, event, location, start, end, done
 		FROM todo
 		WHERE id = ?
 	~;
@@ -279,6 +330,7 @@ sub item_to_xml()
 	my $output;
 	$output = qq~<item>
 	<id>$item->{'id'}</id>
+	<week>$item->{'week'}</week>
 	<day>$item->{'day'}</day>
 	<event>$item->{'event'}</event>
 	<location>$item->{'location'}</location>
@@ -289,3 +341,36 @@ sub item_to_xml()
 	
 	return $output;
 }
+
+#######
+## CREATE WEEK IN DB
+## Create a week after the given one
+#######
+sub create_week()
+{
+	my $old_week = shift;
+
+	# Add new week
+	my $query = qq~
+		INSERT INTO todo_weeks
+		(start, end)
+		VALUES
+		(DATE_ADD(?, INTERVAL 1 DAY), DATE_ADD(?, INTERVAL 7 DAY))
+	~;
+	$db->prepare($query);
+	$db->execute($old_week->{'end'}, $old_week->{'end'});
+
+	my $new_week_id = $db->insert_id();
+
+	# Get new week
+	$query = qq~
+		SELECT id, start, end
+		FROM todo_weeks
+		WHERE id = ?
+	~;
+	$db->prepare($query);
+	my $sth = $db->execute($new_week_id);
+
+	return $sth->fetchrow_hashref();
+}
+
