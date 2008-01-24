@@ -122,7 +122,7 @@ sub show_list()
 		SELECT id, IF(day, day, ?) day, event, location, start, end, done
 		FROM todo
 		WHERE week = ?
-		ORDER BY day, start, event, done
+		ORDER BY day, start, end, event, done
 	~;
 	$db->prepare($query);
 	my $sth = $db->execute($Config::undated_last ? 7 : -1, $week->{'id'});
