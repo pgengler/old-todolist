@@ -53,12 +53,12 @@
 						</span>
 						<!-- TMPL_ELSE -->
 						<span>
-							<!-- TMPL_VAR name='event' -->
+							<!-- TMPL_VAR name='event' escape='html' -->
 						</span>
 						<!-- /TMPL_IF -->
 					</td>
 					<td onclick='show_location_edit(<!-- TMPL_VAR name='id' -->)'>
-						<!-- TMPL_VAR name='location' -->
+						<!-- TMPL_VAR name='location' escape='html' -->
 					</td>
 					<td onclick='show_times_edit(<!-- TMPL_VAR name='id' -->)'>
 						<!-- TMPL_VAR name='start' -->
