@@ -331,21 +331,24 @@ function update_list(response)
 					new_row = tbody.insertRow(i);
 					break;
 				}
-			} else if (start != -1 && end == -1) {
-				if (start < start_time) {
+			} else if (start == -1 && end != -1) {
+				if (start_time != -1) {
 					new_row = tbody.insertRow(i);
 					break;
-				} else if (start == start_time) {
+				} else if (end < end_time) {
+					new_row = tbody.insertRow(i);
+					break;
+				} else if (end == end_time) {
 					if (event.toUpperCase() < row_event.toUpperCase()) {
 						new_row = tbody.insertRow(i);
 						break;
 					}
 				}
-			} else if (start == -1 && end != -1) {
-				if (end < end_time) {
+			} else if (start != -1 && end == -1) {
+				if (start < start_time) {
 					new_row = tbody.insertRow(i);
 					break;
-				} else if (end == end_time) {
+				} else if (start == start_time) {
 					if (event.toUpperCase() < row_event.toUpperCase()) {
 						new_row = tbody.insertRow(i);
 						break;
