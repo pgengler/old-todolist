@@ -23,10 +23,12 @@ function AJAX(url, callback, timeout_int, timeout_func, param)
 	xmlHttpReq.open('POST', url, true);
 	xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
+	var a = this;
+
 	if (timeout_int && timeout_int != 0 && timeout_func != null) {
-		timeout = setTimeout(function() { timeout_func(this, param); }, timeout_int);
+		timeout = setTimeout(function() { timeout_func(a, param); }, timeout_int);
 	} else if (timeout_int && timeout_int != 0) {
-		timeout = setTimeout(function() { this.timeout(); }, timeout_int);
+		timeout = setTimeout(function() { a.timeout(); }, timeout_int);
 	}
 
 	this.timeout = function()
