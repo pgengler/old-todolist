@@ -869,7 +869,7 @@ function get_start_time(time_cell)
 	if (pos == -1) {
 		return time_cell.innerHTML.trim();
 	} else if (pos == 0 || pos == 1) {
-		return '';
+		return -1;
 	}
 
 	if (pos > 4) {
