@@ -2,6 +2,7 @@ var index_url = 'http://personal.pgengler.net/todo/';
 var base_url  = index_url + 'ajax.cgi';
 
 var undated_last = 0;
+var remove       = [];
 
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
@@ -917,6 +918,8 @@ function toggle_options()
 		options_tog.removeChild(options_tog.childNodes[0]);
 		options_tog.appendChild(document.createTextNode(' [show] '));
 	}
+
+	return false;
 }
 
 function load_template()
@@ -935,6 +938,57 @@ function load_template()
 	window.location.href = url;
 
 	return false;
+}
+
+function move_incomplete()
+{
+	// Go through each item in the table
+	var items = document.getElementById('content').getElementsByTagName('tr');
+	var len   = items.length;
+
+	for (var i = 0; i < len; i++) {
+		var row = items[i];
+		if (row.getAttribute('id') == 'header')
+			continue;
+		var columns = row.getElementsByTagName('td');
+
+		var eventcol = columns[1];
+		var skip = 0;
+		for (var j = 0; j < eventcol.childNodes.length; j++) {
+			if (eventcol.childNodes[j].nodeName.toLowerCase() == 'span' && eventcol.childNodes[j].getAttribute('class') == 'done') {
+				skip = 1;
+			}
+		}
+		if (skip == 1)
+			continue;
+
+		// Get ID
+		var id = row.getAttribute('id').replace(/^\s*item/, '');
+
+		// Make request to move row
+		var ajax = new AJAX(base_url, move_incomplete_aux, null, null, null, 1);
+		ajax.send('action=day&id=' + id + '&day=8');
+	}
+
+	len = remove.length;
+	for (var i = 0; i < len; i++) {
+		var node = document.getElementById('item' + remove[i]);
+		if (node && node.parentNode) {
+			node.parentNode.removeChild(node);
+		}
+	}
+
+	remove = [];
+
+	return false;
+}
+
+function move_incomplete_aux(response)
+{
+	var root = response.getElementsByTagName('item')[0];
+	var id   = root.getElementsByTagName('id')[0].firstChild.nodeValue;
+
+	remove.push(id);
 }
 
 ///////

@@ -1,4 +1,4 @@
-function AJAX(url, callback, timeout_int, timeout_func, param)
+function AJAX(url, callback, timeout_int, timeout_func, param, synch)
 {
 	var timeout = null;
 	var xmlHttpReq = null;
@@ -20,7 +20,7 @@ function AJAX(url, callback, timeout_int, timeout_func, param)
 		}
 	}
 
-	xmlHttpReq.open('POST', url, true);
+	xmlHttpReq.open('POST', url, (synch != 1) ? true : false);
 	xmlHttpReq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
 	var a = this;
