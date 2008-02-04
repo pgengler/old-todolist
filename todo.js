@@ -1,4 +1,6 @@
-var base_url = 'http://personal.pgengler.net/todo/ajax.cgi';
+var index_url = 'http://personal.pgengler.net/todo/';
+var base_url  = index_url + 'ajax.cgi';
+
 var undated_last = 0;
 
 // Since we'll only allow edits to one thing at a time,
@@ -893,6 +895,51 @@ function get_end_time(time_cell)
 
 	return time_cell.innerHTML.trim().substring(pos + 1).trim();
 }
+
+///////
+// OPTIONS
+///////
+function toggle_options()
+{
+	// Get options span
+	var options = document.getElementById('options');
+
+	// Get show/hide text element
+	var options_tog = document.getElementById('optiontoggle');
+
+	// Update
+	if (options.getAttribute('class') == 'hidden') {
+		options.setAttribute('class', '');
+		options_tog.removeChild(options_tog.childNodes[0]);
+		options_tog.appendChild(document.createTextNode(' [hide] '));
+	} else {
+		options.setAttribute('class', 'hidden');
+		options_tog.removeChild(options_tog.childNodes[0]);
+		options_tog.appendChild(document.createTextNode(' [show] '));
+	}
+}
+
+function load_template()
+{
+	// Get week ID
+	var week = document.getElementById('week').value;
+
+	if (!week) {
+		return false;
+	}
+
+	// Construct URL
+	var url = index_url + '?act=template;week=' + week;
+
+	// Go to new URL
+	window.location.href = url;
+
+	return false;
+}
+
+///////
+// HELPER FUNCTIONS
+///////
 
 function decode(str)
 {

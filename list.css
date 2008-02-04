@@ -1,3 +1,5 @@
+.hidden   { display: none; }
+
 tr.front	{ background-color: white; }
 tr.today  { background-color: #E5F3FF; }
 tr.head		{ background-color: #343434; color: white; }
@@ -15,3 +17,7 @@ input.done { border: 1px solid black; width: 75%; background-color: #eee; }
 input.done:hover { background-color: #ccc; }
 
 a:visited { color: blue; }
+
+a#optiontoggle { margin-left: 1em; }
+
+div#opts { margin-top: 1em; }
