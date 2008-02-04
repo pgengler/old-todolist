@@ -75,6 +75,10 @@ sub add_new_item()
 	undef $end unless $end;
 	undef $location unless $location;
 
+	# Remove leading and trailing spaces
+	$event    = &trim($event);
+	$location = &trim($location);
+
 	# Add the new record to the DB
 	my $query = qq~
 		INSERT INTO ${Config::prefix}todo
@@ -217,6 +221,8 @@ sub save_item()
 	my $end      = $cgi->param('end');
 
 	if ($changed & 1) {
+		# Trim spaces
+		$event = &trim($event);
 		my $query = qq~
 			UPDATE todo SET
 				event = ?
@@ -228,6 +234,7 @@ sub save_item()
 
 	if ($changed & 2) {
 		undef $location unless $location;
+		$location = &trim($location);
 		my $query = qq~
 			UPDATE todo SET
 				location = ?
@@ -375,3 +382,15 @@ sub create_week()
 	return $sth->fetchrow_hashref();
 }
 
+#######
+## TRIM SPACES
+#######
+sub trim()
+{
+	my $str = shift;
+	return undef unless $str;
+
+	$str =~ s/^\s*(.+)\s*$/$1/;
+
+	return $str;
+}
