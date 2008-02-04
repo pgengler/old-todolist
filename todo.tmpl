@@ -76,6 +76,17 @@
 		</fieldset>
 		</form>
 		<div>
+			<!-- TMPL_UNLESS events -->
+				<!-- TMPL_UNLESS template -->
+			<form action='<!-- TMPL_VAR name='url' -->index.cgi' method='post' id='template'>
+			<fieldset>
+				<input type='hidden' name='act' value='template' />
+				<input type='hidden' name='week' value='<!-- TMPL_VAR name='week_id' -->' />
+				<input type='submit' value='Load template' />
+			</fieldset>
+			</form>
+				<!-- /TMPL_UNLESS -->
+			<!-- /TMPL_UNLESS -->
 			<a href="javascript:new_item_form()">Add new item</a>
 			<!-- TMPL_IF prev_week -->
 			<br />
