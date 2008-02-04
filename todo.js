@@ -38,12 +38,7 @@ function highlight()
 		return;
 	}
 
-	// Skip if this wasn't the current week when loaded
-	if (document.getElementById('currweek')) {
-		return;
-	}
-
-	// Skip if this is no longer the current week
+	// Check if what we're looking at isn't the current week
 	var next_week_link = document.getElementById('nextweek');
 	var next_week_url  = next_week_link.getAttribute('href');
 	var next_week_date = next_week_url.substr(next_week_url.length - 9, 8);
@@ -53,22 +48,52 @@ function highlight()
 	var next_week = new Date(next_week_year, next_week_mon, next_week_day);
 
 	var today = new Date();
-	if (today > next_week) {
-		return;
-	}
+	if (today < next_week) {
+		var day = days[today.getDay()];
 
-	var day = days[today.getDay()];
+		// Get table
+		var table = document.getElementById('content');
 
-	// Get table
-	var table = document.getElementById('content');
-
-	var rows = table.getElementsByTagName('tr');
-	for (var i = 1; i < rows.length; i++) {
-		var date = rows[i].getElementsByTagName('td')[0].innerHTML;
-		if (date.trim() == day) {
-			rows[i].setAttribute('class', 'today');
-		} else {
-			rows[i].setAttribute('class', 'front');
+		var rows = table.getElementsByTagName('tr');
+		for (var i = 1; i < rows.length; i++) {
+			var date = rows[i].getElementsByTagName('td')[0].innerHTML;
+			if (date.trim() == day) {
+				rows[i].setAttribute('class', 'today');
+			} else if (get_value_of_day(date.trim()) < today.getDay() && date.trim() != '--') {
+				var skip = 0;
+				for (var j = 0; j < rows[i].getElementsByTagName('td')[1].childNodes.length; j++) {
+					if (rows[i].getElementsByTagName('td')[1].childNodes[j].nodeName.toLowerCase() == 'span' && rows[i].getElementsByTagName('td')[1].childNodes[j].getAttribute('class') == 'done') {
+						skip = 1;
+						rows[i].setAttribute('class', 'front');
+						break;
+					}
+				}
+				if (skip == 0) {
+					rows[i].setAttribute('class', 'passed');
+				}
+			} else {
+				rows[i].setAttribute('class', 'front');
+			}
+		}
+	} else {
+		// Get table
+		var table = document.getElementById('content');
+		var rows = table.getElementsByTagName('tr');
+		for (var i = 1; i < rows.length; i++) {
+			var date = rows[i].getElementsByTagName('td')[0].innerHTML;
+			var skip = 0;
+			for (var j = 0; j < rows[i].getElementsByTagName('td')[1].childNodes.length; j++) {
+				if (rows[i].getElementsByTagName('td')[1].childNodes[j].nodeName.toLowerCase() == 'span' && rows[i].getElementsByTagName('td')[1].childNodes[j].getAttribute('class') == 'done') {
+					skip = 1;
+					rows[i].setAttribute('class', 'front');
+					break;
+				}
+			}
+			if (skip == 0) {
+				rows[i].setAttribute('class', 'passed');
+			} else {
+				rows[i].setAttribute('class', 'front');
+			}
 		}
 	}
 }
