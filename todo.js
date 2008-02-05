@@ -48,7 +48,7 @@ function highlight()
 	var next_week = new Date(next_week_year, next_week_mon, next_week_day);
 
 	var today = new Date();
-	if (today < next_week) {
+	if (today < next_week && !document.getElementById('currweek')) {
 		var day = days[today.getDay()];
 
 		// Get table
@@ -75,7 +75,7 @@ function highlight()
 				rows[i].setAttribute('class', 'front');
 			}
 		}
-	} else {
+	} else if (!document.getElementById('currweek')) {
 		// Get table
 		var table = document.getElementById('content');
 		var rows = table.getElementsByTagName('tr');
