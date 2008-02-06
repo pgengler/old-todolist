@@ -37,10 +37,10 @@
 					<td style='width: 10%;'>
 						Time
 					</td>
-					<td style='width: 1.5em'>
+					<td style='width: 1em'>
 						&nbsp;
 					</td>
-					<td style='width: 1em'>
+					<td style='width: 1.5em'>
 						&nbsp;
 					</td>
 				</tr>
@@ -74,14 +74,14 @@
 						<!-- /TMPL_IF -->
 					</td>
 					<td style='text-align: center'>
-						<input type='button' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' value='*' class='done' />
-					</td>
-					<td style='text-align: center'>
 						<!-- TMPL_IF mark -->
 						<input type='checkbox' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' checked='checked' />
 						<!-- TMPL_ELSE -->
 						<input type='checkbox' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' />
 						<!-- /TMPL_IF -->
+					</td>
+					<td style='text-align: center'>
+						<input type='button' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' value='*' class='done' />
 					</td>
 				</tr>
 				<!-- /TMPL_LOOP -->

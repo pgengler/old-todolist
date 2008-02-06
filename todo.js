@@ -235,15 +235,15 @@ function new_item_form()
 	time_cell.innerHTML = "<input type='text' name='newstart' id='newstart' class='time' /> &ndash; <input type='text' name='newend' id='newend' class='time' />";
 	row.appendChild(time_cell);
 
-	// Create empty cell for "done"
-	var done_cell = document.createElement('td');
-	done_cell.innerHTML = '&nbsp;';
-	row.appendChild(done_cell);
-
 	// Create empty cell for "mark"
 	var mark_cell = document.createElement('td');
 	mark_cell.innerHTML = '&nbsp;';
 	row.appendChild(mark_cell);
+
+	// Create empty cell for "done"
+	var done_cell = document.createElement('td');
+	done_cell.innerHTML = '&nbsp;';
+	row.appendChild(done_cell);
 
 	// Add the new row to the table
 	tbody.appendChild(row);
@@ -471,18 +471,6 @@ function update_list(response)
 
 	new_row.appendChild(time_cell);
 
-	var done_cell = document.createElement('td');
-	done_cell.setAttribute('style', 'text-align: center');
-	var done_button = document.createElement('input');
-	done_button.setAttribute('type', 'button');
-	done_button.setAttribute('id', 'done' + id);
-	done_button.setAttribute('class', 'done');
-	done_button.setAttribute('onclick', 'toggle_done(' + id + ')');
-	done_button.value = '*';
-
-	done_cell.appendChild(done_button);
-	new_row.appendChild(done_cell);
-
 	var mark_cell = document.createElement('td');
 	mark_cell.setAttribute('style', 'text-align: center');
 	var mark_box = document.createElement('input');
@@ -494,6 +482,17 @@ function update_list(response)
 	mark_box.setAttribute('onclick', 'toggle_mark(' + id + ')');
 	mark_cell.appendChild(mark_box);
 	new_row.appendChild(mark_cell);
+
+	var done_cell = document.createElement('td');
+	done_cell.setAttribute('style', 'text-align: center');
+	var done_button = document.createElement('input');
+	done_button.setAttribute('type', 'button');
+	done_button.setAttribute('id', 'done' + id);
+	done_button.setAttribute('class', 'done');
+	done_button.setAttribute('onclick', 'toggle_done(' + id + ')');
+	done_button.value = '*';
+	done_cell.appendChild(done_button);
+	new_row.appendChild(done_cell);
 
 	if (append == 1) {
 		tbody.appendChild(new_row);
