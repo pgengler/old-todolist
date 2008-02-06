@@ -7,5 +7,6 @@
 	<start><!-- TMPL_VAR name='start' --></start>
 	<end><!-- TMPL_VAR name='end' --></end>
 	<done><!-- TMPL_VAR name='done' --></done>
+	<mark><!-- TMPL_VAR name='mark' --></mark>
 </item>
 

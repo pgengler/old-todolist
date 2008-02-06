@@ -1,13 +1,18 @@
 .hidden   { display: none; }
 
-tr.front	{ background-color: white; }
-tr.today  { background-color: #E5F3FF; }
-tr.passed { background-color: #FDD; }
+.front	{ background-color: white; }
+
+.mark  { background-color: #A1FF9E; }
+.passedmark { background-color: #FF2E35; }
+.todaymark { background-color: #6BBAFF; }
+
+.passed { background-color: #FFCB9E; } /* SET */
+.today  { background-color: #E5F3FF; } /* SET */
 tr.head		{ background-color: #343434; color: white; }
 table			{ width: 100%; }
 td.back		{ background-color: black; width: 95%; padding: 0px; }
 td.day		{ font-variant: small-caps; }
-tr.front:hover, tr.today:hover, tr.passed:hover	{ background-color: #ffffcc; }
+tr.front:hover, tr.today:hover, tr.passed:hover, tr.mark:hover, tr.passedmark:hover, tr.todaymark:hover	{ background-color: #ffffcc; }
 
 input.time { width: 2.5em; }
 
@@ -22,3 +27,5 @@ a:visited { color: blue; }
 a#optiontoggle { margin-left: 1em; }
 
 div#opts { margin-top: 1em; }
+
+table#colors tr td { border: 1px solid black; }

@@ -40,11 +40,18 @@
 					<td style='width: 1.5em'>
 						&nbsp;
 					</td>
+					<td style='width: 1em'>
+						&nbsp;
+					</td>
 				</tr>
 				<!-- TMPL_LOOP name='events' -->
+				<!-- TMPL_IF mark_css -->
+				<tr class='mark' id='item<!-- TMPL_VAR name='id' -->'>
+				<!-- TMPL_ELSE -->
 				<tr class='front' id='item<!-- TMPL_VAR name='id' -->'>
+				<!-- /TMPL_IF -->
 					<td class='day' onclick='show_day_edit(<!-- TMPL_VAR name='id' -->)'>
-						<!-- TMPL_VAR name='day_name' -->
+						<!-- TMPL_VAR name='day' -->
 					</td>
 					<td onclick='show_event_edit(<!-- TMPL_VAR name='id' -->)'>
 						<!-- TMPL_IF done -->
@@ -68,6 +75,13 @@
 					</td>
 					<td style='text-align: center'>
 						<input type='button' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' value='*' class='done' />
+					</td>
+					<td style='text-align: center'>
+						<!-- TMPL_IF mark -->
+						<input type='checkbox' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' checked='checked' />
+						<!-- TMPL_ELSE -->
+						<input type='checkbox' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' />
+						<!-- /TMPL_IF -->
 					</td>
 				</tr>
 				<!-- /TMPL_LOOP -->
@@ -131,6 +145,38 @@
 			<a id='optiontoggle' href='#' onclick='return toggle_options()'>
 				[show]
 			</a>
+		</div>
+
+		<div style='margin-top: 1em'>
+			<a href='#' id='colorlabel' onclick='return toggle_colors()'>
+				Show color key
+			</a>
+			<table id='colors' class='hidden'>
+				<tr>
+					<td class='front' style='width: 50%'>
+						Upcoming
+					</td>
+					<td class='mark'>
+						Upcoming, marked
+					</td>
+				</tr>
+				<tr>
+					<td class='today'>
+						Today
+					</td>
+					<td class='todaymark'>
+						Today, marked
+					</td>
+				</tr>
+				<tr>
+					<td class='passed'>
+						Overdue
+					</td>
+					<td class='passedmark'>
+						Overdue, marked
+					</td>
+				</tr>
+			</table>
 		</div>
 		<!-- /TMPL_UNLESS -->
 	</body>

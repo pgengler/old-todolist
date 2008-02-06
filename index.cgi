@@ -119,7 +119,7 @@ sub show_list()
 
 	# Get all items for the current week
 	my $query = qq~
-		SELECT id, IF(day, day, ?) day, event, location, start, end, done
+		SELECT id, IF(day, day, ?) day, event, location, start, end, done, mark
 		FROM todo
 		WHERE week = ?
 		ORDER BY day, start, end, event, done
@@ -130,23 +130,9 @@ sub show_list()
 	my @events;
 
 	while (my $event = $sth->fetchrow_hashref()) {
-		my %event_info;
-
-		$event->{'event'} =~ s/</&lt;/g;
-		$event->{'event'} =~ s/>/&gt;/g;
-		$event->{'location'} =~ s/&/&amp;/g;
-		$event->{'location'} =~ s/</&lt;/g;
-		$event->{'location'} =~ s/>/&gt;/g;
-
-		$event_info{'day_name'} = &get_day_name($event->{'day'});
-		$event_info{'id'}       = $event->{'id'};
-		$event_info{'event'}    = $event->{'event'};
-		$event_info{'start'}    = $event->{'start'};
-		$event_info{'end'}      = $event->{'end'};
-		$event_info{'done'}     = $event->{'done'};
-		$event_info{'location'} = $event->{'location'};
-
-		push @events, \%event_info;
+		$event->{'day'} = &get_day_name($event->{'day'});
+		$event->{'mark_css'} = ($event->{'mark'} && !$event->{'done'});
+		push @events, $event;
 	}
 
 	$html->param(events => \@events);

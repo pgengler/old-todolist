@@ -57,22 +57,34 @@ function highlight()
 		var rows = table.getElementsByTagName('tr');
 		for (var i = 1; i < rows.length; i++) {
 			var date = rows[i].getElementsByTagName('td')[0].innerHTML;
+			var oldclass = rows[i].getAttribute('class');
+			var done = 0;
 			if (date.trim() == day) {
 				rows[i].setAttribute('class', 'today');
 			} else if (get_value_of_day(date.trim()) < today.getDay() && date.trim() != '--') {
 				var skip = 0;
 				for (var j = 0; j < rows[i].getElementsByTagName('td')[1].childNodes.length; j++) {
 					if (rows[i].getElementsByTagName('td')[1].childNodes[j].nodeName.toLowerCase() == 'span' && rows[i].getElementsByTagName('td')[1].childNodes[j].getAttribute('class') == 'done') {
-						skip = 1;
+						done = 1;
 						rows[i].setAttribute('class', 'front');
 						break;
 					}
 				}
-				if (skip == 0) {
+				if (done == 0) {
 					rows[i].setAttribute('class', 'passed');
 				}
 			} else {
 				rows[i].setAttribute('class', 'front');
+			}
+			var newclass = rows[i].getAttribute('class');
+			if (oldclass.match(/mark/) && !done) {
+				if (newclass.match(/today/)) {
+					rows[i].setAttribute('class', 'todaymark');
+				} else if (newclass.match(/passed/)) {
+					rows[i].setAttribute('class', 'passedmark');
+				} else {
+					rows[i].setAttribute('class', 'mark');
+				}
 			}
 		}
 	} else if (!document.getElementById('currweek')) {
@@ -80,6 +92,7 @@ function highlight()
 		var table = document.getElementById('content');
 		var rows = table.getElementsByTagName('tr');
 		for (var i = 1; i < rows.length; i++) {
+			var oldclass = rows[i].getAttribute('class');
 			var date = rows[i].getElementsByTagName('td')[0].innerHTML;
 			var skip = 0;
 			for (var j = 0; j < rows[i].getElementsByTagName('td')[1].childNodes.length; j++) {
@@ -90,9 +103,17 @@ function highlight()
 				}
 			}
 			if (skip == 0) {
-				rows[i].setAttribute('class', 'passed');
+				if (oldclass.match(/mark/)) {
+					rows[i].setAttribute('class', 'passedmark');
+				} else {
+					rows[i].setAttribute('class', 'passed');
+				}
 			} else {
-				rows[i].setAttribute('class', 'front');
+				if (oldclass.match(/mark/)) {
+					rows[i].setAttribute('class', 'mark');
+				} else {
+					rows[i].setAttribute('class', 'front');
+				}
 			}
 		}
 	}
@@ -197,32 +218,32 @@ function new_item_form()
 	// Create cell for the day
 	var day_cell = document.createElement('td');
 	day_cell.innerHTML = "<select name='day' id='newday'><option value='-'>--</option><option value='0'>Sun</option><option value='1'>Mon</option><option value='2'>Tue</option><option value='3'>Wed</option><option value='4'>Thu</option><option value='5'>Fri</option><option value='6'>Sat</option></select>";
-
 	row.appendChild(day_cell);
 
 	// Create cell for the event
 	var event_cell = document.createElement('td');
 	event_cell.innerHTML = "<input type='text' name='newevent' id='newevent' style='width: 97%' />";
-
 	row.appendChild(event_cell);
 
 	// Create cell for location
 	var location_cell = document.createElement('td');
 	location_cell.innerHTML = "<input type='text' name='newlocation' id='newlocation' style='width: 97%' />";
-
 	row.appendChild(location_cell);
 
 	// Create cell for times
 	var time_cell = document.createElement('td');
 	time_cell.innerHTML = "<input type='text' name='newstart' id='newstart' class='time' /> &ndash; <input type='text' name='newend' id='newend' class='time' />";
-
 	row.appendChild(time_cell);
 
 	// Create empty cell for "done"
 	var done_cell = document.createElement('td');
 	done_cell.innerHTML = '&nbsp;';
-
 	row.appendChild(done_cell);
+
+	// Create empty cell for "mark"
+	var mark_cell = document.createElement('td');
+	mark_cell.innerHTML = '&nbsp;';
+	row.appendChild(mark_cell);
 
 	// Add the new row to the table
 	tbody.appendChild(row);
@@ -287,7 +308,7 @@ function update_list(response)
 	}
 	var event = root.getElementsByTagName('event')[0].firstChild.nodeValue;
 	// These fields are optional and so might not have any data coming back
-	var location = '', start = -1, end = -1, done = 0;
+	var location = '', start = -1, end = -1, done = 0, mark = 0;
 	if (root.getElementsByTagName('location')[0].firstChild) {
 		location = root.getElementsByTagName('location')[0].firstChild.nodeValue;
 	}
@@ -299,6 +320,9 @@ function update_list(response)
 	}
 	if (root.getElementsByTagName('done')[0].firstChild) {
 		done = root.getElementsByTagName('done')[0].firstChild.nodeValue;
+	}
+	if (root.getElementsByTagName('mark')[0].firstChild) {
+		mark = root.getElementsByTagName('mark')[0].firstChild.nodeValue;
 	}
 
 	// Remove the current row
@@ -400,7 +424,11 @@ function update_list(response)
 		append = 1;
 	}
 
-	new_row.setAttribute('class', 'front');
+	if (mark == 1 && done == 0) {
+		new_row.setAttribute('class', 'mark');
+	} else {
+		new_row.setAttribute('class', 'front');
+	}
 	new_row.setAttribute('id', 'item' + id);
 
 	var day_cell = document.createElement('td');
@@ -454,6 +482,18 @@ function update_list(response)
 
 	done_cell.appendChild(done_button);
 	new_row.appendChild(done_cell);
+
+	var mark_cell = document.createElement('td');
+	mark_cell.setAttribute('style', 'text-align: center');
+	var mark_box = document.createElement('input');
+	mark_box.setAttribute('type', 'checkbox');
+	mark_box.setAttribute('id', 'mark' + id);
+	if (mark == 1) {
+		mark_box.setAttribute('checked', 'checked');
+	}
+	mark_box.setAttribute('onclick', 'toggle_mark(' + id + ')');
+	mark_cell.appendChild(mark_box);
+	new_row.appendChild(mark_cell);
 
 	if (append == 1) {
 		tbody.appendChild(new_row);
@@ -687,6 +727,15 @@ function toggle_done(id)
 
 	ajax.send('action=done&id=' + id);
 
+}
+
+///////
+// TOGGLE "MARKED" STATE
+///////
+function toggle_mark(id)
+{
+	var ajax = new AJAX(base_url, update_list);
+	ajax.send('action=mark&id=' + id);
 }
 
 ///////
@@ -1014,6 +1063,26 @@ function move_incomplete_aux(response)
 	var id   = root.getElementsByTagName('id')[0].firstChild.nodeValue;
 
 	remove.push(id);
+}
+
+///////
+// TOGGLE COLOR KEY
+///////
+function toggle_colors()
+{
+	var key = document.getElementById('colors');
+	var link = document.getElementById('colorlabel');
+
+	if (key.getAttribute('class').match(/hidden/)) {
+		key.setAttribute('class', '');
+		link.removeChild(link.childNodes[0]);
+		link.appendChild(document.createTextNode('Hide color key'));
+	} else {
+		key.setAttribute('class', 'hidden');
+		link.removeChild(link.childNodes[0]);
+		link.appendChild(document.createTextNode('Show color key'));
+	}
+	return false;
 }
 
 ///////

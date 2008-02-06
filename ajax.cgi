@@ -39,7 +39,8 @@ my %actions = (
 	'day'    => \&change_day,
 	'save'   => \&save_item,
 	'done'   => \&toggle_item_done,
-	'delete' => \&delete_item
+	'delete' => \&delete_item,
+	'mark'   => \&toggle_marked
 );
 
 if ($actions{ $action }) {
@@ -95,7 +96,7 @@ sub add_new_item()
 
 	# Get the new item
 	$query = qq~
-		SELECT id, week, day, event, location, start, end, done
+		SELECT id, week, day, event, location, start, end, done, mark
 		FROM todo
 		WHERE id = ?
 	~;
@@ -188,7 +189,7 @@ sub change_day()
 
 	# Load the item
 	my $query = qq~
-		SELECT id, week, day, event, location, start, end, done
+		SELECT id, week, day, event, location, start, end, done, mark
 		FROM todo
 		WHERE id = ?
 	~;
@@ -259,7 +260,7 @@ sub save_item()
 
 	# Get the item
 	my $query = qq~
-		SELECT id, week, day, event, location, start, end, done
+		SELECT id, week, day, event, location, start, end, done, mark
 		FROM todo
 		WHERE id = ?
 	~;
@@ -302,7 +303,7 @@ sub toggle_item_done()
 
 	# Get the item
 	my $query = qq~
-		SELECT id, week, day, event, location, start, end, done
+		SELECT id, week, day, event, location, start, end, done, mark
 		FROM todo
 		WHERE id = ?
 	~;
@@ -327,6 +328,40 @@ sub toggle_item_done()
 }
 
 #######
+## TOGGLE "MARKED" STATE
+######
+sub toggle_marked()
+{
+	# Get CGI params
+	my $id = $cgi->param('id');
+
+	# Get the item
+	my $query = qq~
+		SELECT id, week, day, event, location, start, end, done, mark
+		FROM todo
+		WHERE id = ?
+	~;
+	$db->prepare($query);
+	my $sth = $db->execute($id);
+	my $item = $sth->fetchrow_hashref();
+
+	$item->{'mark'} = !$item->{'mark'};
+
+	# Update item
+	$query = qq~
+		UPDATE todo SET
+			mark = ?
+		WHERE id = ?
+	~;
+	$db->prepare($query);
+	$db->execute($item->{'mark'}, $id);
+
+	# Output
+	print "Content-type: text/xml\n\n";
+	print &item_to_xml($item);	
+}
+
+#######
 ## ITEM TO XML
 ## Returns the XML for the item
 #######
@@ -346,6 +381,7 @@ sub item_to_xml()
 	$xml->param(start    => $item->{'start'});
 	$xml->param(end      => $item->{'end'});
 	$xml->param(done     => $item->{'done'});
+	$xml->param(mark     => $item->{'mark'});
 	
 	return $xml->output();
 }
