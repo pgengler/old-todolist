@@ -29,7 +29,7 @@ if ($actions{ $action }) {
 sub show_list()
 {
 	# Load HTML template
-	my $html = new HTML::Template(filename => 'todo.tmpl');
+	my $html = new HTML::Template(filename => 'todo.tmpl', global_vars => 1);
 
 	# Get CGI params
 	my $day = $cgi->param('day');
