@@ -2,6 +2,7 @@ var index_url = 'http://personal.pgengler.net/todo/';
 var base_url  = index_url + 'ajax.cgi';
 
 var undated_last = 0;
+var use_mark     = 0;
 var remove       = [];
 
 // Since we'll only allow edits to one thing at a time,
@@ -77,7 +78,7 @@ function highlight()
 				rows[i].setAttribute('class', 'front');
 			}
 			var newclass = rows[i].getAttribute('class');
-			if (oldclass.match(/mark/) && !done) {
+			if (use_mark && oldclass.match(/mark/) && !done) {
 				if (newclass.match(/today/)) {
 					rows[i].setAttribute('class', 'todaymark');
 				} else if (newclass.match(/passed/)) {
@@ -103,13 +104,13 @@ function highlight()
 				}
 			}
 			if (skip == 0) {
-				if (oldclass.match(/mark/)) {
+				if (use_mark && oldclass.match(/mark/)) {
 					rows[i].setAttribute('class', 'passedmark');
 				} else {
 					rows[i].setAttribute('class', 'passed');
 				}
 			} else {
-				if (oldclass.match(/mark/)) {
+				if (use_mark && oldclass.match(/mark/)) {
 					rows[i].setAttribute('class', 'mark');
 				} else {
 					rows[i].setAttribute('class', 'front');
@@ -182,7 +183,7 @@ function dispatch()
 			row.removeChild(row.getElementsByTagName('td')[0]);
 		}
 		var cell = document.createElement('td');
-		cell.setAttribute('colspan', '5');
+		cell.setAttribute('colspan', use_mark ? '6' : '5');
 		cell.setAttribute('style', 'font-style: italic; text-align: center');
 		cell.innerHTML = 'Processing...';
 		row.appendChild(cell);
@@ -236,9 +237,11 @@ function new_item_form()
 	row.appendChild(time_cell);
 
 	// Create empty cell for "mark"
-	var mark_cell = document.createElement('td');
-	mark_cell.innerHTML = '&nbsp;';
-	row.appendChild(mark_cell);
+	if (use_mark) {
+		var mark_cell = document.createElement('td');
+		mark_cell.innerHTML = '&nbsp;';
+		row.appendChild(mark_cell);
+	}
 
 	// Create empty cell for "done"
 	var done_cell = document.createElement('td');
@@ -424,7 +427,7 @@ function update_list(response)
 		append = 1;
 	}
 
-	if (mark == 1 && done == 0) {
+	if (use_mark && mark == 1 && done == 0) {
 		new_row.setAttribute('class', 'mark');
 	} else {
 		new_row.setAttribute('class', 'front');
@@ -471,17 +474,19 @@ function update_list(response)
 
 	new_row.appendChild(time_cell);
 
-	var mark_cell = document.createElement('td');
-	mark_cell.setAttribute('style', 'text-align: center');
-	var mark_box = document.createElement('input');
-	mark_box.setAttribute('type', 'checkbox');
-	mark_box.setAttribute('id', 'mark' + id);
-	if (mark == 1) {
-		mark_box.setAttribute('checked', 'checked');
+	if (use_mark) {
+		var mark_cell = document.createElement('td');
+		mark_cell.setAttribute('style', 'text-align: center');
+		var mark_box = document.createElement('input');
+		mark_box.setAttribute('type', 'checkbox');
+		mark_box.setAttribute('id', 'mark' + id);
+		if (mark == 1) {
+			mark_box.setAttribute('checked', 'checked');
+		}
+		mark_box.setAttribute('onclick', 'toggle_mark(' + id + ')');
+		mark_cell.appendChild(mark_box);
+		new_row.appendChild(mark_cell);
 	}
-	mark_box.setAttribute('onclick', 'toggle_mark(' + id + ')');
-	mark_cell.appendChild(mark_box);
-	new_row.appendChild(mark_cell);
 
 	var done_cell = document.createElement('td');
 	done_cell.setAttribute('style', 'text-align: center');
@@ -733,8 +738,10 @@ function toggle_done(id)
 ///////
 function toggle_mark(id)
 {
-	var ajax = new AJAX(base_url, update_list);
-	ajax.send('action=mark&id=' + id);
+	if (use_mark) {
+		var ajax = new AJAX(base_url, update_list);
+		ajax.send('action=mark&id=' + id);
+	}
 }
 
 ///////

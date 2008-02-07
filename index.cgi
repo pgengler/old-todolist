@@ -135,8 +135,9 @@ sub show_list()
 		push @events, $event;
 	}
 
-	$html->param(events => \@events);
-	$html->param(url    => $Config::url);
+	$html->param(events   => \@events);
+	$html->param(url      => $Config::url);
+	$html->param(use_mark => $Config::use_mark);
 
 	# Output
 	print $cgi->header();

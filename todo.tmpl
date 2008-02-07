@@ -37,9 +37,11 @@
 					<td style='width: 10%;'>
 						Time
 					</td>
+					<!-- TMPL_IF use_mark -->
 					<td style='width: 1em'>
 						&nbsp;
 					</td>
+					<!-- /TMPL_IF -->
 					<td style='width: 1.5em'>
 						&nbsp;
 					</td>
@@ -73,6 +75,7 @@
 						&ndash; <!-- TMPL_VAR name='end' -->
 						<!-- /TMPL_IF -->
 					</td>
+					<!-- TMPL_IF use_mark -->
 					<td style='text-align: center'>
 						<!-- TMPL_IF mark -->
 						<input type='checkbox' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' checked='checked' />
@@ -80,6 +83,7 @@
 						<input type='checkbox' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' />
 						<!-- /TMPL_IF -->
 					</td>
+					<!-- /TMPL_IF -->
 					<td style='text-align: center'>
 						<input type='button' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' value='*' class='done' />
 					</td>
@@ -147,6 +151,7 @@
 			</a>
 		</div>
 
+		<!-- TMPL_IF use_mark -->
 		<div style='margin-top: 1em'>
 			<a href='#' id='colorlabel' onclick='return toggle_colors()'>
 				Show color key
@@ -178,6 +183,7 @@
 				</tr>
 			</table>
 		</div>
+		<!-- /TMPL_IF -->
 		<!-- /TMPL_UNLESS -->
 	</body>
 </html>
