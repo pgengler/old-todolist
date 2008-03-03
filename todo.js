@@ -4,6 +4,7 @@ var base_url  = index_url + 'ajax.cgi';
 var undated_last = 0;
 var use_mark     = 0;
 var remove       = [];
+var moving       = false;
 
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
@@ -1022,6 +1023,12 @@ function load_template()
 
 function move_incomplete()
 {
+	// Prevent multiple concurrent runs
+	if (moving) {
+		return;
+	}
+	moving = true;
+
 	// Go through each item in the table
 	var items = document.getElementById('content').getElementsByTagName('tr');
 	var len   = items.length;
@@ -1059,6 +1066,8 @@ function move_incomplete()
 	}
 
 	remove = [];
+
+	moving = false;
 
 	return false;
 }
