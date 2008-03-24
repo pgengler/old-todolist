@@ -84,6 +84,10 @@ sub show_list()
 		my $month = substr($week->{'start'}, 5, 2);
 		my $day   = substr($week->{'start'}, 8, 2);
 
+		unless ($week) {
+			$week = &create_week("$year$month$day");
+		}
+
 		$week->{'time'} = mktime(0, 0, 0, $day, $month - 1, $year - 1900, 0, 0);
 	}
 
