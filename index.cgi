@@ -72,7 +72,7 @@ sub show_list()
 		my $query = qq~
 			SELECT id, start
 			FROM todo_weeks
-			WHERE start <= NOW() AND end >= NOW()
+			WHERE start <= CURDATE() AND end >= CURDATE()
 		~;
 		$db->prepare($query);
 		my $sth = $db->execute();
