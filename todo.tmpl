@@ -15,7 +15,7 @@
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->ajax.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->todo.js'></script>
 	</head>
- 	<body onkeypress="key_handler(event)">
+ 	<body onkeydown="key_handler(event)">
 		<form action='javascript:dispatch()' method='post' id='form'>
 		<fieldset>
 		<input type='hidden' name='week' id='week' value='<!-- TMPL_VAR name='week_id' -->' />
