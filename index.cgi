@@ -79,15 +79,25 @@ sub show_list()
 
 		$week = $sth->fetchrow_hashref();
 
-		# Get component parts of start date
-		my $year  = substr($week->{'start'}, 0, 4);
-		my $month = substr($week->{'start'}, 5, 2);
-		my $day   = substr($week->{'start'}, 8, 2);
+		my ($year, $month, $day);
 
 		unless ($week) {
-			$week = &create_week("$year$month$day");
-		}
+			# Get the current day of the week
+			my @parts = localtime(time);
+			my $wday  = $parts[6];
 
+			# Now get the first day of this week
+			@parts    = localtime(time - ($wday * 24 * 60 * 60));
+			$year     = $parts[5] + 1900;
+			$month    = &fix_date($parts[4] + 1);
+			$day      = &fix_date($parts[3]);
+			$week     = &create_week("$year$month$day");
+		} else {
+			# Get component parts of start date
+			$year  = substr($week->{'start'}, 0, 4);
+			$month = substr($week->{'start'}, 5, 2);
+			$day   = substr($week->{'start'}, 8, 2);
+		}
 		$week->{'time'} = mktime(0, 0, 0, $day, $month - 1, $year - 1900, 0, 0);
 	}
 
