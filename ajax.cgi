@@ -40,7 +40,8 @@ my %actions = (
 	'save'   => \&save_item,
 	'done'   => \&toggle_item_done,
 	'delete' => \&delete_item,
-	'mark'   => \&toggle_marked
+	'mark'   => \&toggle_marked,
+	'move'   => \&move_unfinished
 );
 
 if ($actions{ $action }) {
@@ -202,6 +203,76 @@ sub change_day()
 	print &item_to_xml($item);
 }
 
+#######
+## MOVE UNFINISHED ITEMS
+#######
+sub move_unfinished()
+{
+	# Get CGI parameters
+	my $week_id = $cgi->param('week');
+
+	# Get specified week
+	my $query = qq~
+		SELECT id, start, end
+		FROM todo_weeks
+		WHERE id = ?
+	~;
+	$db->prepare($query);
+	my $sth = $db->execute($week_id);
+	my $curr_week = $sth->fetchrow_hashref();
+
+	unless ($curr_week && $curr_week->{'id'}) {
+		return;
+	}
+
+	# Get ID of next week (create if necessary)
+	$query = qq~
+		SELECT id, start, end
+		FROM todo_weeks
+		WHERE start = DATE_ADD(?, INTERVAL 1 DAY)
+	~;
+	$db->prepare($query);
+	$sth = $db->execute($curr_week->{'end'});
+	my $next_week = $sth->fetchrow_hashref();
+
+	unless ($next_week && $next_week->{'id'}) {
+		$next_week = &create_week($curr_week->{'end'} + (24 * 60 * 60));
+	}
+
+	# Get all unfinished items for this week
+	$query = qq~
+		SELECT id
+		FROM todo
+		WHERE week = ? AND done = 0
+	~;
+	$db->prepare($query);
+	$sth = $db->execute($week_id);
+
+	# Move items to the next week
+	$query = qq~
+		UPDATE todo SET
+			week = ?
+		WHERE id = ?
+	~;
+	$db->prepare($query);
+
+	my @items;
+	while (my $item = $sth->fetchrow_hashref()) {
+		push @items, $item;
+		$db->execute($next_week->{'id'}, $item->{'id'});
+	}
+
+	# Load XML template
+	my $xml = &load_xml_template('moved');
+
+	# Set template parameters
+	$xml->param(items => \@items);
+
+	# Output
+	print $cgi->header(-type => 'text/xml');
+	print $xml->output();
+}
+
 ######
 ## SAVE ITEM
 ######
@@ -359,6 +430,23 @@ sub toggle_marked()
 	# Output
 	print "Content-type: text/xml\n\n";
 	print &item_to_xml($item);	
+}
+
+#######
+## LOAD XML TEMPLATE
+## Given a filename (without extension), loads it as an HTML::Template object and returns it.
+#######
+sub load_xml_template()
+{
+	my $filename = shift;
+
+	my $xml = new HTML::Template(
+		filename          => $filename . '.xtmpl',
+		global_vars       => 1,
+		loop_context_vars => 1
+	);
+
+	return $xml;
 }
 
 #######
