@@ -216,7 +216,7 @@ sub load_template()
 
 	# Fetch the items in the template
 	$query = qq~
-		SELECT id, day, event, location, start, end, done
+		SELECT id, day, event, location, start, end, done, mark
 		FROM todo
 		WHERE week = ?
 	~;
@@ -226,14 +226,14 @@ sub load_template()
 	# Add the items to the specified week
 	$query = qq~
 		INSERT INTO todo
-		(week, day, event, location, start, end, done)
+		(week, day, event, location, start, end, done, mark)
 		VALUES
-		(?, ?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, ?, ?)
 	~;
 	$db->prepare($query);
 
 	while (my $item = $sth->fetchrow_hashref()) {
-		$db->execute($week->{'id'}, $item->{'day'}, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'done'});
+		$db->execute($week->{'id'}, $item->{'day'}, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'done'}, $item->{'mark'});
 	}
 
 	# $week->{'start'} comes with hyphens that we don't want
