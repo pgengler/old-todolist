@@ -99,6 +99,9 @@ sub show_list()
 			$day   = substr($week->{'start'}, 8, 2);
 		}
 		$week->{'time'} = mktime(0, 0, 0, $day, $month - 1, $year - 1900, 0, 0);
+
+		# For some reason, mktime() likes to give us the time 1hr later than it actually is.
+		$week->{'time'} -= 3600;
 	}
 
 	# Find the start date of the previous week
