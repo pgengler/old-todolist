@@ -26,7 +26,7 @@
 		<table><tr><td class='back'>
 			<table cellspacing='1' cellpadding='1' id='content'>
 				<tr class='head' id='header'>
-					<td style='width: 6%;'>
+					<td style='width: 6em;'>
 						Day
 					</td>
 					<td>
@@ -55,6 +55,11 @@
 				<!-- /TMPL_IF -->
 					<td class='day' onclick='show_day_edit(<!-- TMPL_VAR name='id' -->)'>
 						<!-- TMPL_VAR name='day' -->
+						<!-- TMPL_IF show_date -->
+						<span class='date'>
+							<!-- TMPL_VAR name='date' -->
+						</span>
+						<!-- /TMPL_IF -->
 					</td>
 					<td onclick='show_event_edit(<!-- TMPL_VAR name='id' -->)'>
 						<!-- TMPL_IF done -->

@@ -96,17 +96,10 @@ sub add_new_item()
 	$day = -1 if $origday eq '-';
 
 	# Get the new item
-	$query = qq~
-		SELECT id, week, day, event, location, start, end, done, mark
-		FROM todo
-		WHERE id = ?
-	~;
-	$db->prepare($query);
-	my $sth = $db->execute($new_id);
+	my $item = &get_item_by_id($new_id);
 
-	my $item = $sth->fetchrow_hashref();
-
-	print "Content-type: text/xml\n\n";
+	# Output
+	print $cgi->header(-type => 'text/xml');
 	print &item_to_xml($item);
 }
 
@@ -188,18 +181,10 @@ sub change_day()
 		$db->execute($day, $id);
 	}
 
-	# Load the item
-	my $query = qq~
-		SELECT id, week, day, event, location, start, end, done, mark
-		FROM todo
-		WHERE id = ?
-	~;
-	$db->prepare($query);
-	my $sth = $db->execute($id);
+	my $item = &get_item_by_id($id);
 
-	my $item = $sth->fetchrow_hashref();
-
-	print "Content-type: text/xml\n\n";
+	# Output
+	print $cgi->header(-type => 'text/xml');
 	print &item_to_xml($item);
 }
 
@@ -329,18 +314,9 @@ sub save_item()
 		$db->execute($start, $end, $id);
 	}
 
-	# Get the item
-	my $query = qq~
-		SELECT id, week, day, event, location, start, end, done, mark
-		FROM todo
-		WHERE id = ?
-	~;
-	$db->prepare($query);
-	my $sth = $db->execute($id);
+	my $item = &get_item_by_id($id);
 
-	my $item = $sth->fetchrow_hashref();
-
-	print "Content-type: text/xml\n\n";
+	print $cgi->header(-type => 'text/xml');
 	print &item_to_xml($item);
 }
 
@@ -373,19 +349,12 @@ sub toggle_item_done()
 	my $id = $cgi->param('id');
 
 	# Get the item
-	my $query = qq~
-		SELECT id, week, day, event, location, start, end, done, mark
-		FROM todo
-		WHERE id = ?
-	~;
-	$db->prepare($query);
-	my $sth = $db->execute($id);
-	my $item = $sth->fetchrow_hashref();
+	my $item = &get_item_by_id($id);
 
 	$item->{'done'} = !$item->{'done'};
 
 	# Update item
-	$query = qq~
+	my $query = qq~
 		UPDATE todo SET
 			done = ?
 		WHERE id = ?
@@ -394,7 +363,7 @@ sub toggle_item_done()
 	$db->execute($item->{'done'}, $id);
 
 	# Output
-	print "Content-type: text/xml\n\n";
+	print $cgi->header(-type => 'text/xml');
 	print &item_to_xml($item);
 }
 
@@ -407,19 +376,12 @@ sub toggle_marked()
 	my $id = $cgi->param('id');
 
 	# Get the item
-	my $query = qq~
-		SELECT id, week, day, event, location, start, end, done, mark
-		FROM todo
-		WHERE id = ?
-	~;
-	$db->prepare($query);
-	my $sth = $db->execute($id);
-	my $item = $sth->fetchrow_hashref();
+	my $item = &get_item_by_id($id);
 
 	$item->{'mark'} = !$item->{'mark'};
 
 	# Update item
-	$query = qq~
+	my $query = qq~
 		UPDATE todo SET
 			mark = ?
 		WHERE id = ?
@@ -428,8 +390,35 @@ sub toggle_marked()
 	$db->execute($item->{'mark'}, $id);
 
 	# Output
-	print "Content-type: text/xml\n\n";
+	print $cgi->header(-type => 'text/xml');
 	print &item_to_xml($item);	
+}
+
+#######
+## GET ITEM (BY ID)
+#######
+sub get_item_by_id()
+{
+	my $id = shift;
+
+	# Load the item
+	my $query = qq~
+		SELECT t.id, t.week, t.day, t.event, t.location, t.start, t.end, t.done, t.mark, DATE_ADD(tw.start, INTERVAL (t.day - 1) DAY) AS date, IF(tw.start, 0, 1) AS template
+		FROM todo t
+		LEFT JOIN todo_weeks tw ON tw.id = t.week
+		WHERE t.id = ?
+	~;
+	$db->prepare($query);
+	my $sth = $db->execute($id);
+
+	my $item = $sth->fetchrow_hashref();
+
+	if (!$item->{'template'} && $item->{'day'} ne '--') {
+		my ($year, $month, $day) = split(/-/, $item->{'date'});
+		$item->{'date'} = $month . '/' . $day;
+	}
+
+	return $item;
 }
 
 #######
@@ -464,6 +453,7 @@ sub item_to_xml()
 	$xml->param(id       => $item->{'id'});
 	$xml->param(week     => $item->{'week'});
 	$xml->param(day      => $item->{'day'});
+	$xml->param(date     => $item->{'date'});
 	$xml->param(event    => $item->{'event'});
 	$xml->param(location => $item->{'location'});
 	$xml->param(start    => $item->{'start'});

@@ -305,6 +305,9 @@ function update_list(response)
 	if (root.getElementsByTagName('day')[0].firstChild) {
 		day = root.getElementsByTagName('day')[0].firstChild.nodeValue;
 	}
+	var date = '';
+	if (show_date)
+		date = root.getElementsByTagName('date')[0].firstChild.nodeValue;
 	var event = root.getElementsByTagName('event')[0].firstChild.nodeValue;
 	// These fields are optional and so might not have any data coming back
 	var location = '', start = -1, end = -1, done = 0, mark = 0;
@@ -363,7 +366,7 @@ function update_list(response)
 
 		var row_cells = rows[i].getElementsByTagName('td');
 
-		var row_day   = get_value_of_day(row_cells[0].innerHTML.trim());
+		var row_day   = get_value_of_day(row_cells[0].firstChild.nodeValue.trim());
 
 		if (day < row_day) {
 			// insert it here
@@ -434,6 +437,12 @@ function update_list(response)
 	day_cell.setAttribute('class', 'day');
 	day_cell.setAttribute('onclick', 'show_day_edit(' + id + ')');
 	day_cell.innerHTML = get_day_from_value(day);
+	if (show_date && date) {
+		var span = document.createElement('span');
+		span.setAttribute('class', 'date');
+		span.appendChild(document.createTextNode(' (' + date + ')'));
+		day_cell.appendChild(span);
+	}
 
 	new_row.appendChild(day_cell);
 
@@ -526,7 +535,7 @@ function show_day_edit(id)
 	currently_editing = id;
 	saved_day = cell.innerHTML.trim();
 
-	var	curr_day = get_value_of_day(cell.innerHTML.trim());
+	var	curr_day = get_value_of_day(cell.firstChild.nodeValue.trim());
 
 	cell.innerHTML = '';
 

@@ -47,6 +47,8 @@ sub show_list()
 		my $sth = $db->execute();
 
 		$week = $sth->fetchrow_hashref();
+
+		$Config::show_date = 0;
 	} elsif ($day) {
 		# Load the specified week with that day
 		my $query = qq~
@@ -136,10 +138,11 @@ sub show_list()
 
 	# Get all items for the current week
 	my $query = qq~
-		SELECT id, IF(day, day, ?) day, event, location, start, end, done, mark
-		FROM todo
+		SELECT t.id, IF(t.day, t.day, ?) day, t.event, t.location, t.start, t.end, t.done, t.mark, DATE_ADD(tw.start, INTERVAL (t.day - 1) DAY) AS date
+		FROM todo t
+		LEFT JOIN todo_weeks tw ON tw.id = t.week
 		WHERE week = ?
-		ORDER BY day, start, end, event, done
+		ORDER BY day, t.start, t.end, t.event, t.done
 	~;
 	$db->prepare($query);
 	my $sth = $db->execute($Config::undated_last ? 7 : -1, $week->{'id'});
@@ -149,12 +152,23 @@ sub show_list()
 	while (my $event = $sth->fetchrow_hashref()) {
 		$event->{'day'} = &get_day_name($event->{'day'});
 		$event->{'mark_css'} = ($event->{'mark'} && !$event->{'done'});
+		if ($Config::show_date) {
+			if ($event->{'day'} eq '--') {
+				undef $event->{'date'};
+			} else {
+				my ($year, $month, $day) = split(/-/, $event->{'date'});
+				$event->{'date'} = '(' . $month . '/' . $day . ')';
+			}
+		} else {
+			undef $event->{'date'};
+		}
 		push @events, $event;
 	}
 
-	$html->param(events   => \@events);
-	$html->param(url      => $Config::url);
-	$html->param(use_mark => $Config::use_mark);
+	$html->param(events    => \@events);
+	$html->param(url       => $Config::url);
+	$html->param(show_date => $Config::show_date);
+	$html->param(use_mark  => $Config::use_mark);
 
 	# Output
 	print $cgi->header();
