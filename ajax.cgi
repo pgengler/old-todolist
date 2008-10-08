@@ -415,7 +415,7 @@ sub get_item_by_id()
 
 	if (!$item->{'template'} && $item->{'day'} ne '--') {
 		my ($year, $month, $day) = split(/-/, $item->{'date'});
-		$item->{'date'} = $month . '/' . $day;
+		$item->{'date'} = &get_month_name($month) . ' ' . $day;
 	}
 
 	return $item;
@@ -507,4 +507,17 @@ sub trim()
 	$str =~ s/^\s*(.+)\s*$/$1/;
 
 	return $str;
+}
+
+#######
+## GET MONTH NAME
+## Returns the name corresponding to the given value (1-12)
+#######
+sub get_month_name()
+{
+	my $month = shift;
+
+	my @months = ( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' );
+
+	return $months[$month - 1];
 }

@@ -53,7 +53,7 @@ function highlight()
 
 		var rows = table.getElementsByTagName('tr');
 		for (var i = 1; i < rows.length; i++) {
-			var date = rows[i].getElementsByTagName('td')[0].innerHTML;
+			var date = rows[i].getElementsByTagName('td')[0].firstChild.nodeValue;
 			var oldclass = rows[i].getAttribute('class');
 			var done = 0;
 			if (date.trim() == day) {
@@ -440,7 +440,7 @@ function update_list(response)
 	if (show_date && date) {
 		var span = document.createElement('span');
 		span.setAttribute('class', 'date');
-		span.appendChild(document.createTextNode(' (' + date + ')'));
+		span.appendChild(document.createTextNode(', ' + date));
 		day_cell.appendChild(span);
 	}
 

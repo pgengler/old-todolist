@@ -157,7 +157,7 @@ sub show_list()
 				undef $event->{'date'};
 			} else {
 				my ($year, $month, $day) = split(/-/, $event->{'date'});
-				$event->{'date'} = '(' . $month . '/' . $day . ')';
+				$event->{'date'} = ', ' . &get_month_name($month) . ' ' . $day;
 			}
 		} else {
 			undef $event->{'date'};
@@ -274,6 +274,19 @@ sub get_day_name()
 	my @days = ( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
 
 	return $days[$day];
+}
+
+#######
+## GET MONTH NAME
+## Returns the name corresponding to the given value (1-12)
+#######
+sub get_month_name()
+{
+	my $month = shift;
+
+	my @months = ( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' );
+
+	return $months[$month - 1];
 }
 
 #######
