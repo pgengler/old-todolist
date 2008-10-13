@@ -306,7 +306,7 @@ function update_list(response)
 		day = root.getElementsByTagName('day')[0].firstChild.nodeValue;
 	}
 	var date = '';
-	if (show_date)
+	if (show_date && (day >= 0 && day <= 6))
 		date = root.getElementsByTagName('date')[0].firstChild.nodeValue;
 	var event = root.getElementsByTagName('event')[0].firstChild.nodeValue;
 	// These fields are optional and so might not have any data coming back
