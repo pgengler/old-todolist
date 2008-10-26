@@ -221,7 +221,7 @@ sub move_unfinished()
 	my $next_week = $sth->fetchrow_hashref();
 
 	unless ($next_week && $next_week->{'id'}) {
-		$next_week = &create_week($curr_week->{'end'} + (24 * 60 * 60));
+		$next_week = &create_week($curr_week);
 	}
 
 	# Get all unfinished items for this week
