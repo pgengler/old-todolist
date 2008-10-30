@@ -550,6 +550,8 @@ function show_day_edit(id)
 		var option = document.createElement('option');
 		option.setAttribute('value', i);
 		option.innerHTML = get_day_from_value(i);
+		if (i >= 0 && dates[i])
+			option.innerHTML += ' (' + dates[i] + ')';
 		if (curr_day == i) {
 			option.setAttribute('selected', 'selected');
 		}

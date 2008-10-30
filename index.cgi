@@ -29,7 +29,7 @@ if ($actions{ $action }) {
 sub show_list()
 {
 	# Load HTML template
-	my $html = new HTML::Template(filename => 'todo.tmpl', global_vars => 1);
+	my $html = new HTML::Template(filename => 'todo.tmpl', global_vars => 1, loop_context_vars => 1);
 
 	# Get CGI params
 	my $day = $cgi->param('day');
@@ -131,6 +131,19 @@ sub show_list()
 		if (time() >= $week->{'time'} && time() < ($week->{'time'} + $seven_days)) {
 			$html->param(current_week => 1);
 		}
+
+		my @dates;
+		for (my $i = 0; $i < 7; $i++) {
+			my $time = $week->{'time'} + ($i * 24 * 60 * 60);
+			my @parts = localtime($time);
+			my $month = $parts[4] + 1;
+			my $day   = &fix_date($parts[3]);
+
+			push @dates, {
+				'date' => "$month/$day"
+			};
+		}
+		$html->param(dates    => \@dates);
 	} else {
 		$html->param(week_id  => $week->{'id'});
 		$html->param(template => 1);

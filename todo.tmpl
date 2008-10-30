@@ -15,6 +15,9 @@
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->config.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->ajax.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->todo.js'></script>
+		<script type='text/javascript'>
+			var dates = [ <!-- TMPL_LOOP name='dates' -->"<!-- TMPL_VAR name='date' -->"<!-- TMPL_UNLESS __last__ -->, <!-- /TMPL_UNLESS --><!-- /TMPL_LOOP --> ];
+		</script>
 	</head>
  	<body onkeydown="key_handler(event)">
 		<form action='javascript:dispatch()' method='post' id='form'>
