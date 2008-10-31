@@ -1037,6 +1037,8 @@ function move_incomplete()
 
 	// Make AJAX request
 	ajax.send('action=move&week=' + week);
+
+	return false;
 }
 
 function move_incomplete_aux(response)
