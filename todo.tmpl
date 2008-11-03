@@ -15,8 +15,13 @@
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->config.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->ajax.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->todo.js'></script>
+		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->strftime.js'></script>
 		<script type='text/javascript'>
-			var dates = [ <!-- TMPL_LOOP name='dates' -->"<!-- TMPL_VAR name='date' -->"<!-- TMPL_UNLESS __last__ -->, <!-- /TMPL_UNLESS --><!-- /TMPL_LOOP --> ];
+			var date_format = "<!-- TMPL_VAR name='date_format' -->";
+			var start_date  = new Date(<!-- TMPL_VAR name='start_year' -->, <!-- TMPL_VAR name='start_month' -->, <!-- TMPL_VAR name='start_day' -->);
+			var dates = [];
+			for (var i = 0; i <= 6; i++)
+				dates[i] = new Date(start_date.getDate() + i);
 		</script>
 	</head>
  	<body onkeydown="key_handler(event)">

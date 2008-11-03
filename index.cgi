@@ -35,6 +35,8 @@ sub show_list()
 	my $day = $cgi->param('day');
 	my $week;
 
+	my ($year, $month, $day);
+
 	if ($day eq 'template') {
 		# Load the template
 
@@ -65,9 +67,9 @@ sub show_list()
 			$week = &create_week($day);
 		}
 
-		my $year  = substr($week->{'start'}, 0, 4);
-		my $month = substr($week->{'start'}, 5, 2);
-		my $day   = substr($week->{'start'}, 8, 2);
+		$year  = substr($week->{'start'}, 0, 4);
+		$month = substr($week->{'start'}, 5, 2);
+		$day   = substr($week->{'start'}, 8, 2);
 		$week->{'time'} = mktime(0, 0, 0, $day, $month - 1, $year - 1900, 0, 0);
 	} else {
 		# Figure out what the current week is
@@ -80,8 +82,6 @@ sub show_list()
 		my $sth = $db->execute();
 
 		$week = $sth->fetchrow_hashref();
-
-		my ($year, $month, $day);
 
 		unless ($week) {
 			# Get the current day of the week
@@ -132,18 +132,9 @@ sub show_list()
 			$html->param(current_week => 1);
 		}
 
-		my @dates;
-		for (my $i = 0; $i < 7; $i++) {
-			my $time = $week->{'time'} + ($i * 24 * 60 * 60);
-			my @parts = localtime($time);
-			my $month = $parts[4] + 1;
-			my $day   = &fix_date($parts[3]);
-
-			push @dates, {
-				'date' => "$month/$day"
-			};
-		}
-		$html->param(dates    => \@dates);
+		$html->param(start_year  => $year);
+		$html->param(start_month => $month - 1);
+		$html->param(start_day   => $day);
 	} else {
 		$html->param(week_id  => $week->{'id'});
 		$html->param(template => 1);
@@ -170,7 +161,7 @@ sub show_list()
 				undef $event->{'date'};
 			} else {
 				my ($year, $month, $day) = split(/-/, $event->{'date'});
-				$event->{'date'} = ', ' . &get_month_name($month) . ' ' . $day;
+				$event->{'date'} = strftime($Config::date_format, 0, 0, 0, $day, $month - 1, $year - 1900);
 			}
 		} else {
 			undef $event->{'date'};
@@ -178,10 +169,11 @@ sub show_list()
 		push @events, $event;
 	}
 
-	$html->param(events    => \@events);
-	$html->param(url       => $Config::url);
-	$html->param(show_date => $Config::show_date);
-	$html->param(use_mark  => $Config::use_mark);
+	$html->param(events      => \@events);
+	$html->param(url         => $Config::url);
+	$html->param(show_date   => $Config::show_date);
+	$html->param(use_mark    => $Config::use_mark);
+	$html->param(date_format => $Config::date_format);
 
 	# Output
 	print $cgi->header();
