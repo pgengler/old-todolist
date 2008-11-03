@@ -214,7 +214,22 @@ function new_item_form()
 
 	// Create cell for the day
 	var day_cell = document.createElement('td');
-	day_cell.innerHTML = "<select name='day' id='newday'><option value='-'>--</option><option value='0'>Sun</option><option value='1'>Mon</option><option value='2'>Tue</option><option value='3'>Wed</option><option value='4'>Thu</option><option value='5'>Fri</option><option value='6'>Sat</option></select>";
+
+	// Create new dropdown
+	var dropdown = document.createElement('select');
+	dropdown.setAttribute('name', 'day');
+	dropdown.setAttribute('id', 'newday');
+
+	// Create options for each day choice
+	for (var i = -1; i < 7; i++) {
+		var option = document.createElement('option');
+		option.setAttribute('value', i);
+		option.innerHTML = get_day_from_value(i);
+		if (i >= 0 && dates[i])
+			option.innerHTML += dates[i].strftime(date_format);
+		dropdown.appendChild(option);
+	}
+	day_cell.appendChild(dropdown);
 	row.appendChild(day_cell);
 
 	// Create cell for the event
