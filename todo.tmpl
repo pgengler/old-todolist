@@ -20,8 +20,10 @@
 			var date_format = "<!-- TMPL_VAR name='date_format' -->";
 			var start_date  = new Date(<!-- TMPL_VAR name='start_year' -->, <!-- TMPL_VAR name='start_month' -->, <!-- TMPL_VAR name='start_day' -->);
 			var dates = [];
-			for (var i = 0; i <= 6; i++)
-				dates[i] = new Date(start_date.getDate() + i);
+			for (var i = 0; i <= 6; i++) {
+				dates[i] = new Date(start_date);
+				dates[i].setDate(start_date.getDate() + i);
+			}
 		</script>
 	</head>
  	<body onkeydown="key_handler(event)">

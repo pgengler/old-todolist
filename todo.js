@@ -552,9 +552,8 @@ function show_day_edit(id)
 		option.innerHTML = get_day_from_value(i);
 		if (i >= 0 && dates[i])
 			option.innerHTML += dates[i].strftime(date_format);
-		if (curr_day == i) {
+		if (curr_day == i)
 			option.setAttribute('selected', 'selected');
-		}
 		dropdown.appendChild(option);
 	}
 
