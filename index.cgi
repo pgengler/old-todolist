@@ -32,12 +32,12 @@ sub show_list()
 	my $html = new HTML::Template(filename => 'todo.tmpl', global_vars => 1, loop_context_vars => 1);
 
 	# Get CGI params
-	my $day = $cgi->param('day');
+	my $date = $cgi->param('day');
 	my $week;
 
 	my ($year, $month, $day);
 
-	if ($day eq 'template') {
+	if ($date eq 'template') {
 		# Load the template
 
 		my $query = qq~
@@ -51,7 +51,7 @@ sub show_list()
 		$week = $sth->fetchrow_hashref();
 
 		$Config::show_date = 0;
-	} elsif ($day) {
+	} elsif ($date) {
 		# Load the specified week with that day
 		my $query = qq~
 			SELECT id, start
@@ -59,12 +59,12 @@ sub show_list()
 			WHERE start <= ? AND end >= ?
 		~;
 		$db->prepare($query);
-		my $sth = $db->execute($day, $day);
+		my $sth = $db->execute($date, $date);
 
 		$week = $sth->fetchrow_hashref();
 
 		unless ($week) {
-			$week = &create_week($day);
+			$week = &create_week($date);
 		}
 
 		$year  = substr($week->{'start'}, 0, 4);
