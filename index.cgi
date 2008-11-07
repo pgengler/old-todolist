@@ -34,6 +34,7 @@ sub show_list()
 	# Get CGI params
 	my $date = $cgi->param('day');
 	my $week;
+	my $dst = 0;
 
 	my ($year, $month, $day);
 
@@ -93,6 +94,7 @@ sub show_list()
 			$year     = $parts[5] + 1900;
 			$month    = &fix_date($parts[4] + 1);
 			$day      = &fix_date($parts[3]);
+			$dst      = $parts[8];
 			$week     = &create_week("$year$month$day");
 		} else {
 			# Get component parts of start date
@@ -100,10 +102,12 @@ sub show_list()
 			$month = substr($week->{'start'}, 5, 2);
 			$day   = substr($week->{'start'}, 8, 2);
 		}
-		$week->{'time'} = mktime(0, 0, 0, $day, $month - 1, $year - 1900, 0, 0);
+		$week->{'time'} = mktime(0, 0, 0, $day, $month - 1, $year - 1900);
 
-		# For some reason, mktime() likes to give us the time 1hr later than it actually is.
-		$week->{'time'} -= 3600;
+		# When we're in DST, mktime() likes to give us the non-DST time
+		if ($dst) {
+			$week->{'time'} -= 3600;
+		}
 	}
 
 	# Find the start date of the previous week
