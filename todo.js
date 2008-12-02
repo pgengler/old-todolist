@@ -56,9 +56,9 @@ function highlight()
 			var date = rows[i].getElementsByTagName('td')[0].firstChild.nodeValue;
 			var oldclass = rows[i].getAttribute('class');
 			var done = 0;
-			if (date.trim() == day) {
+			if (date && date.trim() == day) {
 				rows[i].setAttribute('class', 'today');
-			} else if (get_value_of_day(date.trim()) < today.getDay() && date.trim() != '--') {
+			} else if (date && get_value_of_day(date.trim()) < today.getDay() && date.trim() != '--') {
 				var skip = 0;
 				for (var j = 0; j < rows[i].getElementsByTagName('td')[1].childNodes.length; j++) {
 					if (rows[i].getElementsByTagName('td')[1].childNodes[j].nodeName.toLowerCase() == 'span' && rows[i].getElementsByTagName('td')[1].childNodes[j].getAttribute('class') == 'done') {
