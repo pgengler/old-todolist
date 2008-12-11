@@ -225,7 +225,7 @@ function new_item_form()
 		var option = document.createElement('option');
 		option.setAttribute('value', i);
 		option.innerHTML = get_day_from_value(i);
-		if (i >= 0 && dates[i])
+		if (!template && i >= 0 && dates[i])
 			option.innerHTML += dates[i].strftime(date_format);
 		dropdown.appendChild(option);
 	}
@@ -565,7 +565,7 @@ function show_day_edit(id)
 		var option = document.createElement('option');
 		option.setAttribute('value', i);
 		option.innerHTML = get_day_from_value(i);
-		if (i >= 0 && dates[i])
+		if (!template && i >= 0 && dates[i])
 			option.innerHTML += dates[i].strftime(date_format);
 		if (curr_day == i)
 			option.setAttribute('selected', 'selected');

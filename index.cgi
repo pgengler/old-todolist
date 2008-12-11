@@ -124,7 +124,7 @@ sub show_list()
 	my $next_week = (1900 + $next_week[5]) . &fix_date($next_week[4] + 1) . &fix_date($next_week[3]);
 	my $next_week_display = (1900 + $next_week[5]) . '-' . &fix_date($next_week[4] + 1) . '-' . &fix_date($next_week[3]);
 
-	if ($day ne 'template') {
+	if ($date ne 'template') {
 		$html->param(week_start => $week->{'start'});
 		$html->param(week_id    => $week->{'id'});
 		$html->param(prev_week  => $prev_week);
