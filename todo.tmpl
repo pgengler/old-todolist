@@ -20,6 +20,7 @@
 		<!-- TMPL_IF template -->
 			var template = 1;
 		<!-- TMPL_ELSE -->
+			var template = 0;
 			var date_format = "<!-- TMPL_VAR name='date_format' -->";
 			var start_date  = new Date(<!-- TMPL_VAR name='start_year' -->, <!-- TMPL_VAR name='start_month' -->, <!-- TMPL_VAR name='start_day' -->);
 			var dates = [];
