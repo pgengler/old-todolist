@@ -744,14 +744,25 @@ function show_times_edit(id)
 ///////
 function toggle_done(id)
 {
-	// Remove the current row
-//	var row = document.getElementById('item' + id);
-//	row.parentNode.removeChild(row);
-
 	var ajax = new AJAX(base_url, update_list);
 
 	ajax.send('action=done&id=' + id);
 
+	// Get the current row
+	var row = document.getElementById('item' + id);
+
+	// Create spinner
+	var spinner = document.createElement('img');
+	spinner.setAttribute('src', 'processing.gif');
+
+	// Get this cell
+	var cell = row.getElementsByTagName('td')[4];
+
+	// Clear cell
+	remove_all_children(cell);
+
+	// Show spinner
+	cell.appendChild(spinner);
 }
 
 ///////
@@ -1109,6 +1120,14 @@ function decode(str)
 	tmp = tmp.replace(/\&lt\;/, "<");
 	tmp = tmp.replace(/\&gt\;/, ">");
 	return tmp;
+}
+
+function remove_all_children(elem)
+{
+	var len = elem.childNodes.length;
+	for (var i = 0; i < len; i++) {
+		elem.removeChild(elem.childNodes[0]);
+	}
 }
 
 String.prototype.trim = function() {
