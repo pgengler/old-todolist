@@ -1,0 +1,14 @@
+DirectoryIndex index.cgi index.html
+AuthUserFile /home/jsurrati/www/pgengler/.htpasswd
+AuthGroupFile /dev/null
+AuthName Todo
+AuthType Basic
+
+RewriteEngine  on
+RewriteBase    /todo/
+
+RewriteRule   ^(.+)/$  index.cgi?day=$1
+
+<Files *>
+        require user pgengler
+</Files>
