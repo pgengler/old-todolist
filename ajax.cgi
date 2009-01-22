@@ -447,7 +447,7 @@ sub item_to_xml()
 	my $item = shift;
 
 	# Load XML template
-	my $xml = new HTML::Template(filename => 'item.xtmpl');
+	my $xml = &load_xml_template('item');
 
 	# Set template params
 	$xml->param(id       => $item->{'id'});
