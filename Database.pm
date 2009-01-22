@@ -4,7 +4,7 @@ use strict;
 use DBI;
 use CGI::Carp "fatalsToBrowser";
 
-sub new
+sub new()
 {
 	my $pkg = shift;
 	my $obj = { 
@@ -13,37 +13,43 @@ sub new
 		'user'			=> '',
 		'password'	=> '',
 		'host'			=> '',
-		'dbh'				=> undef
+		'dbh'				=> undef,
+		'error'     => undef
 	};
 	bless $obj, $pkg;
 	return $obj;
 }
 
-sub init
+sub init()
 {
 	my $this = shift;
-	my ($user, $password, $database, $host) = @_;
+	my ($user, $password, $database, $host, $error) = @_;
 	$host = 'localhost' unless $host;
-	$this->{'dbh'} = DBI->connect("DBI:mysql:$database:$host:3306", $user, $password) or die DBI::errstr;
+	if ($error) {
+		$this->{'error'} = $error;
+	} else {
+		$this->{'error'} = \&error;
+	}
+	$this->{'dbh'} = DBI->connect("DBI:mysql:$database:$host:3306", $user, $password) or $this->{'error'}->(Carp::longmess(DBI::errstr), 1);
 }
 
-sub close
+sub close()
 {
 	my $this = shift;
 	$this->{'dbh'}->disconnect();
 }
 
-sub query
+sub query()
 {
 	my ($this, $query) = @_;
 	my $sth = $this->{'dbh'}->prepare($query);
 	$this->{'query'} = $query;
-	$sth->execute() or die "Couldn't execute statement: " . $sth->errstr . " in query " . $query;
+	$sth->execute() or $this->{'error'}->(Carp::longmess("Couldn't execute statement: " . $sth->errstr . " in query " . $query), 1);
 	$this->{'queries'}++;
 	return $sth;
 }
 
-sub prepare
+sub prepare()
 {
 	my ($this, $query) = @_;
 	$this->{'sth'} = $this->{'dbh'}->prepare($query);
@@ -51,11 +57,11 @@ sub prepare
 	return $this->{'sth'};
 }
 
-sub execute
+sub execute()
 {
 	my ($this, @params) = @_;
 	return unless $this->{'sth'};
-	$this->{'sth'}->execute(@params) or die "Couldn't execute statement: " . $this->{'sth'}->errstr . " in query " . $this->{'query'};
+	$this->{'sth'}->execute(@params) or $this->{'error'}->(Carp::longmess("Couldn't execute statement: " . $this->{'sth'}->errstr . " in query " . $this->{'query'}), 1);
 	return $this->{'sth'};
 }
 
@@ -96,28 +102,27 @@ sub rollback_transaction()
 		return;
 	}
 
-	$this->{'dbh'}->prepare('ROLLBACK');
-	$this->{'dbh'}->execute();
+	my $sth = $this->{'dbh'}->prepare('ROLLBACK');
+	$sth->execute();
 	$this->{'transaction'} = 0;
 }	
-sub num_queries
+
+sub num_queries()
 {
 	my $this = shift;
 	return $this->{'queries'};
 }
 
-sub insert_id
+sub insert_id()
 {
 	my $this = shift;
 	return $this->{'dbh'}->{'mysql_insertid'};
 }
 
-sub filter
+sub error()
 {
-	my ($this, $text) = @_;
-	$text =~ s/\\/\\\\/ig;
-	$text =~ s/\'/\\\'/ig;
-	return $text;
+	my $message = shift;
+	die $message;
 }
 
 1;

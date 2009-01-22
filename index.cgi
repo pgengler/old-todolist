@@ -11,7 +11,7 @@ require 'config.pl';
 
 my $cgi = new CGI;
 my $db = new Database;
-$db->init($Config::db_user, $Config::db_pass, $Config::db_name);
+$db->init($Config::db_user, $Config::db_pass, $Config::db_name, 'localhost', \&error);
 
 my $action = $cgi->param('act');
 
@@ -29,7 +29,7 @@ if ($actions{ $action }) {
 sub show_list()
 {
 	# Load HTML template
-	my $html = new HTML::Template(filename => 'todo.tmpl', global_vars => 1, loop_context_vars => 1);
+	my $html = &load_html_template('todo');
 
 	# Get CGI params
 	my $date = $cgi->param('day');
@@ -376,4 +376,40 @@ sub fix_date()
 	}
 
 	return '0' . $date;
+}
+
+#######
+## LOAD HTML TEMPLATE
+######
+sub load_html_template()
+{
+	my $name = shift;
+
+	my $html = new HTML::Template(
+		filename          => 'templates/' . $name . '.tmpl',
+		global_vars       => 1,
+		loop_context_vars => 1
+	);
+}
+
+#######
+## ERROR
+## Displays an error message to the user
+#######
+sub error()
+{
+	my ($message, $db_error) = @_;
+
+	if ($db_error && !$Config::DEBUG) {
+		$message = 'A database error has occurred.';
+	}
+
+	my $html = &load_html_template('error');
+
+	$html->param(message => $message);
+
+	print $cgi->header();
+	print $html->output();
+
+	exit;
 }
