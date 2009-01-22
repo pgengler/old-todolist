@@ -430,7 +430,7 @@ sub load_xml_template()
 	my $filename = shift;
 
 	my $xml = new HTML::Template(
-		filename          => $filename . '.xtmpl',
+		filename          => 'templates/' . $filename . '.xtmpl',
 		global_vars       => 1,
 		loop_context_vars => 1
 	);
