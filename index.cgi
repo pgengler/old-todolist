@@ -190,8 +190,9 @@ sub show_list()
 #######
 sub load_template()
 {
-	# Get CGI parameters
-	my $week_id = $cgi->param('week');
+	# Get parameters
+	my $week_id = shift;
+	$week_id = $week_id || $cgi->param('week');
 
 	my $week;
 
@@ -351,6 +352,11 @@ sub create_week()
 	$db->execute($start_date, $end_date);
 
 	my $new_id = $db->insert_id();
+
+	# Load template, if requested
+	if ($Config::auto_load) {
+		&load_template($new_id);
+	}
 
 	$query = qq~
 		SELECT id, start
