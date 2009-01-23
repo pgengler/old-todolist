@@ -9,8 +9,8 @@ our $url          = 'http://personal.pgengler.net/todo/';
 our $db_host      = 'localhost';
 our $db_user      = 'jsurrati_pgphil'; # username used to connect to the database
 our $db_pass      = 'phil11!!';        # password used to connect to the database
-#our $db_name      = 'jsurrati_pgphil'; # name of the database to use (NOTE: DATABASE, not TABLES)
-our $db_name     = 'jsurrati_pgdev';
+our $db_name      = 'jsurrati_pgphil'; # name of the database to use (NOTE: DATABASE, not TABLES)
+#our $db_name     = 'jsurrati_pgdev';
 our $db_prefix    = '';
 
 #######

@@ -11,6 +11,7 @@ use lib ('.');
 use Database;
 use CGI;
 use HTML::Template;
+use POSIX;
 use XML::Simple;
 
 require 'config.pl';
@@ -415,7 +416,7 @@ sub get_item_by_id()
 
 	if (!$item->{'template'} && $item->{'day'} ne '--') {
 		my ($year, $month, $day) = split(/-/, $item->{'date'});
-		$item->{'date'} = &get_month_name($month) . ' ' . $day;
+		$item->{'date'} = strftime($Config::date_format, 0, 0, 0, $day, $month - 1, $year - 1900);
 	}
 
 	return $item;
