@@ -12,11 +12,15 @@
 			<!-- /TMPL_IF -->
 		<!-- /TMPL_IF -->
 		<link href='<!-- TMPL_VAR name='url' -->list.css' type='text/css' rel='stylesheet' />
-		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->config.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->ajax.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->todo.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->strftime.js'></script>
 		<script type='text/javascript'>
+			var index_url    = '<!-- TMPL_VAR name='index_url' -->';
+			var base_url     = index_url + 'ajax.cgi';
+			var use_mark     = <!-- TMPL_VAR name='use_mark' -->;
+			var undated_last = <!-- TMPL_VAR name='undated_last' -->;
+			var show_date    = <!-- TMPL_VAR name='show_date' -->;
 		<!-- TMPL_IF template -->
 			var template = 1;
 		<!-- TMPL_ELSE -->
@@ -41,7 +45,7 @@
 		<table><tr><td class='back'>
 			<table cellspacing='1' cellpadding='1' id='content'>
 				<tr class='head' id='header'>
-					<td style='width: 6em;'>
+					<td style='width: 6.5em;'>
 						Day
 					</td>
 					<td>
