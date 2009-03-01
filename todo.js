@@ -736,7 +736,7 @@ function toggle_done(id)
 	spinner.setAttribute('src', 'processing.gif');
 
 	// Get this cell
-	var cell = row.getElementsByTagName('td')[4];
+	var cell = row.getElementsByTagName('td')[4 + use_mark];
 
 	// Clear cell
 	remove_all_children(cell);

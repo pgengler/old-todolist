@@ -176,7 +176,7 @@ sub show_list()
 	$html->param(events       => \@events);
 	$html->param(url          => $Config::url);
 	$html->param(show_date    => $Config::show_date);
-	$html->param(use_mark     => $Config::use_mark);
+	$html->param(use_mark     => $Config::use_mark ? 1 : 0);
 	$html->param(date_format  => $Config::date_format);
 	$html->param(undated_last => $Config::undated_last);
 	$html->param(index_url    => $Config::url);
