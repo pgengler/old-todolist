@@ -316,10 +316,10 @@ function update_list(response)
 		location = root.getElementsByTagName('location')[0].firstChild.nodeValue;
 
 	if (root.getElementsByTagName('start')[0].firstChild)
-		start = parseInt(root.getElementsByTagName('start')[0].firstChild.nodeValue);
+		start = root.getElementsByTagName('start')[0].firstChild.nodeValue;
 
 	if (root.getElementsByTagName('end')[0].firstChild)
-		end = parseInt(root.getElementsByTagName('end')[0].firstChild.nodeValue);
+		end = root.getElementsByTagName('end')[0].firstChild.nodeValue;
 
 	if (root.getElementsByTagName('done')[0].firstChild)
 		done = parseInt(root.getElementsByTagName('done')[0].firstChild.nodeValue);
