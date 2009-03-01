@@ -297,13 +297,12 @@ function update_list(response)
 		return;
 
 	var root  = response.getElementsByTagName('item')[0];
-	var id    = root.getElementsByTagName('id')[0].firstChild.nodeValue;
-	var week  = root.getElementsByTagName('week')[0].firstChild.nodeValue;
+	var id    = parseInt(root.getElementsByTagName('id')[0].firstChild.nodeValue);
+	var week  = parseInt(root.getElementsByTagName('week')[0].firstChild.nodeValue);
 	// Day can come back empty, meaning null
 	var day = (undated_last == 1) ? 7 : -1;
-	if (root.getElementsByTagName('day')[0].firstChild) {
-		day = root.getElementsByTagName('day')[0].firstChild.nodeValue;
-	}
+	if (root.getElementsByTagName('day')[0].firstChild)
+		day = parseInt(root.getElementsByTagName('day')[0].firstChild.nodeValue);
 
 	var date = '';
 	if (show_date && (day >= 0 && day <= 6))
@@ -313,21 +312,20 @@ function update_list(response)
 
 	// These fields are optional and so might not have any data coming back
 	var location = '', start = -1, end = -1, done = 0, mark = 0;
-	if (root.getElementsByTagName('location')[0].firstChild) {
+	if (root.getElementsByTagName('location')[0].firstChild)
 		location = root.getElementsByTagName('location')[0].firstChild.nodeValue;
-	}
-	if (root.getElementsByTagName('start')[0].firstChild) {
-		start = root.getElementsByTagName('start')[0].firstChild.nodeValue;
-	}
-	if (root.getElementsByTagName('end')[0].firstChild) {
-		end = root.getElementsByTagName('end')[0].firstChild.nodeValue;
-	}
-	if (root.getElementsByTagName('done')[0].firstChild) {
+
+	if (root.getElementsByTagName('start')[0].firstChild)
+		start = parseInt(root.getElementsByTagName('start')[0].firstChild.nodeValue);
+
+	if (root.getElementsByTagName('end')[0].firstChild)
+		end = parseInt(root.getElementsByTagName('end')[0].firstChild.nodeValue);
+
+	if (root.getElementsByTagName('done')[0].firstChild)
 		done = parseInt(root.getElementsByTagName('done')[0].firstChild.nodeValue);
-	}
-	if (root.getElementsByTagName('mark')[0].firstChild) {
+
+	if (root.getElementsByTagName('mark')[0].firstChild)
 		mark = parseInt(root.getElementsByTagName('mark')[0].firstChild.nodeValue);
-	}
 
 	// Remove the current row
 	// This is done after the AJAX call to prevent lag or loss of synchronization when the server is slow or down
@@ -454,21 +452,21 @@ function update_list(response)
 
 	var location_cell = document.createElement('td');
 	location_cell.setAttribute('onclick', 'show_location_edit(' + id + ')');
-	if (location) {
+	if (location)
 		location_cell.innerHTML = location.replace(/</, "&lt;").replace(/>/, "&gt;");
-	}
 
 	new_row.appendChild(location_cell);
 
 	var time_cell = document.createElement('td');
-	if (start && start != -1) {
+	if (start && start != -1)
 		time_cell.innerHTML = start;
-	}
-	if (end && end != -1) {
+
+	if (end && end != -1)
 		time_cell.innerHTML += ' &ndash; ' + end;
-	}
+
 	if (!time_cell.innerHTML)
 		time_cell.innerHTML = '';
+
 	time_cell.setAttribute('onclick', 'show_times_edit(' + id + ')');
 
 	new_row.appendChild(time_cell);
@@ -500,9 +498,12 @@ function update_list(response)
 	done_cell.appendChild(done_button);
 	new_row.appendChild(done_cell);
 
-	if (append == 1) {
+	if (append == 1)
 		tbody.appendChild(new_row);
-	}
+
+	currently_editing = 0;
+	saved_day = saved_event = saved_location = saved_start = saved_end = null;
+
 	highlight();
 }
 
@@ -794,9 +795,8 @@ function create_hidden_submit()
 	// Check if the hidden submit button already exists
 	var button = document.getElementById('submit');
 
-	if (button) {
+	if (button)
 		return;
-	}
 
 	// Create a new button
 	button = document.createElement('input');
