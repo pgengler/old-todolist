@@ -785,6 +785,9 @@ function delete_item(id)
 	var ajax = new AJAX(base_url);
 
 	ajax.send('action=delete&id=' + id);
+
+	currently_editing = 0;
+	saved_day = saved_event = saved_location = saved_start = saved_end = null;
 }
 
 ///////
