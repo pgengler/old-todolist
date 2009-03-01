@@ -753,6 +753,22 @@ function toggle_mark(id)
 	if (use_mark) {
 		var ajax = new AJAX(base_url, update_list);
 		ajax.send('action=mark&id=' + id);
+
+		// Get the current row
+		var row = document.getElementById('item' + id);
+
+		// Create spinner
+		var spinner = document.createElement('img');
+		spinner.setAttribute('src', 'processing.gif');
+
+		// Get this cell
+		var cell = row.getElementsByTagName('td')[4];
+
+		// Clear cell
+		remove_all_children(cell);
+
+		// Show spinner
+		cell.appendChild(spinner);
 	}
 }
 
