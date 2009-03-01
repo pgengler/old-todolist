@@ -1,18 +1,57 @@
 .hidden   { display: none; }
 
-.front	{ background-color: white; }
+tr {
+	background-color: white;
+}
 
-.mark  { background-color: #A1FF9E; }
-.passedmark { background-color: #FF2E35; }
-.todaymark { background-color: #6BBAFF; }
+.done td {
+	text-decoration: line-through;
+}
 
-.passed { background-color: #FFCB9E; } /* SET */
-.today  { background-color: #E5F3FF; } /* SET */
-tr.head		{ background-color: #343434; color: white; }
+.today {
+	background-color: #C2E1FF;
+}
+
+	.today.mark {
+		background-color: #6BBAFF;
+	}
+
+	.today.done {
+		background-color: #E5F3FF;
+	}
+
+.past {
+	background-color: #FFCB9E;
+}
+
+	.past.mark {
+		background-color: #FF2E35;
+	}
+
+	.past.done {
+		background-color: white;
+	}
+
+.future {
+	background-color: white;
+}
+
+	.future.mark {
+		background-color: #A1FF9E;
+	}
+
+th {
+	background-color: #343434;
+	color: white;
+}
+
 table			{ width: 100%; }
 td.back		{ background-color: black; width: 95%; padding: 0px; }
 td.day		{ font-variant: small-caps; }
-tr.front:hover, tr.today:hover, tr.passed:hover, tr.mark:hover, tr.passedmark:hover, tr.todaymark:hover	{ background-color: #ffffcc; }
+
+tr.past:hover, tr.today:hover, tr.future:hover {
+	background-color: #ffffcc !important;
+}
 
 input.time { width: 2.5em; }
 
@@ -29,3 +68,7 @@ a#optiontoggle { margin-left: 1em; }
 div#opts { margin-top: 1em; }
 
 table#colors tr td { border: 1px solid black; }
+
+.nodec {
+	text-decoration: none !important;
+}

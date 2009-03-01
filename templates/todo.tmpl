@@ -12,6 +12,7 @@
 			<!-- /TMPL_IF -->
 		<!-- /TMPL_IF -->
 		<link href='<!-- TMPL_VAR name='url' -->list.css' type='text/css' rel='stylesheet' />
+		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->jquery.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->ajax.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->todo.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->strftime.js'></script>
@@ -44,33 +45,44 @@
 		<!-- /TMPL_IF -->
 		<table><tr><td class='back'>
 			<table cellspacing='1' cellpadding='1' id='content'>
-				<tr class='head' id='header'>
-					<td style='width: 6.5em;'>
-						Day
-					</td>
-					<td>
-						Event
-					</td>
-					<td style='width: 33%'>
-						Location
-					</td>
-					<td style='width: 10%;'>
-						Time
-					</td>
-					<!-- TMPL_IF use_mark -->
-					<td style='width: 1em'>
-						&nbsp;
-					</td>
-					<!-- /TMPL_IF -->
-					<td style='width: 1.5em'>
-						&nbsp;
-					</td>
-				</tr>
+				<thead>
+					<tr id='header'>
+						<th style='width: 6.5em;'>
+							Day
+						</th>
+						<th>
+							Event
+						</th>
+						<th style='width: 33%'>
+							Location
+						</th>
+						<th style='width: 10%;'>
+							Time
+						</th>
+						<!-- TMPL_IF use_mark -->
+						<th style='width: 1em'>
+							&nbsp;
+						</th>
+						<!-- /TMPL_IF -->
+						<th style='width: 1.5em'>
+							&nbsp;
+						</th>
+					</tr>
+				</thead>
+				<tbody>
 				<!-- TMPL_LOOP name='events' -->
 				<!-- TMPL_IF mark_css -->
-				<tr class='mark' id='item<!-- TMPL_VAR name='id' -->'>
+				<!-- TMPL_IF done -->
+				<tr class='mark done' id='item<!-- TMPL_VAR name='id' -->'>
 				<!-- TMPL_ELSE -->
-				<tr class='front' id='item<!-- TMPL_VAR name='id' -->'>
+				<tr class='mark' id='item<!-- TMPL_VAR name='id' -->'>
+				<!-- /TMPL_IF -->
+				<!-- TMPL_ELSE -->
+				<!-- TMPL_IF done -->
+				<tr class='done' id='item<!-- TMPL_VAR name='id' -->'>
+				<!-- TMPL_ELSE -->
+				<tr id='item<!-- TMPL_VAR name='id' -->'>
+				<!-- /TMPL_IF -->
 				<!-- /TMPL_IF -->
 					<td class='day' onclick='show_day_edit(<!-- TMPL_VAR name='id' -->)'>
 						<!-- TMPL_VAR name='day' --><!-- TMPL_IF show_date --><!-- TMPL_IF date --><span class='date'><!-- TMPL_VAR name='date' --></span>
@@ -78,15 +90,7 @@
 						<!-- /TMPL_IF -->
 					</td>
 					<td onclick='show_event_edit(<!-- TMPL_VAR name='id' -->)'>
-						<!-- TMPL_IF done -->
-						<span class='done'>
-							<!-- TMPL_VAR name='event' escape='html' -->
-						</span>
-						<!-- TMPL_ELSE -->
-						<span>
-							<!-- TMPL_VAR name='event' escape='html' -->
-						</span>
-						<!-- /TMPL_IF -->
+						<!-- TMPL_VAR name='event' escape='html' -->
 					</td>
 					<td onclick='show_location_edit(<!-- TMPL_VAR name='id' -->)'>
 						<!-- TMPL_VAR name='location' escape='html' -->
@@ -98,7 +102,7 @@
 						<!-- /TMPL_IF -->
 					</td>
 					<!-- TMPL_IF use_mark -->
-					<td style='text-align: center'>
+					<td style='text-align: center' class='nodec'>
 						<!-- TMPL_IF mark -->
 						<input type='checkbox' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' checked='checked' />
 						<!-- TMPL_ELSE -->
@@ -106,11 +110,12 @@
 						<!-- /TMPL_IF -->
 					</td>
 					<!-- /TMPL_IF -->
-					<td style='text-align: center'>
+					<td style='text-align: center' class='nodec'>
 						<input type='button' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' value='*' class='done' />
 					</td>
 				</tr>
 				<!-- /TMPL_LOOP -->
+				</tbody>
 			</table>
 		</td></tr></table>
 		</fieldset>
@@ -185,10 +190,10 @@
 		<div style='margin-top: 1em'>
 			<table id='colors' class='hidden'>
 				<tr>
-					<td class='front' style='width: 50%'>
+					<td class='future' style='width: 50%'>
 						Upcoming
 					</td>
-					<td class='mark'>
+					<td class='future mark'>
 						Upcoming, marked
 					</td>
 				</tr>
@@ -196,15 +201,15 @@
 					<td class='today'>
 						Today
 					</td>
-					<td class='todaymark'>
+					<td class='today mark'>
 						Today, marked
 					</td>
 				</tr>
 				<tr>
-					<td class='passed'>
+					<td class='past'>
 						Overdue
 					</td>
-					<td class='passedmark'>
+					<td class='past mark'>
 						Overdue, marked
 					</td>
 				</tr>

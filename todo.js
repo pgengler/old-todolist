@@ -4,7 +4,9 @@ var moving       = false;
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
 // if the user cancels or edits another one
-var saved_day, saved_event, saved_location, saved_start, saved_end, saved_done, currently_editing;
+var saved_day = null, saved_event = null, saved_location = null, saved_start = null, saved_end = null;
+var saved_done = 0;
+var currently_editing = 0;
 
 ///////
 // KEYBOARD HANDLER
@@ -30,88 +32,72 @@ var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function highlight()
 {
-	// Skip if this is the template
-	if (document.getElementById('template')) {
-		return;
+	var curr_week = false;
+
+	if (!document.getElementById('template')) {
+		// Check if what we're looking at isn't the current week
+		var next_week_link = document.getElementById('nextweek');
+		var next_week_url  = next_week_link.getAttribute('href');
+		var next_week_date = next_week_url.substr(next_week_url.length - 9, 8);
+		var next_week_year = next_week_date.substr(0, 4);
+		var next_week_mon  = next_week_date.substr(4, 2) - 1;
+		var next_week_day  = next_week_date.substr(6, 2);
+		var next_week = new Date(next_week_year, next_week_mon, next_week_day);
+
+		var today = new Date();
+		if (today < next_week && !document.getElementById('currweek'))
+			curr_week = true;
 	}
 
-	// Check if what we're looking at isn't the current week
-	var next_week_link = document.getElementById('nextweek');
-	var next_week_url  = next_week_link.getAttribute('href');
-	var next_week_date = next_week_url.substr(next_week_url.length - 9, 8);
-	var next_week_year = next_week_date.substr(0, 4);
-	var next_week_mon  = next_week_date.substr(4, 2) - 1;
-	var next_week_day  = next_week_date.substr(6, 2);
-	var next_week = new Date(next_week_year, next_week_mon, next_week_day);
-
-	var today = new Date();
-	if (today < next_week && !document.getElementById('currweek')) {
-		var day = days[today.getDay()];
+	if (curr_week) {
+		var today = (new Date()).getDay();
+		var day = days[today];
 
 		// Get table
 		var table = document.getElementById('content');
 
 		var rows = table.getElementsByTagName('tr');
 		for (var i = 1; i < rows.length; i++) {
+			var row = rows[i];
+			var id  = '#' + row.getAttribute('id');
+			row = $(id);
+
+			var done = row.hasClass('done');
+			var mark = row.hasClass('mark');
+
+			row.removeClass();
+
 			var date = rows[i].getElementsByTagName('td')[0].firstChild.nodeValue;
-			var oldclass = rows[i].getAttribute('class');
-			var done = 0;
+
 			if (date && date.trim() == day) {
-				rows[i].setAttribute('class', 'today');
-			} else if (date && get_value_of_day(date.trim()) < today.getDay() && date.trim() != '--') {
-				var skip = 0;
-				for (var j = 0; j < rows[i].getElementsByTagName('td')[1].childNodes.length; j++) {
-					if (rows[i].getElementsByTagName('td')[1].childNodes[j].nodeName.toLowerCase() == 'span' && rows[i].getElementsByTagName('td')[1].childNodes[j].getAttribute('class') == 'done') {
-						done = 1;
-						rows[i].setAttribute('class', 'front');
-						break;
-					}
-				}
-				if (done == 0) {
-					rows[i].setAttribute('class', 'passed');
-				}
+				row.addClass('today');
+			} else if (date && get_value_of_day(date.trim()) < today && date.trim() != '--') {
+				row.addClass('past');
 			} else {
-				rows[i].setAttribute('class', 'front');
+				row.addClass('future');
 			}
-			var newclass = rows[i].getAttribute('class');
-			if (use_mark && oldclass.match(/mark/) && !done) {
-				if (newclass.match(/today/)) {
-					rows[i].setAttribute('class', 'todaymark');
-				} else if (newclass.match(/passed/)) {
-					rows[i].setAttribute('class', 'passedmark');
-				} else {
-					rows[i].setAttribute('class', 'mark');
-				}
-			}
+		if (done)
+			row.addClass('done');
+		if (mark)
+			row.addClass('mark');
 		}
-	} else if (!document.getElementById('currweek')) {
+	} else {
 		// Get table
 		var table = document.getElementById('content');
 		var rows = table.getElementsByTagName('tr');
 		for (var i = 1; i < rows.length; i++) {
-			var oldclass = rows[i].getAttribute('class');
-			var date = rows[i].getElementsByTagName('td')[0].innerHTML;
-			var skip = 0;
-			for (var j = 0; j < rows[i].getElementsByTagName('td')[1].childNodes.length; j++) {
-				if (rows[i].getElementsByTagName('td')[1].childNodes[j].nodeName.toLowerCase() == 'span' && rows[i].getElementsByTagName('td')[1].childNodes[j].getAttribute('class') == 'done') {
-					skip = 1;
-					rows[i].setAttribute('class', 'front');
-					break;
-				}
-			}
-			if (skip == 0) {
-				if (use_mark && oldclass.match(/mark/)) {
-					rows[i].setAttribute('class', 'passedmark');
-				} else {
-					rows[i].setAttribute('class', 'passed');
-				}
-			} else {
-				if (use_mark && oldclass.match(/mark/)) {
-					rows[i].setAttribute('class', 'mark');
-				} else {
-					rows[i].setAttribute('class', 'front');
-				}
-			}
+			var row = $('#' + rows[i].getAttribute('id'));
+
+			var done = row.hasClass('done');
+			var mark = row.hasClass('mark');
+
+			row.removeClass();
+			row.addClass('future');
+
+			if (done)
+				row.addClass('done');
+			if (mark)
+				row.addClass('mark');
 		}
 	}
 }
@@ -209,7 +195,6 @@ function new_item_form()
 
 	// Add a new row to the table
 	var row = document.createElement('tr');
-	row.setAttribute('class', 'front');
 	row.setAttribute('id', 'newrow');
 
 	// Create cell for the day
@@ -308,9 +293,8 @@ function submit_new_item()
 
 function update_list(response)
 {
-	if (!response) {
+	if (!response)
 		return;
-	}
 
 	var root  = response.getElementsByTagName('item')[0];
 	var id    = root.getElementsByTagName('id')[0].firstChild.nodeValue;
@@ -320,10 +304,13 @@ function update_list(response)
 	if (root.getElementsByTagName('day')[0].firstChild) {
 		day = root.getElementsByTagName('day')[0].firstChild.nodeValue;
 	}
+
 	var date = '';
 	if (show_date && (day >= 0 && day <= 6))
 		date = root.getElementsByTagName('date')[0].firstChild.nodeValue;
+
 	var event = root.getElementsByTagName('event')[0].firstChild.nodeValue;
+
 	// These fields are optional and so might not have any data coming back
 	var location = '', start = -1, end = -1, done = 0, mark = 0;
 	if (root.getElementsByTagName('location')[0].firstChild) {
@@ -336,24 +323,22 @@ function update_list(response)
 		end = root.getElementsByTagName('end')[0].firstChild.nodeValue;
 	}
 	if (root.getElementsByTagName('done')[0].firstChild) {
-		done = root.getElementsByTagName('done')[0].firstChild.nodeValue;
+		done = parseInt(root.getElementsByTagName('done')[0].firstChild.nodeValue);
 	}
 	if (root.getElementsByTagName('mark')[0].firstChild) {
-		mark = root.getElementsByTagName('mark')[0].firstChild.nodeValue;
+		mark = parseInt(root.getElementsByTagName('mark')[0].firstChild.nodeValue);
 	}
 
 	// Remove the current row
 	// This is done after the AJAX call to prevent lag or loss of synchronization when the server is slow or down
 	var row = document.getElementById('item' + id);
-	if (row) {
+	if (row)
 		row.parentNode.removeChild(row);
-	}
 
 	// Check if the item stills belongs in this this week
 	var curr_week = document.getElementById('week').value;
-	if (week != curr_week) {
+	if (week != curr_week)
 		return;
-	}
 
 	// Now, we need to figure out where this belongs
 	// Items without a date go in front of this with; otherwise, normal week order applies (Sunday-Saturday)
@@ -366,18 +351,16 @@ function update_list(response)
 
 	// Remove the "add" row, which is the last row in the table
 	var addrow = document.getElementById('newrow');
-	if (addrow) {
+	if (addrow)
 		addrow.parentNode.removeChild(addrow);
-	}
 
 	var rows = tbody.rows;
 
 	var new_row;
 
 	for (var i = 0; i < rows.length; i++) {
-		if (rows[i].getAttribute('id') == 'header') {
+		if (rows[i].getAttribute('id') == 'header')
 			continue;
-		}
 
 		var row_cells = rows[i].getElementsByTagName('td');
 
@@ -390,10 +373,10 @@ function update_list(response)
 		} else if (day == row_day) {
 			// Same day, check for differing times and sort appropriately
 			var row_times  = row_cells[3];
-			var row_event  = row_cells[1].getElementsByTagName('span')[0].innerHTML.trim();
+			var row_event  = row_cells[1].innerHTML.trim();
 
-			var start_time = get_start_time(row_times);
-			var end_time   = get_end_time(row_times);
+			var start_time = get_start_time(row_times.innerHTML);
+			var end_time   = get_end_time(row_times.innerHTML);
 
 			if (start == -1 && end == -1) {
 				if ((event.toUpperCase() < row_event.toUpperCase()) || (start_time != -1 || end_time != -1)) {
@@ -441,12 +424,14 @@ function update_list(response)
 		append = 1;
 	}
 
-	if (use_mark && mark == 1 && done == 0) {
-		new_row.setAttribute('class', 'mark');
-	} else {
-		new_row.setAttribute('class', 'front');
-	}
 	new_row.setAttribute('id', 'item' + id);
+
+	var row = $('#item' + id);
+
+	if (use_mark && mark == 1)
+		row.addClass('mark');
+	if (done == 1)
+		row.addClass('done');
 
 	var day_cell = document.createElement('td');
 	day_cell.setAttribute('class', 'day');
@@ -462,12 +447,7 @@ function update_list(response)
 	new_row.appendChild(day_cell);
 
 	var event_cell = document.createElement('td');
-	var event_container = document.createElement('span');
-	event_container.innerHTML = event.replace(/</, "&lt;").replace(/>/, "&gt;");
-	if (done != 0) {
-		event_container.setAttribute('class', 'done');
-	}
-	event_cell.appendChild(event_container);
+	event_cell.appendChild(document.createTextNode(event.replace(/</, "&lt;").replace(/>/, "&gt;")));
 	event_cell.setAttribute('onclick', 'show_event_edit(' + id + ')');
 
 	new_row.appendChild(event_cell);
@@ -487,9 +467,8 @@ function update_list(response)
 	if (end && end != -1) {
 		time_cell.innerHTML += ' &ndash; ' + end;
 	}
-	if (!time_cell.innerHTML) {
-		time_cell.innerHTML = '&nbsp;';
-	}
+	if (!time_cell.innerHTML)
+		time_cell.innerHTML = '';
 	time_cell.setAttribute('onclick', 'show_times_edit(' + id + ')');
 
 	new_row.appendChild(time_cell);
@@ -497,6 +476,7 @@ function update_list(response)
 	if (use_mark) {
 		var mark_cell = document.createElement('td');
 		mark_cell.setAttribute('style', 'text-align: center');
+		mark_cell.setAttribute('class', 'nodec');
 		var mark_box = document.createElement('input');
 		mark_box.setAttribute('type', 'checkbox');
 		mark_box.setAttribute('id', 'mark' + id);
@@ -510,6 +490,7 @@ function update_list(response)
 
 	var done_cell = document.createElement('td');
 	done_cell.setAttribute('style', 'text-align: center');
+	done_cell.setAttribute('class', 'nodec');
 	var done_button = document.createElement('input');
 	done_button.setAttribute('type', 'button');
 	done_button.setAttribute('id', 'done' + id);
@@ -538,21 +519,24 @@ function show_day_edit(id)
 	create_hidden_submit();
 
 	// Get the row with this ID
-	var row = document.getElementById('item' + id);
+	var row = $('#item' + id);
 
 	// Get the date cell
-	var cell = row.getElementsByTagName('td')[0];
+	var cell = $('#item' + id + '>td:eq(0)');
 
 	// Temporarily suspend the "onlick" for this cell
-	cell.setAttribute('onclick', 'return false;');
+	cell.get(0).setAttribute('onclick', 'return false');
+
+	// Don't show strikethrough while editing
+	cell.addClass('nodec');
 
 	// Save current data
 	currently_editing = id;
-	saved_day = cell.innerHTML.trim();
+	saved_day = cell.text().trim();
 
-	var	curr_day = get_value_of_day(cell.firstChild.nodeValue.trim());
+	var	curr_day = get_value_of_day(saved_day);
 
-	cell.innerHTML = '';
+	cell.empty();
 
 	// Create new dropdown
 	var dropdown = document.createElement('select');
@@ -577,7 +561,7 @@ function show_day_edit(id)
 	next_week_option.appendChild(document.createTextNode('->'));
 	dropdown.appendChild(next_week_option);
 
-	cell.appendChild(dropdown);
+	cell.append(dropdown);
 	dropdown.focus();
 }
 
@@ -602,24 +586,21 @@ function show_event_edit(id)
 	create_hidden_submit();
 
 	// Get the row we're editing in
-	var row = document.getElementById('item' + id);
+	var row  = $('#item' + id);
 
 	// Get the event cell
-	var cell = row.getElementsByTagName('td')[1];
+	var cell = $('#item' + id + ' > td:eq(1)');
 
 	// Make sure we don't call this function again while we're editing
-	cell.setAttribute('onclick', '');
-
-	// Get the event container
-	var container = cell.getElementsByTagName('span')[0];
+	cell.get(0).setAttribute('onclick', 'return false;');
 
 	// Save current into
-	saved_event = decode(container.innerHTML.trim());
-	saved_done  = (container.getAttribute('class') == 'done');
+	saved_event = decode(cell.text().trim());
+	saved_done  = row.hasClass('done');
 	currently_editing = id;
 
 	// Don't indicate done when editing the event
-	container.setAttribute('class', '');
+	cell.addClass('nodec');
 
 	// Create a new textbox
 	var textbox = document.createElement('input');
@@ -629,8 +610,8 @@ function show_event_edit(id)
 	textbox.style.width = '97%';
 	textbox.value = saved_event;
 
-	container.innerHTML = '';
-	container.appendChild(textbox);
+	cell.empty();
+	cell.append(textbox);
 
 	// Focus the new box
 	textbox.focus();
@@ -647,17 +628,17 @@ function show_location_edit(id)
 	// Create submit button
 	create_hidden_submit();
 
-	// Get the row we're editing in
-	var row = document.getElementById('item' + id);
-
 	// Get the location cell
-	var cell = row.getElementsByTagName('td')[2];
+	var cell = $('#item' + id + '>td:eq(2)');
 
 	// Make sure we don't call this function again if we click in the textbox
-	cell.setAttribute('onclick', '');
+	cell.get(0).setAttribute('onclick', 'return false;');
+
+	// Don't strike through the textbox
+	cell.addClass('nodec');
 
 	// Save current info
-	saved_location = decode(cell.innerHTML.trim());
+	saved_location = decode(cell.text().trim());
 	currently_editing = id;
 
 	// Create new textbox
@@ -668,8 +649,8 @@ function show_location_edit(id)
 	textbox.style.width = '97%';
 	textbox.value = saved_location;
 
-	cell.innerHTML = '';
-	cell.appendChild(textbox);
+	cell.empty();
+	cell.append(textbox);
 
 	// Focus the new textbox
 	textbox.focus();
@@ -686,18 +667,18 @@ function show_times_edit(id)
 	// Create submit button
 	create_hidden_submit();
 
-	// Get the row we're editing in
-	var row = document.getElementById('item' + id);
-
 	// Get the times cell
-	var cell = row.getElementsByTagName('td')[3];
+	var cell = $('#item' + id + '>td:eq(3)');
 
 	// Make sure we don't call this function again while we're editing
-	cell.setAttribute('onclick', '');
+	cell.get(0).setAttribute('onclick', 'return false;');
+
+	// Don't show strikethrough while editing
+	cell.addClass('nodec');
 
 	// Save current into
-	saved_start = get_start_time(cell);
-	saved_end   = get_end_time(cell);
+	saved_start = get_start_time(cell.text());
+	saved_end   = get_end_time(cell.text());
 	currently_editing = id;
 
 	// Create a new start time textbox
@@ -726,17 +707,16 @@ function show_times_edit(id)
 	var span = document.createElement('span');
 	span.innerHTML = ' &ndash; ';
 
-	cell.innerHTML = '';
-	cell.appendChild(startbox);
-	cell.appendChild(span);
-	cell.appendChild(endbox);
+	cell.empty();
+	cell.append(startbox);
+	cell.append(span);
+	cell.append(endbox);
 
 	// Focus the start time box
 	startbox.focus();
 
 	// Select the text in the box
 	startbox.select();
-
 }
 
 ///////
@@ -817,105 +797,72 @@ function create_hidden_submit()
 
 function clear_edits(id)
 {
-	// Reset the any items in an "edit" state
+	// Reset any items in an "edit" state
 	
 	// Remove the add bar, if it's around
 	var add_row = document.getElementById('newrow');
 
-	if (add_row) {
-		// Get the containing <tbody>
-		var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
-		tbody.removeChild(add_row);
-	}
+	if (add_row)
+		add_row.parentNode.removeChild(add_row);
 
 	// Remove the hidden submit button, if it's around
 	var button = document.getElementById('submit');
-	if (button) {
+	if (button)
 		button.parentNode.removeChild(button);
-	}
 
-	if (currently_editing == 0 || currently_editing == id) {
+	if (currently_editing == 0 || currently_editing == id)
 		return;
+
+	if (saved_day) {
+		var day = $('#item' + currently_editing + '>td:eq(0)');
+
+		// Restore original content & state
+		day.empty();
+		day.append(saved_day);
+		day.get(0).setAttribute('onclick', 'show_day_edit(' + currently_editing + ')');
+		day.removeClass('nodec');
 	}
 
-	// look for a day box
-	var daybox = document.getElementById('day');
-	if (daybox) {
-		// get the cell containing the box
-		var cell = document.getElementById('item' + currently_editing).getElementsByTagName('td')[0];
+	if (saved_event) {
+		var event = $('#item' + currently_editing + '>td:eq(1)');
 
-		// remove the box
-		cell.removeChild(daybox);
-
-		// restore the date text
-		cell.innerHTML = saved_day;
-
-		// restore onclick()
-		cell.setAttribute('onclick', 'show_day_edit(' + currently_editing + ')');
+		// Restore original content & state
+		event.empty();
+		event.append(saved_event);
+		event.get(0).setAttribute('onclick', 'show_event_edit(' + currently_editing + ')');
+		event.removeClass('nodec');
 	}
 
-	// look for an event texbox
-	var event_box = document.getElementById('event');
-	if (event_box) {
-		// get the box's container
-		var container = event_box.parentNode;
+	if (saved_location != null) {
+		var location = $('#item' + currently_editing + '>td:eq(2)');
 
-		// remove the box
-		container.removeChild(event_box);
-
-		// restore the original event
-		container.innerHTML = saved_event;
-
-		// restore onclick()
-		container.parentNode.setAttribute('onclick', 'show_event_edit(' + currently_editing + ')');
-
-		// restore indication of completion, if necessart
-		if (saved_done) {
-			container.setAttribute('class', 'done');
-		}
+		// Restore original content & state
+		location.empty();
+		location.append(saved_location);
+		location.get(0).setAttribute('onclick', 'show_location_edit(' + currently_editing + ')');
+		location.removeClass('nodec');
 	}
 
-	// Look for a location textbox
-	var location_box = document.getElementById('location');
-	if (location_box) {
-		// get the cell containing the box
-		var cell = location_box.parentNode;
+	if (saved_start != null || saved_end != null) {
+		var time = $('#item' + currently_editing + '>td:eq(3)');
 
-		// remove the box
-		cell.removeChild(location_box);
-
-		// restore the original location
-		cell.innerHTML = saved_location;
-
-		// restore onclick
-		cell.setAttribute('onclick', 'show_location_edit(' + currently_editing + ')');
-	}
-
-	// Look for a start time box (which always appears with an end time box, if it appears at all)
-	var start_box = document.getElementById('start');
-	var end_box   = document.getElementById('end');
-	if (start_box) {
-		// get containing cell
-		var cell = start_box.parentNode;
-
-		// remove boxes
-		cell.removeChild(start_box);
-		cell.removeChild(end_box);
-		cell.innerHTML = '';
-
-		// restore the original times
-		if (saved_start != -1) {
-			cell.innerHTML = saved_start;
-		}
+		// Restore original content and state
+		time.empty();
+		var time_show = '';
+		if (saved_start != -1)
+			time_show = saved_start;
 		if (saved_end != -1) {
-			cell.innerHTML += " &ndash; " + saved_end;
+			time_show += ' &ndash; ';
+			time_show += saved_end;
 		}
-
-		// restore onclick()
-		cell.setAttribute('onclick', 'show_times_edit(' + currently_editing + ')');
+		
+		time.append(time_show);
+		time.get(0).setAttribute('onclick', 'show_times_edit(' + currently_editing + ')');
+		time.removeClass('nodec');
 	}
 
 	currently_editing = 0;
+	saved_day = saved_event = saved_location = saved_start = saved_end = null;
 }
 
 function get_day_from_value(value)
@@ -944,6 +891,9 @@ function get_day_from_value(value)
 
 function get_value_of_day(day)
 {
+	var parts = day.split(/\W/);
+	day = parts[0];
+
 	switch (day) {
 		case '--':
 			return (undated_last == 1) ? 7 : -1;
@@ -964,49 +914,44 @@ function get_value_of_day(day)
 	}
 }
 
-function get_start_time(time_cell)
+function get_start_time(time_val)
 {
 	// If there's no data, there's no time
-	if (!time_cell || time_cell.innerHTML.indexOf('&nbsp;') != -1) {
+	if (!time_val || time_val.indexOf('&nbsp;') != -1)
 		return -1;
-	}
 
-	if (time_cell.innerHTML.trim().length < 4) {
+	if (time_val.trim().length < 4)
 		return -1;
-	}
 
 	// If there's no " &ndash;", use the whole contents as the start time
-	var pos = time_cell.innerHTML.trim().indexOf('&ndash;');
+	var pos = time_val.trim().indexOf('&ndash;');
 
-	if (pos == -1) {
-		pos = time_cell.innerHTML.trim().indexOf(String.fromCharCode(8211));
-	}
-	if (pos == -1) {
-		return time_cell.innerHTML.trim();
-	} else if (pos == 0 || pos == 1) {
+	if (pos == -1)
+		pos = time_val.trim().indexOf(String.fromCharCode(8211));
+
+	if (pos == -1)
+		return time_val.trim();
+	else if (pos == 0 || pos == 1)
 		return -1;
-	}
 
-	if (pos > 4) {
+	if (pos > 4)
 		pos = 4;
-	}
-	return time_cell.innerHTML.trim().substring(0, pos).trim();
+
+	return time_val.trim().substring(0, pos).trim();
 }
 
-function get_end_time(time_cell)
+function get_end_time(time_val)
 {
 	// If there's no data, there's no time
-	if (!time_cell || time_cell.innerHTML.trim().length == 0 || time_cell.innerHTML.indexOf('&nbsp;') != -1) {
+	if (!time_val || time_val.trim().length == 0 || time_val.indexOf('&nbsp;') != -1)
 		return -1;
-	}
 
 	// If there's no "&ndash;", there's no end time
 	var pos;
-	if ((pos = time_cell.innerHTML.trim().indexOf(String.fromCharCode(8211))) == -1) {
+	if ((pos = time_val.trim().indexOf(String.fromCharCode(8211))) == -1)
 		return -1;
-	}
 
-	return time_cell.innerHTML.trim().substring(pos + 1).trim();
+	return time_val.trim().substring(pos + 1).trim();
 }
 
 ///////
