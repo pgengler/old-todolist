@@ -335,8 +335,11 @@ function update_list(response)
 
 	// Check if the item stills belongs in this this week
 	var curr_week = document.getElementById('week').value;
-	if (week != curr_week)
+	if (week != curr_week) {
+		currently_editing = 0;
+		saved_day = saved_event = saved_location = saved_start = saved_end = null;
 		return;
+	}
 
 	// Now, we need to figure out where this belongs
 	// Items without a date go in front of this with; otherwise, normal week order applies (Sunday-Saturday)
