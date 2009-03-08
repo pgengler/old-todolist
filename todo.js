@@ -913,12 +913,10 @@ function get_day_from_value(value)
 
 function get_value_of_day(day)
 {
-	var parts = day.split(/(^[A-Za-z0-9_])/);
-	day = parts[0];
-
-	switch (day) {
-		case '--':
+	if (day.substring(0, 2) == '--')
 			return (undated_last == 1) ? 7 : -1;
+
+	switch (day.substring(0, 3)) {
 		case 'Sun':
 			return 0;
 		case 'Mon':
