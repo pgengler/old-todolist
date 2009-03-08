@@ -913,7 +913,7 @@ function get_day_from_value(value)
 
 function get_value_of_day(day)
 {
-	var parts = day.split(/\W/);
+	var parts = day.split(/(^[A-Za-z0-9_])/);
 	day = parts[0];
 
 	switch (day) {
