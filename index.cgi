@@ -86,11 +86,11 @@ sub show_list()
 
 		unless ($week) {
 			# Get the current day of the week
-			my @parts = localtime(time);
+			my @parts = localtime(time());
 			my $wday  = $parts[6];
 
 			# Now get the first day of this week
-			@parts    = localtime(time - ($wday * 24 * 60 * 60));
+			@parts    = localtime(time() - ($wday * 24 * 60 * 60));
 			$year     = $parts[5] + 1900;
 			$month    = &fix_date($parts[4] + 1);
 			$day      = &fix_date($parts[3]);
@@ -103,9 +103,10 @@ sub show_list()
 			$day   = substr($week->{'start'}, 8, 2);
 		}
 		$week->{'time'} = mktime(0, 0, 0, $day, $month - 1, $year - 1900);
+		my @parts = localtime($week->{'time'});
 
 		# When we're in DST, mktime() likes to give us the non-DST time
-		if ($dst) {
+		if ($parts[8]) {
 			$week->{'time'} -= 3600;
 		}
 	}
