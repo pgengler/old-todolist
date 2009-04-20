@@ -103,6 +103,32 @@ function highlight()
 }
 
 ///////
+// SYNCHRONIZE CHECKBOXES
+///////
+function sync_boxes()
+{
+	// Get table
+	var table = document.getElementById('content');
+
+	var rows = table.getElementsByTagName('tr');
+	for (var i = 1; i < rows.length; i++) {
+		var row = rows[i];
+		var id  = row.getAttribute('id').replace(/item/, '')
+		var jid = '#item' + id;
+		row = $(jid);
+
+		var done = row.hasClass('done');
+
+		var box = document.getElementById('done' + id);
+
+		if (done)
+			box.checked = true;
+		else
+			box.checked = false;
+	}	
+}
+
+///////
 // DISPATCH
 ///////
 function dispatch()
@@ -503,6 +529,7 @@ function update_list(response)
 	saved_day = saved_event = saved_location = saved_start = saved_end = null;
 
 	highlight();
+	sync_boxes();
 }
 
 ///////
@@ -1102,5 +1129,6 @@ String.prototype.rtrim = function() {
 
 window.onload = function() {
 	highlight();
+	sync_boxes();
 	setInterval("highlight()", 300000);
 }
