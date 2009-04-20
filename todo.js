@@ -67,7 +67,7 @@ function highlight()
 
 			row.removeClass();
 
-			var date = rows[i].getElementsByTagName('td')[0].firstChild.nodeValue;
+			var date = rows[i].getElementsByTagName('td')[1].firstChild.nodeValue;
 
 			if (date && date.trim() == day) {
 				row.addClass('today');
@@ -199,6 +199,7 @@ function new_item_form()
 
 	// Create cell for the day
 	var day_cell = document.createElement('td');
+	day_cell.setAttribute('colspan', '2');
 
 	// Create new dropdown
 	var dropdown = document.createElement('select');
@@ -238,11 +239,6 @@ function new_item_form()
 		mark_cell.innerHTML = '&nbsp;';
 		row.appendChild(mark_cell);
 	}
-
-	// Create empty cell for "done"
-	var done_cell = document.createElement('td');
-	done_cell.innerHTML = '&nbsp;';
-	row.appendChild(done_cell);
 
 	// Add the new row to the table
 	tbody.appendChild(row);
@@ -365,7 +361,7 @@ function update_list(response)
 
 		var row_cells = rows[i].getElementsByTagName('td');
 
-		var row_day   = get_value_of_day(row_cells[0].firstChild.nodeValue.trim());
+		var row_day   = get_value_of_day(row_cells[1].firstChild.nodeValue.trim());
 
 		if (day < row_day) {
 			// insert it here
@@ -373,8 +369,8 @@ function update_list(response)
 			break;
 		} else if (day == row_day) {
 			// Same day, check for differing times and sort appropriately
-			var row_times  = row_cells[3];
-			var row_event  = row_cells[1].innerHTML.trim();
+			var row_times  = row_cells[4];
+			var row_event  = row_cells[2].innerHTML.trim();
 
 			var start_time = get_start_time(row_times.innerHTML);
 			var end_time   = get_end_time(row_times.innerHTML);
@@ -434,6 +430,18 @@ function update_list(response)
 	if (done == 1)
 		row.addClass('done');
 
+	var done_cell = document.createElement('td');
+	done_cell.setAttribute('style', 'text-align: center');
+	done_cell.setAttribute('class', 'nodec');
+	var done_box = document.createElement('input');
+	done_box.setAttribute('type', 'checkbox');
+	done_box.setAttribute('id', 'done' + id);
+	if (done == 1)
+		done_box.setAttribute('checked', 'checked');
+	done_box.setAttribute('onclick', 'toggle_done(' + id + ')');
+	done_cell.appendChild(done_box);
+	new_row.appendChild(done_cell);
+
 	var day_cell = document.createElement('td');
 	day_cell.setAttribute('class', 'day');
 	day_cell.setAttribute('onclick', 'show_day_edit(' + id + ')');
@@ -478,28 +486,15 @@ function update_list(response)
 		var mark_cell = document.createElement('td');
 		mark_cell.setAttribute('style', 'text-align: center');
 		mark_cell.setAttribute('class', 'nodec');
-		var mark_box = document.createElement('input');
-		mark_box.setAttribute('type', 'checkbox');
-		mark_box.setAttribute('id', 'mark' + id);
-		if (mark == 1) {
-			mark_box.setAttribute('checked', 'checked');
-		}
-		mark_box.setAttribute('onclick', 'toggle_mark(' + id + ')');
-		mark_cell.appendChild(mark_box);
+		var mark_button = document.createElement('input');
+		mark_button.setAttribute('type', 'button');
+		mark_button.setAttribute('id', 'mark' + id);
+		mark_button.setAttribute('class', 'mark');
+		mark_button.setAttribute('onclick', 'toggle_mark(' + id + ')');
+		mark_button.value = '!';
+		mark_cell.appendChild(mark_button);
 		new_row.appendChild(mark_cell);
 	}
-
-	var done_cell = document.createElement('td');
-	done_cell.setAttribute('style', 'text-align: center');
-	done_cell.setAttribute('class', 'nodec');
-	var done_button = document.createElement('input');
-	done_button.setAttribute('type', 'button');
-	done_button.setAttribute('id', 'done' + id);
-	done_button.setAttribute('class', 'done');
-	done_button.setAttribute('onclick', 'toggle_done(' + id + ')');
-	done_button.value = '*';
-	done_cell.appendChild(done_button);
-	new_row.appendChild(done_cell);
 
 	if (append == 1)
 		tbody.appendChild(new_row);
@@ -526,7 +521,7 @@ function show_day_edit(id)
 	var row = $('#item' + id);
 
 	// Get the date cell
-	var cell = $('#item' + id + '>td:eq(0)');
+	var cell = $('#item' + id + '>td:eq(1)');
 
 	// Temporarily suspend the "onlick" for this cell
 	cell.get(0).setAttribute('onclick', 'return false');
@@ -593,7 +588,7 @@ function show_event_edit(id)
 	var row  = $('#item' + id);
 
 	// Get the event cell
-	var cell = $('#item' + id + ' > td:eq(1)');
+	var cell = $('#item' + id + ' > td:eq(2)');
 
 	// Make sure we don't call this function again while we're editing
 	cell.get(0).setAttribute('onclick', 'return false;');
@@ -633,7 +628,7 @@ function show_location_edit(id)
 	create_hidden_submit();
 
 	// Get the location cell
-	var cell = $('#item' + id + '>td:eq(2)');
+	var cell = $('#item' + id + '>td:eq(3)');
 
 	// Make sure we don't call this function again if we click in the textbox
 	cell.get(0).setAttribute('onclick', 'return false;');
@@ -672,7 +667,7 @@ function show_times_edit(id)
 	create_hidden_submit();
 
 	// Get the times cell
-	var cell = $('#item' + id + '>td:eq(3)');
+	var cell = $('#item' + id + '>td:eq(4)');
 
 	// Make sure we don't call this function again while we're editing
 	cell.get(0).setAttribute('onclick', 'return false;');
@@ -740,7 +735,7 @@ function toggle_done(id)
 	spinner.setAttribute('src', 'processing.gif');
 
 	// Get this cell
-	var cell = row.getElementsByTagName('td')[4 + use_mark];
+	var cell = row.getElementsByTagName('td')[0];
 
 	// Clear cell
 	remove_all_children(cell);
@@ -766,7 +761,7 @@ function toggle_mark(id)
 		spinner.setAttribute('src', 'processing.gif');
 
 		// Get this cell
-		var cell = row.getElementsByTagName('td')[4];
+		var cell = row.getElementsByTagName('td')[5];
 
 		// Clear cell
 		remove_all_children(cell);
@@ -836,7 +831,7 @@ function clear_edits(id)
 		return;
 
 	if (saved_day) {
-		var day = $('#item' + currently_editing + '>td:eq(0)');
+		var day = $('#item' + currently_editing + '>td:eq(1)');
 
 		// Restore original content & state
 		day.empty();
@@ -846,7 +841,7 @@ function clear_edits(id)
 	}
 
 	if (saved_event) {
-		var event = $('#item' + currently_editing + '>td:eq(1)');
+		var event = $('#item' + currently_editing + '>td:eq(2)');
 
 		// Restore original content & state
 		event.empty();
@@ -856,7 +851,7 @@ function clear_edits(id)
 	}
 
 	if (saved_location != null) {
-		var location = $('#item' + currently_editing + '>td:eq(2)');
+		var location = $('#item' + currently_editing + '>td:eq(3)');
 
 		// Restore original content & state
 		location.empty();
@@ -866,7 +861,7 @@ function clear_edits(id)
 	}
 
 	if (saved_start != null || saved_end != null) {
-		var time = $('#item' + currently_editing + '>td:eq(3)');
+		var time = $('#item' + currently_editing + '>td:eq(4)');
 
 		// Restore original content and state
 		time.empty();

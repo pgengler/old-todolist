@@ -58,8 +58,7 @@ input.time { width: 2.5em; }
 fieldset { border: 0; margin: 0; padding: 0; }
 
 span.done { text-decoration: line-through; }
-input.done { border: 1px solid black; width: 75%; background-color: #eee; }
-input.done:hover { background-color: #ccc; }
+.mark input.mark { background-color: #ccc; }
 
 a:visited { color: blue; }
 
@@ -72,3 +71,18 @@ table#colors tr td { border: 1px solid black; }
 .nodec {
 	text-decoration: none !important;
 }
+
+#weekof {
+	display: none;
+}
+
+input.mark {
+	border: 1px solid black;
+	width: 75%;
+	background-color: white;
+}
+
+	tr.mark input.mark {
+		font-weight: bold;
+		color: red;
+	}

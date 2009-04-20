@@ -37,6 +37,9 @@
 		</script>
 	</head>
  	<body onkeydown="key_handler(event)">
+		<h1 id='weekof'>
+			Week of <!-- TMPL_VAR name='week_start' -->
+		</h1>
 		<form action='javascript:dispatch()' method='post' id='form'>
 		<fieldset>
 		<input type='hidden' name='week' id='week' value='<!-- TMPL_VAR name='week_id' -->' />
@@ -47,6 +50,9 @@
 			<table cellspacing='1' cellpadding='1' id='content'>
 				<thead>
 					<tr id='header'>
+						<th style='width: 1.5em'>
+							&nbsp;
+						</th>
 						<th style='width: 6.5em;'>
 							Day
 						</th>
@@ -64,9 +70,6 @@
 							&nbsp;
 						</th>
 						<!-- /TMPL_IF -->
-						<th style='width: 1.5em'>
-							&nbsp;
-						</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -84,6 +87,13 @@
 				<tr id='item<!-- TMPL_VAR name='id' -->'>
 				<!-- /TMPL_IF -->
 				<!-- /TMPL_IF -->
+					<td style='text-align: center' class='nodec'>
+						<!-- TMPL_IF done -->
+						<input type='checkbox' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' checked='checked' />
+						<!-- TMPL_ELSE -->
+						<input type='checkbox' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' />
+						<!-- /TMPL_IF -->
+					</td>
 					<td class='day' onclick='show_day_edit(<!-- TMPL_VAR name='id' -->)'>
 						<!-- TMPL_VAR name='day' --><!-- TMPL_IF show_date --><!-- TMPL_IF date --><span class='date'><!-- TMPL_VAR name='date' --></span>
 						<!-- /TMPL_IF -->
@@ -103,16 +113,9 @@
 					</td>
 					<!-- TMPL_IF use_mark -->
 					<td style='text-align: center' class='nodec'>
-						<!-- TMPL_IF mark -->
-						<input type='checkbox' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' checked='checked' />
-						<!-- TMPL_ELSE -->
-						<input type='checkbox' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' />
-						<!-- /TMPL_IF -->
+						<input type='button' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' class='mark' value='!' /> <!-- <!-- TMPL_VAR name='mark' --> -->
 					</td>
 					<!-- /TMPL_IF -->
-					<td style='text-align: center' class='nodec'>
-						<input type='button' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' value='*' class='done' />
-					</td>
 				</tr>
 				<!-- /TMPL_LOOP -->
 				</tbody>
@@ -120,7 +123,7 @@
 		</td></tr></table>
 		</fieldset>
 		</form>
-		<div>
+		<div id='weeks'>
 			<!-- TMPL_UNLESS events -->
 				<!-- TMPL_UNLESS template -->
 			<form action='<!-- TMPL_VAR name='url' -->index.cgi' method='post' id='template'>
