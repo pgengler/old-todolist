@@ -441,11 +441,8 @@ function update_list(response)
 		}
 	}
 
-	var append = 0;
-	if (!new_row) {
-		new_row = document.createElement('tr');
-		append = 1;
-	}
+	if (!new_row)
+		new_row = tbody.insertRow(-1);
 
 	new_row.setAttribute('id', 'item' + id);
 
@@ -521,9 +518,6 @@ function update_list(response)
 		mark_cell.appendChild(mark_button);
 		new_row.appendChild(mark_cell);
 	}
-
-	if (append == 1)
-		tbody.appendChild(new_row);
 
 	currently_editing = 0;
 	saved_day = saved_event = saved_location = saved_start = saved_end = null;
