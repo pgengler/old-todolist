@@ -121,10 +121,12 @@ function sync_boxes()
 
 		var box = document.getElementById('done' + id);
 
-		if (done)
-			box.checked = true;
-		else
-			box.checked = false;
+		if (box) {
+			if (done)
+				box.checked = true;
+			else
+				box.checked = false;
+		}
 	}	
 }
 
