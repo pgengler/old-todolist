@@ -33,6 +33,7 @@ var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 function highlight()
 {
 	var curr_week = false;
+	var old_week  = false;
 
 	if (!document.getElementById('template')) {
 		// Check if what we're looking at isn't the current week
@@ -47,6 +48,8 @@ function highlight()
 		var today = new Date();
 		if (today < next_week && !document.getElementById('currweek'))
 			curr_week = true;
+		else if (today >= next_week && !document.getElementById('currweek'))
+			old_week = true;
 	}
 
 	if (curr_week) {
@@ -92,7 +95,10 @@ function highlight()
 			var mark = row.hasClass('mark');
 
 			row.removeClass();
-			row.addClass('future');
+			if (old_week)
+				row.addClass('past');
+			else
+				row.addClass('future');
 
 			if (done)
 				row.addClass('done');
