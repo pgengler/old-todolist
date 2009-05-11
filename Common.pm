@@ -8,11 +8,12 @@ use strict;
 #######
 ## INCLUDES
 #######
+require 'config.pl';
+
 use CGI;
 use Database;
 use HTML::Template;
 use POSIX;
-require 'config.pl';
 
 #######
 ## GLOBALS

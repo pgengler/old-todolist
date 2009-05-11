@@ -2,7 +2,9 @@ package Database;
 
 use strict;
 use DBI;
-use CGI::Carp "fatalsToBrowser";
+if ($Config::DEBUG) {
+	eval("use CGI::Carp 'fatalsToBrowser';");
+}
 
 sub new()
 {
