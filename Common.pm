@@ -123,6 +123,23 @@ sub load_html_template()
 }
 
 #######
+## LOAD XML TEMPLATE
+## Given a filename (without extension), loads it as an HTML::Template object and returns it.
+#######
+sub load_xml_template()
+{
+	my $filename = shift;
+
+	my $xml = new HTML::Template(
+		filename          => 'templates/' . $filename . '.xtmpl',
+		global_vars       => 1,
+		loop_context_vars => 1
+	);
+
+	return $xml;
+}
+
+#######
 ## ERROR
 ## Displays an error message to the user
 #######
@@ -251,23 +268,6 @@ sub load_template()
 	}
 
 	return $week;
-}
-
-#######
-## LOAD XML TEMPLATE
-## Given a filename (without extension), loads it as an HTML::Template object and returns it.
-#######
-sub load_xml_template()
-{
-	my $filename = shift;
-
-	my $xml = new HTML::Template(
-		filename          => 'templates/' . $filename . '.xtmpl',
-		global_vars       => 1,
-		loop_context_vars => 1
-	);
-
-	return $xml;
 }
 
 #######
