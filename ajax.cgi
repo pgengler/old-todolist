@@ -52,9 +52,9 @@ sub add_new_item()
 	my $end      = $Common::cgi->param('end');
 	my $location = $Common::cgi->param('location');
 
-	# Check that the important stuff is here
+	# Check that the important stuff is here; give an error if it's not
 	unless ($week && $event) {
-		exit;
+		&error('Invalid request');
 	}
 
 	# A day value of '-' should be emptied to be NULL in the DB for "no day"
@@ -412,4 +412,24 @@ sub get_item_by_id()
 	}
 
 	return $item;
+}
+
+#######
+## ERROR
+#######
+sub error()
+{
+	my $msg = shift;
+
+	# Load XML template
+	my $xml = &Common::load_xml_template('error');
+
+	# Set template params
+	$xml->param(msg => $msg);
+
+	# Output
+	print $Common::cgi->header( -type => 'text/xml' );
+	print $xml->output();
+
+	exit;
 }

@@ -299,6 +299,12 @@ function submit_new_item()
 	var start    = start_box.value;
 	var end      = end_box.value;
 
+	// Make sure the important fields have values (Todo #1367)
+	if (!week || !event) {
+		alert("Missing some key information!");
+		return;
+	}
+
 	var ajax = new AJAX(base_url, update_list);
 
 	ajax.send('action=add&week=' + week + '&day=' + day + '&event=' + escape(event) + '&location=' + escape(location) + '&start=' + start + '&end=' + end);
@@ -325,6 +331,12 @@ function update_list(response)
 {
 	if (!response)
 		return;
+
+	if (response.getElementsByTagName('error').length > 0) {
+		var message = response.getElementsByTagName('error')[0].getElementsByTagName('message')[0].firstChild.nodeValue;
+		alert(message);
+		return;
+	}
 
 	var root  = response.getElementsByTagName('item')[0];
 	var id    = parseInt(root.getElementsByTagName('id')[0].firstChild.nodeValue);
