@@ -89,8 +89,7 @@ sub add_new_item()
 	my $item = &get_item_by_id($new_id);
 
 	# Output
-	print $Common::cgi->header(-type => 'text/xml');
-	print &Common::item_to_xml($item);
+	&Common::output(&Common::item_to_xml($item), 1);
 }
 
 #######
@@ -177,8 +176,7 @@ sub change_day()
 	my $item = &get_item_by_id($id);
 
 	# Output
-	print $Common::cgi->header(-type => 'text/xml');
-	print &Common::item_to_xml($item);
+	&Common::output(&Common::item_to_xml($item), 1);
 }
 
 #######
@@ -247,8 +245,7 @@ sub move_unfinished()
 	$xml->param(items => \@items);
 
 	# Output
-	print $Common::cgi->header(-type => 'text/xml');
-	print $xml->output();
+	&Common::output($xml, 1);
 }
 
 ######
@@ -309,8 +306,8 @@ sub save_item()
 
 	my $item = &get_item_by_id($id);
 
-	print $Common::cgi->header(-type => 'text/xml');
-	print &Common::item_to_xml($item);
+	# Output
+	&Common::output(&Common::item_to_xml($item), 1);
 }
 
 #######
@@ -330,7 +327,7 @@ sub delete_item()
 	$Common::db->execute($id);
 
 	# No output necessary, except a header
-	print $Common::cgi->header();
+	&Common::output();
 }
 
 #######
@@ -356,8 +353,7 @@ sub toggle_item_done()
 	$Common::db->execute($item->{'done'}, $id);
 
 	# Output
-	print $Common::cgi->header(-type => 'text/xml');
-	print &Common::item_to_xml($item);
+	&Common::output(&Common::item_to_xml($item), 1);
 }
 
 #######
@@ -383,8 +379,7 @@ sub toggle_marked()
 	$Common::db->execute($item->{'mark'}, $id);
 
 	# Output
-	print $Common::cgi->header(-type => 'text/xml');
-	print &Common::item_to_xml($item);	
+	&Common::output(&Common::item_to_xml($item), 1);
 }
 
 #######
@@ -428,8 +423,7 @@ sub error()
 	$xml->param(msg => $msg);
 
 	# Output
-	print $Common::cgi->header( -type => 'text/xml' );
-	print $xml->output();
+	&Common::output($xml, 1);
 
 	exit;
 }

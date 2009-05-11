@@ -186,8 +186,7 @@ sub show_list()
 	$html->param(index_url    => $Config::url);
 
 	# Output
-	print $Common::cgi->header();
-	print $html->output();
+	&Common::output($html);
 }
 
 #######

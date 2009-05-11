@@ -155,8 +155,7 @@ sub error()
 
 	$html->param(message => $message);
 
-	print $cgi->header();
-	print $html->output();
+	&output($html);
 
 	exit;
 }
@@ -272,7 +271,7 @@ sub load_template()
 
 #######
 ## ITEM TO XML
-## Returns the XML for the item
+## Returns an HTML::Template object to get the XML for the item
 #######
 sub item_to_xml()
 {
@@ -293,7 +292,7 @@ sub item_to_xml()
 	$xml->param(done     => $item->{'done'});
 	$xml->param(mark     => $item->{'mark'});
 	
-	return $xml->output();
+	return $xml;
 }
 
 #######
@@ -339,6 +338,23 @@ sub trim()
 	$str =~ s/^\s*(.+)\s*$/$1/;
 
 	return $str;
+}
+
+#######
+## OUTPUT
+#######
+sub output()
+{
+	my ($tmpl, $xml) = @_;
+
+	if ($xml) {
+		print $cgi->header( -type => 'text/xml' );
+	} else {
+		print $cgi->header();
+	}
+	if ($tmpl) {
+		print $tmpl->output();
+	}
 }
 
 1;
