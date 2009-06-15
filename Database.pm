@@ -32,7 +32,7 @@ sub init()
 	} else {
 		$this->{'error'} = \&error;
 	}
-	$this->{'dbh'} = DBI->connect("DBI:mysql:$database:$host:3306", $user, $password) or $this->{'error'}->(Carp::longmess(DBI::errstr), 1);
+	$this->{'dbh'} = DBI->connect("DBI:mysql:$database:$host:3306;mysql_enable_utf8=1", $user, $password) or $this->{'error'}->(Carp::longmess(DBI::errstr), 1);
 }
 
 sub close()
@@ -104,8 +104,8 @@ sub rollback_transaction()
 		return;
 	}
 
-	my $sth = $this->{'dbh'}->prepare('ROLLBACK');
-	$sth->execute();
+	$this->{'dbh'}->prepare('ROLLBACK');
+	$this->{'dbh'}->execute();
 	$this->{'transaction'} = 0;
 }	
 

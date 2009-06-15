@@ -362,9 +362,9 @@ sub output()
 	my ($tmpl, $xml) = @_;
 
 	if ($xml) {
-		print $cgi->header( -type => 'text/xml' );
+		print $cgi->header( -type => 'text/xml', -charset => 'UTF-8' );
 	} else {
-		print $cgi->header();
+		print $cgi->header( -charset => 'UTF-8' );
 	}
 	if ($tmpl) {
 		print $tmpl->output();
