@@ -496,7 +496,7 @@ function show_styles_dropdown(id)
 	var cell = document.createElement('td');
 	cell.setAttribute('colspan', '6');
 	cell.setAttribute('onclick', 'set_tag_style(' + id + ',0)');
-	if (tag.style() == 0)
+	if ((!tag && new_tag_style == 0) || (tag && tag.style() == 0))
 		cell.appendChild(document.createTextNode(String.fromCharCode(10004)));
 	cell.appendChild(document.createTextNode(' No style'));
 	row.appendChild(cell);
