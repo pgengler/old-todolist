@@ -1,4 +1,4 @@
-#!/usr/bin/perl -wT
+#!/usr/bin/perl -w
 
 use strict;
 
@@ -25,13 +25,18 @@ my $parser = new XML::Simple;
 my $action = $Common::cgi->param('action');
 
 my %actions = (
-	'add'    => \&add_new_item,
-	'day'    => \&change_day,
-	'save'   => \&save_item,
-	'done'   => \&toggle_item_done,
-	'delete' => \&delete_item,
-	'mark'   => \&toggle_marked,
-	'move'   => \&move_unfinished
+	'add'       => \&add_new_item,
+	'day'       => \&change_day,
+	'save'      => \&save_item,
+	'done'      => \&toggle_item_done,
+	'delete'    => \&delete_item,
+	'mark'      => \&toggle_marked,
+	'move'      => \&move_unfinished,
+	'load'      => \&list_items,
+	'itemtags'  => \&update_item_tags,
+	'addtag'    => \&add_tag,
+	'savetag'   => \&save_tag,
+	'removetag' => \&remove_tag
 );
 
 if ($action && $actions{ $action }) {
@@ -85,11 +90,7 @@ sub add_new_item()
 
 	$day = -1 if $origday eq '-';
 
-	# Get the new item
-	my $item = &get_item_by_id($new_id);
-
-	# Output
-	&Common::output(&Common::item_to_xml($item), 1);
+	&list_items($week);
 }
 
 #######
@@ -101,29 +102,20 @@ sub change_day()
 	my $id  = $Common::cgi->param('id');
 	my $day = $Common::cgi->param('day');
 
+	my $item = &get_item_by_id($id);
+	return unless ($item && $item->{'id'});
+
 	if ($day eq '8') {
 		# Move to next week
 
-		## Get item info
-		my $query = qq~
-			SELECT id, week
-			FROM todo
-			WHERE id = ?
-		~;
-		$Common::db->prepare($query);
-		my $sth = $Common::db->execute($id);
-		my $item = $sth->fetchrow_hashref();
-
-		return unless ($item && $item->{'id'});
-
 		## Get the week the item's currently in
-		$query = qq~
+		my $query = qq~
 			SELECT id, start, end
 			FROM todo_weeks
 			WHERE id = ?
 		~;
 		$Common::db->prepare($query);
-		$sth = $Common::db->execute($item->{'week'});
+		my $sth = $Common::db->execute($item->{'week'});
 		my $old_week = $sth->fetchrow_hashref();
 
 		## Check if the next week already exists
@@ -173,10 +165,7 @@ sub change_day()
 		$Common::db->execute($day, $id);
 	}
 
-	my $item = &get_item_by_id($id);
-
-	# Output
-	&Common::output(&Common::item_to_xml($item), 1);
+	&list_items($item->{'week'});
 }
 
 #######
@@ -238,14 +227,7 @@ sub move_unfinished()
 		$Common::db->execute($next_week->{'id'}, $item->{'id'});
 	}
 
-	# Load XML template
-	my $xml = &Common::load_xml_template('moved');
-
-	# Set template parameters
-	$xml->param(items => \@items);
-
-	# Output
-	&Common::output($xml, 1);
+	&list_items($curr_week->{'id'});
 }
 
 ######
@@ -306,8 +288,7 @@ sub save_item()
 
 	my $item = &get_item_by_id($id);
 
-	# Output
-	&Common::output(&Common::item_to_xml($item), 1);
+	&list_items($item->{'week'});
 }
 
 #######
@@ -318,6 +299,8 @@ sub delete_item()
 	# Get CGI params
 	my $id = $Common::cgi->param('id');
 
+	my $item = &get_item_by_id($id);
+
 	# Delete the item
 	my $query = qq~
 		DELETE FROM todo
@@ -326,8 +309,7 @@ sub delete_item()
 	$Common::db->prepare($query);
 	$Common::db->execute($id);
 
-	# No output necessary, except a header
-	&Common::output();
+	&list_items($item->{'week'});
 }
 
 #######
@@ -352,8 +334,7 @@ sub toggle_item_done()
 	$Common::db->prepare($query);
 	$Common::db->execute($item->{'done'}, $id);
 
-	# Output
-	&Common::output(&Common::item_to_xml($item), 1);
+	&list_items($item->{'week'});
 }
 
 #######
@@ -378,8 +359,7 @@ sub toggle_marked()
 	$Common::db->prepare($query);
 	$Common::db->execute($item->{'mark'}, $id);
 
-	# Output
-	&Common::output(&Common::item_to_xml($item), 1);
+	&list_items($item->{'week'});
 }
 
 #######
@@ -406,6 +386,23 @@ sub get_item_by_id()
 		$item->{'date'} = strftime($Config::date_format, 0, 0, 0, $day, $month - 1, $year - 1900);
 	}
 
+	# Get tags
+	$query = qq~
+		SELECT t.id, t.name, t.style
+		FROM tags t
+		LEFT JOIN item_tags it ON it.tag_id = t.id
+		WHERE it.item_id = ? AND t.active = 1
+		ORDER BY t.name
+	~;
+	$Common::db->prepare($query);
+	$sth = $Common::db->execute($item->{'id'});
+
+	my @tags;
+	while (my $tag = $sth->fetchrow_hashref()) {
+		push @tags, $tag;
+	}
+	$item->{'tags'} = \@tags;
+
 	return $item;
 }
 
@@ -426,4 +423,247 @@ sub error()
 	&Common::output($xml, 1);
 
 	exit;
+}
+
+#######
+## LIST ITEMS
+#######
+sub list_items()
+{
+	# Get parameters
+	my $week_id = shift || $Common::cgi->param('week');
+
+	# Load items
+	my $query = qq~
+		SELECT t.id, IF(t.day, t.day, ?) day, t.event, t.location, t.start, t.end, t.done, t.mark, DATE_ADD(tw.start, INTERVAL (t.day - 1) DAY) AS date
+		FROM todo t
+		LEFT JOIN todo_weeks tw ON tw.id = t.week
+		WHERE week = ?
+		ORDER BY day, t.start, t.end, t.event, t.done
+	~;
+	$Common::db->prepare($query);
+	my $sth = $Common::db->execute($Config::undated_last ? 7 : -1, $week_id);
+
+	my @items;
+
+	$query = qq~
+		SELECT t.id
+		FROM tags t
+		LEFT JOIN item_tags it ON it.tag_id = t.id
+		WHERE it.item_id = ? AND t.active = 1
+		ORDER BY t.name
+	~;
+	$Common::db->prepare($query);
+
+	while (my $item = $sth->fetchrow_hashref()) {
+		if ($Config::show_date) {
+			if ($item->{'day'} < 0 || $item->{'day'} > 6) {
+				undef $item->{'date'};
+			} else {
+				my ($year, $month, $day) = split(/-/, $item->{'date'});
+				$item->{'date'} = strftime($Config::date_format, 0, 0, 0, $day, $month - 1, $year - 1900);
+			}
+		} else {
+			undef $item->{'date'};
+		}
+
+		unless ($Config::use_mark) {
+			$item->{'mark'} = 0;
+		}
+
+		my $sth = $Common::db->execute($item->{'id'});
+		my @tags;
+
+		while (my $tag = $sth->fetchrow_hashref()) {
+			push @tags, $tag;
+		}
+		$item->{'tags'} = \@tags;
+
+		push @items, $item;
+	}
+
+	# Load XML template
+	my $xml = &Common::load_xml_template('items');
+
+	# Set template params
+	$xml->param(week  => $week_id);
+	$xml->param(items => \@items);
+	$xml->param(tags  => &get_tags());
+
+	# Output
+	&Common::output($xml, 1);
+}
+
+sub get_tags()
+{
+	my $query = qq~
+		SELECT id, name, style
+		FROM tags
+		WHERE active = 1
+		ORDER BY name
+	~;
+	$Common::db->prepare($query);
+	my $sth = $Common::db->execute();
+
+	my @tags;
+
+	while (my $tag = $sth->fetchrow_hashref()) {
+		push @tags, $tag;
+	}
+
+	return \@tags;
+}
+
+sub update_item_tags()
+{
+	# Get CGI params
+	my $item_id   = $Common::cgi->param('id');
+	my $item_tags = $Common::cgi->param('tags');
+
+	# Make sure item exists
+	my $item = &get_item_by_id($item_id);
+	unless ($item && $item->{'id'}) {
+		&error('Invalid item');
+	}
+
+	# Start transaction to ensure consistency
+	$Common::db->start_transaction();
+
+	# Remove all current tags for the item
+	my $query = qq~
+		DELETE FROM item_tags
+		WHERE item_id = ?
+	~;
+	$Common::db->prepare($query);
+	$Common::db->execute($item->{'id'});
+
+	# Split tags param into parts
+	my @tags = split(/,/, $item_tags);
+
+	# Add tags, if any
+	if (scalar(@tags) > 0) {
+		$query = qq~
+			INSERT INTO item_tags
+			(item_id, tag_id)
+			VALUES
+			(?, ?)
+		~;
+		$Common::db->prepare($query);
+
+		foreach my $tag (@tags) {
+			$Common::db->execute($item->{'id'}, $tag);
+		}
+	}
+	$Common::db->commit_transaction();
+
+	&list_items($item->{'week'});
+}
+
+#######
+## ADD TAG
+#######
+sub add_tag()
+{
+	# Get CGI params
+	my $name  = $Common::cgi->param('name');
+	my $style = $Common::cgi->param('style');
+
+	# TODO: Check for valid values
+
+	my $query = qq~
+		INSERT INTO tags
+		(name, style)
+		VALUES
+		(?, ?)
+	~;
+	$Common::db->prepare($query);
+	$Common::db->execute($name, $style);
+
+	&list_tags();	
+}
+
+#######
+## REMOVE TAG
+#######
+sub remove_tag()
+{
+	# Get CGI params
+	my $week_id = $Common::cgi->param('week');
+	my $tag_id  = $Common::cgi->param('id');
+
+	# Mark as inactive (so it's not used; effectively the same as doing a DELETE)
+	my $query = qq~
+		UPDATE tags
+		SET active = 0
+		WHERE id = ?
+	~;
+	$Common::db->prepare($query);
+	$Common::db->execute($tag_id);
+
+	&list_items($week_id);
+}
+
+#######
+## SAVE TAG
+#######
+sub save_tag()
+{
+	# Get CGI params
+	my $tag_id = $Common::cgi->param('id');
+	my $name   = $Common::cgi->param('name');
+	my $style  = $Common::cgi->param('style');
+
+	if ($name) {
+		my $query = qq~
+			UPDATE tags
+			SET name = ?
+			WHERE id = ?
+		~;
+		$Common::db->prepare($query);
+		$Common::db->execute($name, $tag_id);
+	}
+	if ($style) {
+		if (int($style) == -1) {
+			$style = 0;
+		}
+		my $query = qq~
+			UPDATE tags
+			SET style = ?
+			WHERE id = ?
+		~;
+		$Common::db->prepare($query);
+		$Common::db->execute($style, $tag_id);
+	}
+
+	&list_tags();
+}
+
+#######
+## LIST TAGS
+#######
+sub list_tags()
+{
+	my $query = qq~
+		SELECT id, name, style
+		FROM tags
+		WHERE active = 1
+		ORDER BY name
+	~;
+	$Common::db->prepare($query);
+	my $sth = $Common::db->execute();
+
+	my @tags;
+
+	while (my $tag = $sth->fetchrow_hashref()) {
+		push @tags, $tag;
+	}
+
+	# Load XML template
+	my $xml = &Common::load_xml_template('tags');
+
+	# Set template params
+	$xml->param(tags => \@tags);
+
+	# Output
+	&Common::output($xml, 1);
 }

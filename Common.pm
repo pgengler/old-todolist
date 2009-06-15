@@ -255,16 +255,28 @@ sub load_template()
 	$sth = $db->execute($template_week->{'id'});
 
 	# Add the items to the specified week
-	$query = qq~
-		INSERT INTO todo
-		(week, day, event, location, start, end, done, mark)
-		VALUES
-		(?, ?, ?, ?, ?, ?, ?, ?)
-	~;
-	$db->prepare($query);
-
 	while (my $item = $sth->fetchrow_hashref()) {
+		$query = qq~
+			INSERT INTO todo
+			(week, day, event, location, start, end, done, mark)
+			VALUES
+			(?, ?, ?, ?, ?, ?, ?, ?)
+		~;
+		$db->prepare($query);
 		$db->execute($week->{'id'}, $item->{'day'}, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'done'}, $item->{'mark'});
+
+		my $new_id = $db->insert_id();
+
+		# Add tags
+		$query = qq~
+			INSERT INTO item_tags
+			(item_id, tag_id)
+			SELECT ?, tag_id
+			FROM item_tags
+			WHERE item_id = ?
+		~;
+		$db->prepare($query);
+		$db->execute($new_id, $item->{'id'});
 	}
 
 	return $week;
@@ -292,6 +304,7 @@ sub item_to_xml()
 	$xml->param(end      => $item->{'end'});
 	$xml->param(done     => $item->{'done'});
 	$xml->param(mark     => $item->{'mark'});
+	$xml->param(tags     => $item->{'tags'});
 	
 	return $xml;
 }

@@ -9,5 +9,10 @@
 	<end><!-- TMPL_VAR name='end' --></end>
 	<done><!-- TMPL_VAR name='done' --></done>
 	<mark><!-- TMPL_VAR name='mark' --></mark>
+	<tags>
+		<!-- TMPL_LOOP name='tags' -->
+		<tag id='<!-- TMPL_VAR name='id' -->' style='<!-- TMPL_VAR name='style' -->'><!-- TMPL_VAR name='name' escape='html' --></tag>
+		<!-- /TMPL_LOOP -->
+	</tags>
 </item>
 

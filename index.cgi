@@ -148,36 +148,6 @@ sub show_list()
 		$html->param(template => 1);
 	}
 
-	# Get all items for the current week
-	my $query = qq~
-		SELECT t.id, IF(t.day, t.day, ?) day, t.event, t.location, t.start, t.end, t.done, t.mark, DATE_ADD(tw.start, INTERVAL (t.day - 1) DAY) AS date
-		FROM todo t
-		LEFT JOIN todo_weeks tw ON tw.id = t.week
-		WHERE week = ?
-		ORDER BY day, t.start, t.end, t.event, t.done
-	~;
-	$Common::db->prepare($query);
-	my $sth = $Common::db->execute($Config::undated_last ? 7 : -1, $week->{'id'});
-
-	my @events;
-
-	while (my $event = $sth->fetchrow_hashref()) {
-		$event->{'day'} = &Common::get_day_name($event->{'day'});
-		$event->{'mark_css'} = ($event->{'mark'} && !$event->{'done'});
-		if ($Config::show_date) {
-			if ($event->{'day'} eq '--') {
-				undef $event->{'date'};
-			} else {
-				my ($year, $month, $day) = split(/-/, $event->{'date'});
-				$event->{'date'} = strftime($Config::date_format, 0, 0, 0, $day, $month - 1, $year - 1900);
-			}
-		} else {
-			undef $event->{'date'};
-		}
-		push @events, $event;
-	}
-
-	$html->param(events       => \@events);
 	$html->param(url          => $Config::url);
 	$html->param(show_date    => $Config::show_date);
 	$html->param(use_mark     => $Config::use_mark ? 1 : 0);

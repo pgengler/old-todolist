@@ -14,7 +14,11 @@
 		<link href='<!-- TMPL_VAR name='url' -->list.css' type='text/css' rel='stylesheet' />
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->jquery.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->ajax.js'></script>
+		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->hashtable.js'></script>
+		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->tag.js'></script>
+		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->item.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->todo.js'></script>
+		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->loader.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->strftime.js'></script>
 		<script type='text/javascript'>
 			var index_url    = '<!-- TMPL_VAR name='index_url' -->';
@@ -46,7 +50,10 @@
 		<!-- TMPL_IF template -->
 		<input type='hidden' name='template' id='template' value='1' />
 		<!-- /TMPL_IF -->
-		<table><tr><td class='back'>
+		<div id='extra'>
+
+		</div>
+		<table id='outer'><tr><td class='back'>
 			<table cellspacing='1' cellpadding='1' id='content'>
 				<thead>
 					<tr id='header'>
@@ -73,68 +80,17 @@
 					</tr>
 				</thead>
 				<tbody>
-				<!-- TMPL_LOOP name='events' -->
-				<!-- TMPL_IF mark_css -->
-				<!-- TMPL_IF done -->
-				<tr class='mark done' id='item<!-- TMPL_VAR name='id' -->'>
-				<!-- TMPL_ELSE -->
-				<tr class='mark' id='item<!-- TMPL_VAR name='id' -->'>
-				<!-- /TMPL_IF -->
-				<!-- TMPL_ELSE -->
-				<!-- TMPL_IF done -->
-				<tr class='done' id='item<!-- TMPL_VAR name='id' -->'>
-				<!-- TMPL_ELSE -->
-				<tr id='item<!-- TMPL_VAR name='id' -->'>
-				<!-- /TMPL_IF -->
-				<!-- /TMPL_IF -->
-					<td style='text-align: center' class='nodec'>
-						<!-- TMPL_IF done -->
-						<input type='checkbox' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' checked='checked' />
-						<!-- TMPL_ELSE -->
-						<input type='checkbox' id='done<!-- TMPL_VAR name='id' -->' onclick='toggle_done(<!-- TMPL_VAR name='id' -->)' />
-						<!-- /TMPL_IF -->
-					</td>
-					<td class='day' onclick='show_day_edit(<!-- TMPL_VAR name='id' -->)'>
-						<!-- TMPL_VAR name='day' --><!-- TMPL_IF show_date --><!-- TMPL_IF date --><span class='date'><!-- TMPL_VAR name='date' --></span>
-						<!-- /TMPL_IF -->
-						<!-- /TMPL_IF -->
-					</td>
-					<td onclick='show_event_edit(<!-- TMPL_VAR name='id' -->)'>
-						<!-- TMPL_VAR name='event' escape='html' -->
-					</td>
-					<td onclick='show_location_edit(<!-- TMPL_VAR name='id' -->)'>
-						<!-- TMPL_VAR name='location' escape='html' -->
-					</td>
-					<td onclick='show_times_edit(<!-- TMPL_VAR name='id' -->)'>
-						<!-- TMPL_VAR name='start' -->
-						<!-- TMPL_IF end -->
-						&ndash; <!-- TMPL_VAR name='end' -->
-						<!-- /TMPL_IF -->
-					</td>
-					<!-- TMPL_IF use_mark -->
-					<td style='text-align: center' class='nodec'>
-						<input type='button' id='mark<!-- TMPL_VAR name='id' -->' onclick='toggle_mark(<!-- TMPL_VAR name='id' -->)' class='mark' value='!' /> <!-- <!-- TMPL_VAR name='mark' --> -->
-					</td>
-					<!-- /TMPL_IF -->
-				</tr>
-				<!-- /TMPL_LOOP -->
+					<tr>
+						<td colspan='6'>
+							&nbsp;
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</td></tr></table>
 		</fieldset>
 		</form>
 		<div id='weeks'>
-			<!-- TMPL_UNLESS events -->
-				<!-- TMPL_UNLESS template -->
-			<form action='<!-- TMPL_VAR name='url' -->index.cgi' method='post' id='template'>
-			<fieldset>
-				<input type='hidden' name='act' value='template' />
-				<input type='hidden' name='week' value='<!-- TMPL_VAR name='week_id' -->' />
-				<input type='submit' value='Load template' />
-			</fieldset>
-			</form>
-				<!-- /TMPL_UNLESS -->
-			<!-- /TMPL_UNLESS -->
 			<a href="javascript:new_item_form()">Add new item</a>
 			<!-- TMPL_IF prev_week -->
 			<br />
@@ -167,31 +123,9 @@
 			<!-- /TMPL_IF -->
 		</div>
 		<!-- TMPL_UNLESS template -->
-		<div id='opts'>
-			<strong>
-				Options:
-			</strong>
-			<span id='options' class='hidden'>
-				<a href='#' onclick='return load_template()'>Load template</a>
-				|
-				<a href='#' onclick='return move_incomplete()'>Move unfinished items to next week</a>
-				|
-				<a href='<!-- TMPL_VAR name='url' -->template/'>Edit template</a>
-				<!-- TMPL_IF use_mark -->
-				|
-				<a href='#' id='colorlabel' onclick='return toggle_colors()'>
-					Show color key
-				</a>
-				<!-- /TMPL_IF -->
-			</span>
-			<a id='optiontoggle' href='#' onclick='return toggle_options()'>
-				[show]
-			</a>
-		</div>
-
 		<!-- TMPL_IF use_mark -->
 		<div style='margin-top: 1em'>
-			<table id='colors' class='hidden'>
+			<table id='colorkey' class='hidden'>
 				<tr>
 					<td class='future' style='width: 50%'>
 						Upcoming
