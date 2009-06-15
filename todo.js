@@ -904,9 +904,8 @@ function dispatch()
 		// Replace the row with a processing message
 		var row = document.getElementById('item' + currently_editing);
 		var len = row.getElementsByTagName('td').length;
-		for (var i = 0; i < len; i++) {
+		for (var i = 0; i < len; i++)
 			row.removeChild(row.getElementsByTagName('td')[0]);
-		}
 		var cell = document.createElement('td');
 		cell.setAttribute('colspan', use_mark ? '6' : '5');
 		cell.setAttribute('style', 'font-style: italic; text-align: center');
@@ -1276,7 +1275,7 @@ function toggle_done(id)
 
 	// Create spinner
 	var spinner = document.createElement('img');
-	spinner.setAttribute('src', 'processing.gif');
+	spinner.setAttribute('src', index_url + 'images/processing.gif');
 
 	// Get this cell
 	var cell = row.getElementsByTagName('td')[0];
