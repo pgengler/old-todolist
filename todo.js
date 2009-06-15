@@ -435,10 +435,10 @@ function edit_tags()
 	document.body.appendChild(edit_tags_div);
 
 	// Position near the 'Edit tags' link
-	var div  = $('#edittags');
-	var link = $('#edittagslink');
-	var pos  = link.offset();
-	pos.left -= (link.width() + div.width());
+	var div   = $('#edittags');
+	var link  = $('#edittagslink');
+	var pos   = link.offset();
+	pos.left -= div.width();
 	div.css(pos);
 }
 
