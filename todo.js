@@ -1232,7 +1232,7 @@ function show_times_edit(id)
 	startbox.setAttribute('id', 'start');
 	startbox.setAttribute('class', 'time');
 
-	if (start != -1)
+	if (item.start() != -1)
 		startbox.value = item.start();
 
 	// Create a new end time textbox
@@ -1242,7 +1242,7 @@ function show_times_edit(id)
 	endbox.setAttribute('id', 'end');
 	endbox.setAttribute('class', 'time');
 
-	if (end != -1)
+	if (item.end() != -1)
 		endbox.value = item.end();
 
 	// Create a new span with an &ndash;
