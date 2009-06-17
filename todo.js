@@ -787,7 +787,7 @@ function highlight()
 			var id  = row.getAttribute('id');
 			row = $('#' + id);
 
-			var item = items.get(id.replace(/item', ''));
+			var item = items.get(id.replace(/item/, ''));
 
 			var done = row.hasClass('done');
 			var mark = row.hasClass('mark');
