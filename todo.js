@@ -98,10 +98,9 @@ function populate()
 		var c = things[i];
 
 		// Figure out if any of the item's tags match
-		var ok = false;
-
 		var itags = c.tags();
 		var tlen  = itags.length;
+		var ok    = (tlen == 0 && show_tags.length == 0) ? true : false;
 		for (var j = 0; j < tlen; j++) {
 			if (show_tags.length == 0 || show_tags.hasItem(itags[j]))
 				ok = true;
