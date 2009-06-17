@@ -702,7 +702,7 @@ function hide_add_tag()
 
 function save_tags()
 {
-	var ajax = new AJAX(base_url, function(xml) { load_tags(xml); edit_tags(); refresh_tags(); }); 
+	var ajax = new AJAX(base_url, function(xml) { load_tags(xml); edit_tags(); refresh_tags(); populate_tag_selector(); }); 
 
 	if (!document.getElementById('edittagid'))
 		return false;
