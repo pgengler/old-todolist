@@ -1,6 +1,7 @@
 var template     = 0;
 var items        = new Items();
 var tags         = new Tags();
+var used_tags    = new Hash();
 var show_tags    = new Hash();
 var extra_states = new Hash();
 var menu_stack   = [];
@@ -87,6 +88,9 @@ function populate()
 	// Empty it
 	remove_all_children(tbody);
 
+	delete used_tags;
+	used_tags = new Hash();
+
 	// Add rows
 	var things = items.get_items();
 	var len = things.length;
@@ -96,16 +100,12 @@ function populate()
 		// Figure out if any of the item's tags match
 		var ok = false;
 
-		if (show_tags.length == 0)
-			ok = true;
-		else {
-			var itags = c.tags();
-			var tlen  = itags.length;
-			for (var j = 0; j < tlen; j++)
-				if (show_tags.hasItem(itags[j])) {
-					ok = true;
-					break;
-				}
+		var itags = c.tags();
+		var tlen  = itags.length;
+		for (var j = 0; j < tlen; j++) {
+			if (show_tags.length == 0 || show_tags.hasItem(itags[j]))
+				ok = true;
+			used_tags.setItem(itags[j], 1);
 		}
 					
 		if (ok) {
@@ -223,6 +223,9 @@ function populate_tag_selector()
 	var taglist = tags.items_name();
 	for (var i = 0; i < taglist.length; i++) {
 		var tag = taglist[i];
+
+		if (!used_tags.hasItem(tag.id()))
+			continue;
 
 		var tag_item = document.createElement('li');
 
