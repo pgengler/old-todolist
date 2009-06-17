@@ -613,6 +613,8 @@ function rename_tag(id)
 	name_elem.setAttribute('id', 'edittagname');
 	name_elem.setAttribute('value', tag.name());
 	cell.appendChild(name_elem);
+
+	name_elem.focus();
 }
 
 function hide_rename_tag()
@@ -678,6 +680,8 @@ function add_tag_form()
 	tag_span.appendChild(document.createTextNode(String.fromCharCode(8194)));
 	style_cell.appendChild(tag_span);
 	row.appendChild(style_cell);
+
+	name_box.focus();
 }
 
 function hide_add_tag()
