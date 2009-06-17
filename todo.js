@@ -797,7 +797,7 @@ function highlight()
 
 			if (item.day() == today)
 				row.addClass('today');
-			else if (item.date() && item.day() < today)
+			else if (item.day() >= 0 && item.day() < today)
 				row.addClass('past');
 			else
 				row.addClass('future');
