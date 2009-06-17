@@ -1452,7 +1452,7 @@ function move_incomplete()
 	var week = document.getElementById('week').value;
 
 	// Create AJAX object
-	var ajax = new AJAX(base_url, populate);
+	var ajax = new AJAX(base_url, process);
 
 	// Make AJAX request
 	ajax.send('action=move&week=' + week);
