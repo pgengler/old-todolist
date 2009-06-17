@@ -749,8 +749,6 @@ function remove_tag(id)
 ///////
 // HIGHLIGHT CURRENT DAY'S ITEMS
 ///////
-var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
 function highlight()
 {
 	var curr_week = false;
@@ -775,16 +773,14 @@ function highlight()
 
 	if (curr_week) {
 		var today = (new Date()).getDay();
-		var day = days[today];
 
 		// Get table
 		var table = document.getElementById('content');
 
 		var rows = table.getElementsByTagName('tr');
 		for (var i = 1; i < rows.length; i++) {
-			var row = rows[i];
-			var id  = row.getAttribute('id');
-			row = $('#' + id);
+			var id  = rows[i].getAttribute('id');
+			var row = $('#' + id);
 
 			var item = items.get(id.replace(/item/, ''));
 
@@ -792,8 +788,6 @@ function highlight()
 			var mark = row.hasClass('mark');
 
 			row.removeClass();
-
-			var date = rows[i].getElementsByTagName('td')[1].firstChild.nodeValue;
 
 			if (item.day() == today)
 				row.addClass('today');
