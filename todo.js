@@ -784,8 +784,10 @@ function highlight()
 		var rows = table.getElementsByTagName('tr');
 		for (var i = 1; i < rows.length; i++) {
 			var row = rows[i];
-			var id  = '#' + row.getAttribute('id');
-			row = $(id);
+			var id  = row.getAttribute('id');
+			row = $('#' + id);
+
+			var item = items.get(id.replace(/item', ''));
 
 			var done = row.hasClass('done');
 			var mark = row.hasClass('mark');
@@ -794,17 +796,17 @@ function highlight()
 
 			var date = rows[i].getElementsByTagName('td')[1].firstChild.nodeValue;
 
-			if (date && date.trim() == day) {
+			if (item.day() == today)
 				row.addClass('today');
-			} else if (date && get_value_of_day(date.trim()) < today && date.trim() != '--') {
+			else if (item.date() && item.day() < today)
 				row.addClass('past');
-			} else {
+			else
 				row.addClass('future');
-			}
-		if (done)
-			row.addClass('done');
-		if (mark)
-			row.addClass('mark');
+
+			if (done)
+				row.addClass('done');
+			if (mark)
+				row.addClass('mark');
 		}
 	} else {
 		// Get table
@@ -1413,29 +1415,6 @@ function get_day_from_value(value)
 		return 'Sat'
 	} else {
 		return '--';
-	}
-}
-
-function get_value_of_day(day)
-{
-	if (day.substring(0, 2) == '--')
-		return (undated_last == 1) ? 7 : -1;
-
-	switch (day.substring(0, 3)) {
-		case 'Sun':
-			return 0;
-		case 'Mon':
-			return 1;
-		case 'Tue':
-			return 2;
-		case 'Wed':
-			return 3;
-		case 'Thu':
-			return 4;
-		case 'Fri':
-			return 5;
-		case 'Sat':
-			return 6;
 	}
 }
 
