@@ -1,3 +1,4 @@
+var template     = 0;
 var items        = new Items();
 var tags         = new Tags();
 var show_tags    = new Hash();
@@ -80,7 +81,8 @@ function populate()
 	// Get the table body
 	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
 
-	show_options();
+	if (!template)
+		show_options();
 
 	// Empty it
 	remove_all_children(tbody);

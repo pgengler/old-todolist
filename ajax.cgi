@@ -433,6 +433,16 @@ sub list_items()
 	# Get parameters
 	my $week_id = shift || $Common::cgi->param('week');
 
+	# Check if this week is the template
+	my $query = qq~
+		SELECT IF(start, 0, 1) template
+		FROM todo_weeks
+		WHERE id = ?
+	~;
+	$Common::db->prepare($query);
+	my $sth = $Common::db->execute($week_id);
+	my $template = $sth->fetchrow_hashref()->{'template'};
+
 	# Load items
 	my $query = qq~
 		SELECT t.id, IF(t.day, t.day, ?) day, t.event, t.location, t.start, t.end, t.done, t.mark, DATE_ADD(tw.start, INTERVAL (t.day - 1) DAY) AS date
@@ -486,9 +496,10 @@ sub list_items()
 	my $xml = &Common::load_xml_template('items');
 
 	# Set template params
-	$xml->param(week  => $week_id);
-	$xml->param(items => \@items);
-	$xml->param(tags  => &get_tags());
+	$xml->param(week     => $week_id);
+	$xml->param(template => $template);
+	$xml->param(items    => \@items);
+	$xml->param(tags     => &get_tags());
 
 	# Output
 	&Common::output($xml, 1);

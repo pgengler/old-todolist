@@ -19,6 +19,8 @@ function process(response)
 	clear_edits();
 	hide_tags_menu();
 
+	template = parseInt(root.getAttribute('template'));
+
 	// Load tag data
 	load_tags(root.getElementsByTagName('tags')[0]);
 
