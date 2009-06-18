@@ -1,0 +1,139 @@
+div.tags {
+	display: inline;
+	float: right;
+	text-align: right;
+}
+
+	span.tag {
+		font-family: sans-serif;
+		font-size: 80%;
+		margin-right: 2px;
+		padding: 0 2px 0 2px;
+		text-align: center;
+		-moz-border-radius: 2px;
+		-webkit-border-radius: 2px;
+		border-radius: 2px;
+	}
+
+	span.tag0 {
+
+	}
+
+	span.tag1 {
+		background-color: #5A6984;
+		color: #DEE7F7;
+	}
+	span.tag2 {
+		background-color: #216DFF;
+		color: #E7EFFF;
+	}
+	span.tag3 {
+		background-color: #0000CE;
+		color: #DEE3FF;
+	}
+
+	span.tag4 {
+		background-color: #5228A5;
+		color: #E7D7FF;
+	}
+
+	span.tag5 {
+		background-color: #844D63;
+		color: #FFEBF7;
+	}
+
+	span.tag6 {
+		background-color: #CE0000;
+		color: #FFE3E7;
+	}
+
+	span.tag7 {
+		background-color: #DEE7F7;
+		color: #5A6984;
+	}
+
+	span.tag8 {
+		background-color: #E7EFFF;
+		color: #216DFF;
+	}
+
+	span.tag9 {
+		background-color: #DEE3FF;
+		color: #0000CE;
+	}
+
+	span.tag10 {
+		background-color: #E7D7FF;
+		color: #5228A5;
+	}
+
+	span.tag11 {
+		background-color: #FFEBF7;
+		color: #844D63;
+	}
+
+	span.tag12 {
+		background-color: #FFE3E7;
+		color: #CE0000;
+	}
+
+	span.tag13 {
+		background-color: #FFF3E7;
+		color: #EF7100;
+	}
+
+	span.tag14 {
+		background-color: #FFDFB5;
+		color: #B56D00;
+	}
+
+	span.tag15 {
+		background-color: #F7E7B5;
+		color: #AD8A00;
+	}
+
+	span.tag16 {
+		background-color: #FFFFD6;
+		color: #636131;
+	}
+
+	span.tag17 {
+		background-color: #FFFFEF;
+		color: #639A29;
+	}
+
+	span.tag18 {
+		background-color: #F7F7EF;
+		color: #006531;
+	}
+
+	span.tag19 {
+		background-color: #EF7100;
+		color: #FFF3E7;
+	}
+
+	span.tag20 {
+		background-color: #B56D00;
+		color: #FFDFB5;
+	}
+
+	span.tag21 {
+		background-color: #AD8A00;
+		color: #F7E7B5;
+	}
+
+	span.tag22 {
+		background-color: #636131;
+		color: #FFFFD6;
+	}
+
+	span.tag23 {
+		background-color: #639A29;
+		color: #FFFFEF;
+	}
+
+	span.tag24 {
+		background-color: #006531;
+		color: #F7F7EF;
+	}
+
