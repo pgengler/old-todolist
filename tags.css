@@ -6,9 +6,9 @@ div.tags {
 
 	span.tag {
 		font-family: sans-serif;
-		font-size: 80%;
+		font-size: 70%;
 		margin-right: 2px;
-		padding: 0 2px 0 2px;
+		padding: 0 .5em 0 .5em;
 		text-align: center;
 		-moz-border-radius: 2px;
 		-webkit-border-radius: 2px;
