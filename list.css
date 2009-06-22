@@ -147,6 +147,10 @@ ul#showtaglist {
 	margin: 0;
 }
 
+	ul#showtaglist span.tag {
+		cursor: pointer;
+	}
+
 div.header {
 	background-color: #ccc;
 	font-weight: bold;
