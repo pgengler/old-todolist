@@ -767,7 +767,7 @@ function highlight()
 		var today = new Date();
 		if (today < next_week && !document.getElementById('currweek'))
 			curr_week = true;
-		else if (today >= next_week && !document.getElementById('currweek'))
+		else if (today >= next_week)
 			old_week = true;
 	}
 
@@ -788,13 +788,14 @@ function highlight()
 			var mark = row.hasClass('mark');
 
 			row.removeClass();
-
 			if (item.day() == today)
 				row.addClass('today');
 			else if (item.day() >= 0 && item.day() < today)
 				row.addClass('past');
-			else
+			else if (item.day() >= 0 && item.day() < 7)
 				row.addClass('future');
+			else
+				row.addClass('undated');
 
 			if (done)
 				row.addClass('done');
@@ -806,7 +807,8 @@ function highlight()
 		var table = document.getElementById('content');
 		var rows = table.getElementsByTagName('tr');
 		for (var i = 1; i < rows.length; i++) {
-			var row = $('#' + rows[i].getAttribute('id'));
+			var id  = rows[i].getAttribute('id');
+			var row = $('#' + id);
 
 			var done = row.hasClass('done');
 			var mark = row.hasClass('mark');

@@ -40,6 +40,14 @@ tr {
 		background-color: #A1FF9E;
 	}
 
+.undated {
+	background-color: white;
+}
+
+	.undated.done {
+		background-color: #EEE;
+	}
+
 th {
 	background-color: #343434;
 	color: white;
