@@ -898,10 +898,10 @@ function dispatch()
 		// Build param string
 		var param_string = "action=save&id=" + currently_editing + '&changed= '+ changed + '&';
 		if (update_event) {
-			param_string += "event=" + escape(event) + "&";
+			param_string += "event=" + encodeURIComponent(event) + "&";
 		}
 		if (update_location) {
-			param_string += "location=" + escape(location) + "&";
+			param_string += "location=" + encodeURIComponent(location) + "&";
 		}
 		if (update_times) {
 			param_string += "start=" + start + "&end=" + end;
@@ -1021,7 +1021,7 @@ function submit_new_item()
 
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send('action=add&week=' + week + '&day=' + day + '&event=' + escape(event) + '&location=' + escape(location) + '&start=' + start + '&end=' + end);
+	ajax.send('action=add&week=' + week + '&day=' + day + '&event=' + encodeURIComponent(event) + '&location=' + encodeURIComponent(location) + '&start=' + start + '&end=' + end);
 
 	// Provide some feedback to let the user know that something's happening
 	var row = document.getElementById('newrow');
