@@ -315,6 +315,7 @@ function show_tags_menu(id)
 	}
 
 	var save_button = document.createElement('button');
+	save_button.setAttribute('id', 'savetags' + id);
 	save_button.setAttribute('onclick', 'save_item_tags(' + id + ')');
 	save_button.appendChild(document.createTextNode('Save'));
 	div.appendChild(save_button);
@@ -343,6 +344,12 @@ function hide_tags_menu()
 
 function save_item_tags(id)
 {
+	// Disable the 'save' button (Todo #1473)
+	var save_button = document.getElementById('savetags' + id);
+	save_button.setAttribute('disabled', 'disabled');
+	remove_all_children(save_button);
+	save_button.appendChild(document.createTextNode('Saving...'));
+
 	var new_tags = [];
 
 	// Go through all of the tags and figure out which ones are checked
