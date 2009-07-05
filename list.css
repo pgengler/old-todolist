@@ -64,7 +64,7 @@ table#outer {
 td.back		{ background-color: black; width: 95%; padding: 0px; }
 td.day		{ font-variant: small-caps; }
 
-tr.past:hover, tr.today:hover, tr.future:hover {
+tr.past:hover, tr.today:hover, tr.future:hover, tr.undated:hover {
 	background-color: #ffffcc !important;
 }
 
