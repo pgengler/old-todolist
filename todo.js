@@ -50,26 +50,17 @@ function show_options()
 	create_extra_box('options', 'Options');
 
 	var options = [
-		{ link: 'javascript:load_template()', text: 'Load template' },
-		{ link: 'javascript:move_incomplete()', text: 'Move unfinished items to next week' },
-		{ link: index_url + 'template/', text: 'Edit template' }
+		{ element: 'li', children: [ { element: 'a', href: 'javascript:load_template()', text: 'Load template' } ] },
+		{ element: 'li', children: [ { element: 'a', href: 'javascript:move_incomplete()', text: 'Move unfinished items to next week' } ] },
+		{ element: 'li', children: [ { element: 'a', href: index_url + 'template/', text: 'Edit template' } ] }
 	];
 	if (use_mark)
-		options.push({ id: 'showcolorkey', link: 'javascript:toggle_color_key()', text: 'Show color key' });
+		options.push({ element: 'ul', children: [ {element: 'a', id: 'showcolorkey', href: 'javascript:toggle_color_key()', text: 'Show color key' } ] });
 
-	var options_list = document.createElement('ul');
-	options_list.setAttribute('id', 'optionslist');
+	var options_list = create_element({
+		element: 'ul', id: 'optionslist', children: options
+	});
 
-	for (var i = 0; i < options.length; i++) {
-		var item = document.createElement('li');
-		var link = document.createElement('a');
-		if (options[i].id)
-			link.setAttribute('id', options[i].id);
-		link.setAttribute('href', options[i].link);
-		link.appendChild(document.createTextNode(options[i].text));
-		item.appendChild(link);
-		options_list.appendChild(item);
-	}
 	document.getElementById('content_options').appendChild(options_list);
 }
 
@@ -131,93 +122,73 @@ function populate_row(row, item)
 	row.setAttribute('class', cls);
 
 	// Create cell for 'done' box
-	var done_cell = document.createElement('td');
-	var done_box = document.createElement('input');
-	done_box.setAttribute('type', 'checkbox');
-	done_box.setAttribute('id', 'done' + item.id());
-	done_box.setAttribute('onclick', 'toggle_done(' + item.id() + ')');
-	done_cell.appendChild(done_box);
-	row.appendChild(done_cell);
+	row.appendChild(create_element({
+		element: 'td',
+		children: [
+			{ element: 'input', type: 'checkbox', id: 'done' + item.id(), onclick: 'toggle_done(' + item.id() + ')' }
+		]
+	}));
 
 	// Create cell for day
-	var day_cell = document.createElement('td');
-	day_cell.setAttribute('class', 'day');
-	day_cell.setAttribute('onclick', 'show_day_edit(' + item.id() + ')');
-	day_cell.appendChild(document.createTextNode(get_day_from_value(item.day())));
-	if (show_date) {
-		var date_span = document.createElement('span');
-		date_span.setAttribute('class', 'date');
-		date_span.appendChild(document.createTextNode(item.date()));
-		day_cell.appendChild(date_span);
-	}
-	row.appendChild(day_cell);
+	var day_cell = {
+		element: 'td', class: 'day', onclick: 'show_day_edit(' + item.id() + ')',
+		text: get_day_from_value(item.day())
+	};
+	if (show_date)
+		day_cell.children = [ { element: 'span', class: 'date', text: item.date() } ];
+	row.appendChild(create_element(day_cell));
 
 	// Create cell for event
-	var event_cell = document.createElement('td')
+	var event_cell = {
+		element: 'td',
+		children: [
+			{ element: 'div', class: 'tags', id: 'tags' + item.id(), children: [] }
+		]
+	};
 
-	var tags_div = document.createElement('div');
-	tags_div.setAttribute('class', 'tags');
-	tags_div.setAttribute('id', 'tags' + item.id());
+	var tags_elems = {
+		element: 'div', class: 'tags', id: 'tags' + item.id(), children: []
+	};
+
 	var item_tags = item.tags();
 	for (var j = 0; j < item_tags.length; j++) {
 		var tag = tags.get(item_tags[j]);
-		var tag_span = document.createElement('span');
-		tag_span.setAttribute('id', 'itemtag' + tag.id() + '_' + item.id());
-		tag_span.setAttribute('class', 'tag tag' + tag.style());
-		tag_span.appendChild(document.createTextNode(tag.name()));
-		tags_div.appendChild(tag_span);
+		event_cell.children[0].children.push({ element: 'span', id: 'itemtag' + tag.id() + '_' + item.id(), class: 'tag tag' + tag.style(), text: tag.name() });
 	}
-	var tags_img = document.createElement('img');
-	tags_img.setAttribute('class', 'tagmenu');
-	tags_img.setAttribute('src', index_url + 'images/arrow.gif');
-	tags_img.setAttribute('id', 't' + item.id());
-	tags_img.setAttribute('onclick', 'show_tags_menu(' + item.id() + ')');
-	tags_div.appendChild(tags_img);
-	event_cell.appendChild(tags_div);
-	var event_div = document.createElement('div');
-	event_div.setAttribute('class', 'event');
-	event_div.setAttribute('id', 'event' + item.id());
-	event_div.setAttribute('onclick', 'show_event_edit(' + item.id() + ')');
-	event_div.appendChild(document.createTextNode(item.event()));
-	event_cell.appendChild(event_div);
-	row.appendChild(event_cell);
+
+	event_cell.children[0].children.push({ element: 'img', class: 'tagmenu', src: index_url + 'images/arrow.gif', id: 't' + item.id(), onclick: 'show_tags_menu(' + item.id() + ')' });
+	event_cell.children.push({ element: 'div', class: 'event', id: 'event' + item.id(), onclick: 'show_event_edit(' + item.id() + ')', text: item.event() });
+	row.appendChild(create_element(event_cell));
 
 	// Create cell for location
-	var location_cell = document.createElement('td');
-	location_cell.setAttribute('onclick', 'show_location_edit(' + item.id() + ')');
-	if (item.location())
-		location_cell.appendChild(document.createTextNode(item.location()));
-	row.appendChild(location_cell);
+	row.appendChild(create_element({ element: 'td', onclick: 'show_location_edit(' + item.id() + ')', text: item.location() }));
 
 	// Create cell for start/end times
-	var time_cell = document.createElement('td');
-	time_cell.setAttribute('onclick', 'show_times_edit(' + item.id() + ')');
+	var time_cell = {
+		element: 'td', onclick: 'show_times_edit(' + item.id() + ')',
+		children: []
+	}
 	if (item.start() != -1)
-		time_cell.appendChild(document.createTextNode(item.start()));
-	if (item.end() != -1) {
-		time_cell.appendChild(document.createTextNode(String.fromCharCode(8211)));
-		time_cell.appendChild(document.createTextNode(item.end()));
-	}
-	row.appendChild(time_cell);
+		time_cell.children.push({ element: 'text', text: item.start() });
+	if (item.end() != -1)
+		time_cell.children.push({ element: 'text', text: String.fromCharCode(8211) + item.end() });
+	row.appendChild(create_element(time_cell));
 
-	if (use_mark) {
+	if (use_mark)
 		// Create cell for 'mark' button
-		var mark_cell = document.createElement('td');
-		var mark_button = document.createElement('input');
-		mark_button.setAttribute('type', 'button');
-		mark_button.setAttribute('class', 'mark');
-		mark_button.setAttribute('value', '*');
-		mark_button.setAttribute('onclick', 'toggle_mark(' + item.id() + ')');
-		mark_button.setAttribute('id', 'mark' + item.id());
-		mark_cell.appendChild(mark_button);
-		row.appendChild(mark_cell);
-	}
+		row.appendChild(create_element({
+			element: 'td',
+			children: [
+				{ element: 'input', type: 'button', class: 'mark', value: '*', onclick: 'toggle_mark(' + item.id() + ')', id: 'mark' + item.id() }
+			]
+		}));
 }
 
 function populate_tag_selector()
 {
-	var tag_list = document.createElement('ul');
-	tag_list.setAttribute('id', 'showtaglist');
+	var tag_list = {
+		element: 'ul', id: 'showtaglist', children: []
+	};
 
 	var taglist = tags.items_name();
 	for (var i = 0; i < taglist.length; i++) {
@@ -226,22 +197,14 @@ function populate_tag_selector()
 		if (!used_tags.hasItem(tag.id()))
 			continue;
 
-		var tag_item = document.createElement('li');
-
-		var tag_span = document.createElement('span');
-		tag_span.setAttribute('id', 'showtag' + tag.id());
-		var cls  = 'tag tag' + tag.style();
-		var name = tag.name();
-		if (show_tags.hasItem(tag.id()))
-			name += String.fromCharCode(10004);
-		else
-			cls += ' unselected';
-		tag_span.setAttribute('class', cls);
-		tag_span.appendChild(document.createTextNode(name));
-		tag_span.setAttribute('onclick', 'toggle_tag_display(' + tag.id() + ')');
-
-		tag_item.appendChild(tag_span);
-		tag_list.appendChild(tag_item);
+		tag_list.children.push({
+			element: 'li',
+			children: [ {
+				element: 'span', id: 'showtag' + tag.id(), onclick: 'toggle_tag_display(' + tag.id() + ')',
+				class: 'tag tag' + tag.style() + (show_tags.hasItem(tag.id()) ? '' : ' unselected'),
+				text: tag.name() + (!show_tags.hasItem(tag.id()) ? '' : String.fromCharCode(10004))
+			} ]
+		});
 	}
 
 	var selector_area = document.getElementById('content_showtags');
@@ -251,16 +214,13 @@ function populate_tag_selector()
 	}
 
 	remove_all_children(selector_area);
-	selector_area.appendChild(tag_list);
-
-	var edit_div = document.createElement('div');
-	edit_div.setAttribute('style', 'text-align: right');
-	var edit_link = document.createElement('a');
-	edit_link.setAttribute('id', 'edittagslink');
-	edit_link.setAttribute('href', 'javascript:edit_tags()');
-	edit_link.appendChild(document.createTextNode('Edit Tags'));
-	edit_div.appendChild(edit_link);
-	selector_area.appendChild(edit_div);
+	selector_area.appendChild(create_element(tag_list));
+	selector_area.appendChild(create_element({
+		element: 'div', style: 'text-align: right',
+		children: [
+			{ element: 'a', id: 'edittagslink', href: 'javascript:edit_tags()', text: 'Edit Tags' }
+		]
+	}));
 }
 
 function toggle_tag_display(id)
@@ -293,34 +253,29 @@ function show_tags_menu(id)
 	var item  = items.get(id);
 	var itags = item.tags();
 
-	var div = document.createElement('div');
-	div.setAttribute('id', 'picktags');
+	var tags_div = {
+		element: 'div', id: 'picktags', children: []
+	};
+
 
 	var taglist = tags.items_name();
 	for (var i = 0; i < taglist.length; i++) {
 		var tag = taglist[i];
 
-		var tag_row = document.createElement('div');
-		var tag_box = document.createElement('input');
-		tag_box.setAttribute('type', 'checkbox');
-		tag_box.setAttribute('id', 'picktag' + tag.id());
-		if (itags.indexOf(tag.id()) != -1)
-			tag_box.setAttribute('checked', 'checked');
-		tag_row.appendChild(tag_box);
-		var tag_span = document.createElement('span');
-		tag_span.setAttribute('class', 'tag tag' + tag.style());
-		tag_span.appendChild(document.createTextNode(tag.name()));
-		tag_row.appendChild(tag_span);
-		div.appendChild(tag_row);
+		tags_div.children.push({
+			element: 'div',
+			children: [
+				{ element: 'input', type: 'checkbox', id: 'picktag' + tag.id(), checked: (itags.indexOf(tag.id()) != -1) },
+				{ element: 'span', class: 'tag tag' + tag.style(), text: tag.name() }
+			]
+		});
 	}
 
-	var save_button = document.createElement('button');
-	save_button.setAttribute('id', 'savetags' + id);
-	save_button.setAttribute('onclick', 'save_item_tags(' + id + ')');
-	save_button.appendChild(document.createTextNode('Save'));
-	div.appendChild(save_button);
+	tags_div.children.push({
+		element: 'button', id: 'savetags' + id, onclick: 'save_item_tags(' + id + ')', text: 'Save'
+	});
 
-	document.body.appendChild(div);
+	document.body.appendChild(create_element(tags_div));
 
 	// Position it
 	var img = $('#t' + id);
@@ -381,69 +336,72 @@ function edit_tags()
 {
 	hide_edit_tags();
 
-	var edit_tags_div = document.createElement('div');
-	edit_tags_div.setAttribute('id', 'edittags');
+	var edit_tags_div = {
+		element: 'div', id: 'edittags',
+		children: [
+			{
+				element: 'form', onsubmit: 'return save_tags()',
+				children: [
+					{ element: 'table', children: [] }
+				]
+			}
+		]
+	};
 
-	var form  = document.createElement('form');
-	form.setAttribute('onsubmit', 'return save_tags()');
-
-	var table = document.createElement('table');
+	var table = edit_tags_div.children[0].children[0].children;
 
 	var taglist = tags.items_name();
 	for (var i = 0; i < taglist.length; i++) {
 		var tag = taglist[i];
 
-		var row = document.createElement('tr');
-
-		var name_cell = document.createElement('td');
-		name_cell.setAttribute('id', 'tagname' + tag.id());
-		name_cell.setAttribute('onclick', 'rename_tag(' + tag.id() + ')');
-		var name_span = document.createElement('span');
-		name_span.setAttribute('class', 'tag tag' + tag.style());
-		name_span.setAttribute('id', 'edittagname' + tag.id());
-		name_span.appendChild(document.createTextNode(tag.name()));
-		name_cell.appendChild(name_span);
-		row.appendChild(name_cell);
-
-		var style_cell = document.createElement('td');
-		var tag_span = document.createElement('span');
-		tag_span.setAttribute('id', 'edittag' + tag.id());
-		tag_span.setAttribute('class', 'dropdown tag tag' + tag.style());
-		tag_span.setAttribute('style', 'cursor: pointer');
-		tag_span.setAttribute('onmouseover', 'show_dropdown_arrow(' + tag.id() + ')');
-		tag_span.setAttribute('onmouseout', 'hide_dropdown_arrow(' + tag.id() + ')');
-		tag_span.setAttribute('onclick', 'show_styles_dropdown(' + tag.id() + ')');
-		tag_span.appendChild(document.createTextNode(String.fromCharCode(8194)));
-		style_cell.appendChild(tag_span);
-		row.appendChild(style_cell);
-
-		var remove_cell = document.createElement('tr');
-		var remove_link = document.createElement('a');
-		remove_link.setAttribute('href', 'javascript:remove_tag(' + tag.id() + ')');
-		var remove_img = document.createElement('img');
-		remove_img.setAttribute('src', index_url + 'images/remove.png');
-		remove_link.appendChild(remove_img);
-		remove_cell.appendChild(remove_link);
-		row.appendChild(remove_cell);
-
-		table.appendChild(row);
+		table.push({
+			element: 'tr',
+			children: [
+				{
+					element: 'td', id: 'tagname' + tag.id(), onclick: 'rename_tag(' + tag.id() + ')',
+					children: [
+						{ element: 'span', class: 'tag tag' + tag.style(), id: 'edittagname' + tag.id(), text: tag.name() }
+					]
+				},
+				{
+					element: 'td',
+					children: [
+						{
+							element: 'span', id: 'edittag' + tag.id(), class: 'dropdown tag tag' + tag.style(), style: 'cursor: pointer', text: String.fromCharCode(8194),
+							onmouseover: 'show_dropdown_arrow(' + tag.id() + ')',
+							onmouseout: 'hide_dropdown_arrow(' + tag.id() + ')',
+							onclick: 'show_styles_dropdown(' + tag.id() + ')'
+						}
+					]
+				},
+				{
+					element: 'td',
+					children: [
+						{
+							element: 'a', href: 'javascript:remove_tag(' + tag.id() + ')',
+							children: [
+								{ element: 'img', src: index_url + 'images/remove.png' }
+							]
+						}
+					]
+				}
+			]
+		});
 	}
 
-	var add_row = document.createElement('tr');
-	add_row.setAttribute('id', 'addtag');
-	var add_cell = document.createElement('td');
-	add_cell.setAttribute('colspan', '3');
-	var add_link = document.createElement('a');
-	add_link.setAttribute('href', 'javascript:add_tag_form()');
-	add_link.appendChild(document.createTextNode('add tag'));
-	add_cell.appendChild(add_link);
-	add_row.appendChild(add_cell);
-	table.appendChild(add_row);
+	table.push({
+		element: 'tr', id: 'addtag',
+		children: [
+			{
+				element: 'td', colspan: 3,
+				children: [
+					{ element: 'a', href: 'javascript:add_tag_form()', text: 'Add tag' }
+				]
+			}
+		]
+	});
 
-	form.appendChild(table);
-	edit_tags_div.appendChild(form);
-
-	document.body.appendChild(edit_tags_div);
+	document.body.appendChild(create_element(edit_tags_div));
 
 	// Position near the 'Edit tags' link
 	var div   = $('#edittags');
@@ -478,44 +436,45 @@ function show_styles_dropdown(id)
 	if (span)
 		span.setAttribute('onclick', 'hide_styles_dropdown(' + id + ')');
 
-	var div = document.createElement('div');
-	div.setAttribute('id', 'styles');
+	var styles_div = {
+		element: 'div', id: 'styles',
+		children: [
+			{ element: 'table', id: 'styletable', children: [] }
+		]
+	};
 
-	var table = document.createElement('table');
-	table.setAttribute('id', 'styletable');
+	var table = styles_div.children[0].children;
 
 	for (var i = 0; i < 4; i++) {
-		var row = document.createElement('tr');
+		var row = { element: 'tr', children: [] };
 		for (var j = 1; j <= 6; j++) {
 			var style = (6 * i) + j;
-			var cell = document.createElement('td');
-			var span = document.createElement('span');
-			span.setAttribute('style', 'cursor: pointer; display: block; width: 1em');
-			span.setAttribute('class', 'tag tag' + style);
-			if ((tag && tag.style() == style) || (!tag && new_tag_style == style))
-				span.appendChild(document.createTextNode(String.fromCharCode(10004)));
-			else
-				span.appendChild(document.createTextNode('a'));
-			span.setAttribute('onclick', 'set_tag_style(' + id + ',' + style + ')');
-			cell.appendChild(span);
-			row.appendChild(cell);
+
+			row.children.push({
+				element: 'td',
+				children: [
+					{
+						element: 'span', style: 'cursor: pointer; display: block; width: 1em', class: 'tag tag' + style, onclick: 'set_tag_style(' + id + ',' + style + ')',
+						text: ((tag && tag.style() == style) || (!tag && new_tag_style == style)) ? String.fromCharCode(10004) : 'a'
+					}
+				]
+			});
 		}
-		table.appendChild(row);
+		table.push(row);
 	}
+
 	// Add 'no style' row
-	var row  = document.createElement('tr');
-	var cell = document.createElement('td');
-	cell.setAttribute('colspan', '6');
-	cell.setAttribute('onclick', 'set_tag_style(' + id + ',0)');
-	if ((!tag && new_tag_style == 0) || (tag && tag.style() == 0))
-		cell.appendChild(document.createTextNode(String.fromCharCode(10004)));
-	cell.appendChild(document.createTextNode(' No style'));
-	row.appendChild(cell);
-	table.appendChild(row);
+	table.push({
+		element: 'tr',
+		children: [
+			{
+				element: 'td', colspan: 6, onclick: 'set_tag_style(' + id + ',0)',
+				text: (((!tag && new_tag_style == 0) || (tag && tag.style() == 0)) ? String.fromCharCode(10004) : '') + ' No style'
+			}
+		]
+	});
 
-	div.appendChild(table);
-
-	document.body.appendChild(div);
+	document.body.appendChild(create_element(styles_div));
 
 	var styles = $('#styles');
 	var edit   = $('#edittag' + id);
@@ -608,22 +567,17 @@ function rename_tag(id)
 	remove_all_children(cell);
 
 	// Populate with the edit fields
-	var id_elem = document.createElement('input');
-	id_elem.setAttribute('type', 'hidden');
-	id_elem.setAttribute('id', 'edittagid');
-	id_elem.setAttribute('value', id);
-	cell.appendChild(id_elem);
+	cell.appendChild(create_element({
+		element: 'input', type: 'hidden', id: 'edittagid', value: id
+	}));
 
 	var tag = tags.get(id);
 
-	var name_elem = document.createElement('input');
-	name_elem.setAttribute('type', 'text');
-	name_elem.setAttribute('class', 'tagname');
-	name_elem.setAttribute('id', 'edittagname');
-	name_elem.setAttribute('value', tag.name());
-	cell.appendChild(name_elem);
+	cell.appendChild(create_element({
+		element: 'input', type: 'text', class: 'tagname', id: 'edittagname', value: tag.name()
+	}));
 
-	name_elem.focus();
+	document.getElementById('edittagname').focus();
 }
 
 function hide_rename_tag()
@@ -647,10 +601,9 @@ function hide_rename_tag()
 
 		var tag  = tags.get(id);
 
-		var span = document.createElement('span');
-		span.setAttribute('class', 'tag tag' + tag.style());
-		span.appendChild(document.createTextNode(tag.name()));
-		cell.appendChild(span);
+		cell.appendChild(create_element({
+			element: 'span', class: 'tag tag' + tag.style(), text: tag.name()
+		}));
 	}
 }
 
@@ -665,32 +618,28 @@ function add_tag_form()
 	new_tag_style = 1;
 
 	// Add fields for info
-	var name_cell = document.createElement('td');
-	var name_box  = document.createElement('input');
-	name_box.setAttribute('type', 'text');
-	name_box.setAttribute('class', 'tagname');
-	name_box.setAttribute('id', 'addtagname');
-	name_cell.appendChild(name_box);
-	var id_elem = document.createElement('input');
-	id_elem.setAttribute('type', 'hidden');
-	id_elem.setAttribute('id', 'edittagid');
-	id_elem.setAttribute('value', '-1');
-	name_cell.appendChild(id_elem);
-	row.appendChild(name_cell);
+	row.appendChild(create_element({
+		element: 'td',
+		children: [
+			{ element: 'input', type: 'text', class: 'tagname', id: 'addtagname' },
+			{ element: 'input', type: 'hidden', id: 'edittagid', value: '-1' }
+		]
+	}));
 
-	var style_cell = document.createElement('td');
-	var tag_span = document.createElement('span');
-	tag_span.setAttribute('id', 'edittag-1');
-	tag_span.setAttribute('class', 'dropdown tag tag1');
-	tag_span.setAttribute('style', 'cursor: pointer');
-	tag_span.setAttribute('onmouseover', 'show_dropdown_arrow(-1)');
-	tag_span.setAttribute('onmouseout', 'hide_dropdown_arrow(-1)');
-	tag_span.setAttribute('onclick', 'show_styles_dropdown(-1)');
-	tag_span.appendChild(document.createTextNode(String.fromCharCode(8194)));
-	style_cell.appendChild(tag_span);
-	row.appendChild(style_cell);
+	row.appendChild(create_element({
+		element: 'td',
+		children: [
+			{
+				element: 'span', id: 'edittag-1', class: 'dropdown tag tag1', style: 'cursor: pointer',
+				onmouseover: 'show_dropdown_arrow(-1)',
+				onmouseout: 'hide_dropdown_arrow(-1)',
+				onclick: 'show_styles_dropdown(-1)',
+				text: String.fromCharCode(8194)
+			}
+		]
+	}));
 
-	name_box.focus();
+	document.getElementById('addtagname').focus();
 }
 
 function hide_add_tag()
@@ -699,14 +648,12 @@ function hide_add_tag()
 
 	remove_all_children(row);
 
-	var cell = document.createElement('td');
-	cell.setAttribute('colspan', '4');
-
-	var link = document.createElement('a');
-	link.setAttribute('href', 'javascript:add_tag_form()');
-	link.appendChild(document.createTextNode('add tag'));
-	cell.appendChild(link);
-	row.appendChild(cell);
+	row.appendChild(create_element({
+		element: 'td', colspan: 4,
+		children: [
+			{ element: 'a', href: 'javascript:add_tag_form()', text: 'Add tag' }
+		]
+	}));
 }
 
 function save_tags()
@@ -919,11 +866,8 @@ function dispatch()
 		var len = row.getElementsByTagName('td').length;
 		for (var i = 0; i < len; i++)
 			row.removeChild(row.getElementsByTagName('td')[0]);
-		var cell = document.createElement('td');
-		cell.setAttribute('colspan', use_mark ? '6' : '5');
-		cell.setAttribute('style', 'font-style: italic; text-align: center');
-		cell.innerHTML = 'Processing...';
-		row.appendChild(cell);
+
+		row.appendChild(create_element({ element: 'td', colspan: use_mark ? 6 : 5, style: 'font-style: italic; text-align: center', text: 'Processing...' }));
 
 		var ajax = new AJAX(base_url, process);
 
@@ -949,54 +893,61 @@ function new_item_form()
 	var tbody = table.getElementsByTagName('tbody')[0];
 
 	// Add a new row to the table
-	var row = document.createElement('tr');
-	row.setAttribute('id', 'newrow');
+	var row = {
+		element: 'tr', id: 'newrow',
+		children: [
+			// Day column
+			{
+				element: 'td', colspan: 2,
+				children: [
+					{ element: 'select', id: 'newday', children: [] }
+				]
+			},
+			// Event column
+			{
+				element: 'td',
+				children: [
+					{ element: 'input', type: 'text', id: 'newevent', style: 'width: 97%' }
+				]
+			},
+			// Location column
+			{
+				element: 'td',
+				children: [
+					{ element: 'input', type: 'text', id: 'newlocation', style: 'width: 97%' }
+				]
+			},
+			// Times column
+			{
+				element: 'td',
+				children: [
+					{ element: 'input', type: 'text', id: 'newstart', class: 'time' },
+					{ element: 'text', text: String.fromCharCode(8211) },
+					{ element: 'input', type: 'text', id: 'newend', class: 'time' }
+				]
+			}
+		]
+	}
 
-	// Create cell for the day
-	var day_cell = document.createElement('td');
-	day_cell.setAttribute('colspan', '2');
-
-	// Create new dropdown
-	var dropdown = document.createElement('select');
-	dropdown.setAttribute('name', 'day');
-	dropdown.setAttribute('id', 'newday');
+	// Create dropdown for day
+	var dropdown = row.children[0].children[0].children;
 
 	// Create options for each day choice
 	for (var i = -1; i < 7; i++) {
-		var option = document.createElement('option');
-		option.setAttribute('value', i);
-		option.innerHTML = get_day_from_value(i);
+		var day = get_day_from_value(i);
 		if (!template && i >= 0 && dates[i])
-			option.innerHTML += dates[i].strftime(date_format);
-		dropdown.appendChild(option);
+			day += dates[i].strftime(date_format);
+		dropdown.push({
+			element: 'option', value: i, text: day
+		});
 	}
-	day_cell.appendChild(dropdown);
-	row.appendChild(day_cell);
 
-	// Create cell for the event
-	var event_cell = document.createElement('td');
-	event_cell.innerHTML = "<input type='text' name='newevent' id='newevent' style='width: 97%' />";
-	row.appendChild(event_cell);
-
-	// Create cell for location
-	var location_cell = document.createElement('td');
-	location_cell.innerHTML = "<input type='text' name='newlocation' id='newlocation' style='width: 97%' />";
-	row.appendChild(location_cell);
-
-	// Create cell for times
-	var time_cell = document.createElement('td');
-	time_cell.innerHTML = "<input type='text' name='newstart' id='newstart' class='time' /> &ndash; <input type='text' name='newend' id='newend' class='time' />";
-	row.appendChild(time_cell);
-
-	// Create empty cell for "mark"
-	if (use_mark) {
-		var mark_cell = document.createElement('td');
-		mark_cell.innerHTML = '&nbsp;';
-		row.appendChild(mark_cell);
-	}
+	// Add column for "mark", if that feature is used
+	if (use_mark)
+		row.children.push({ element: 'td', text: ' ' });
 
 	// Add the new row to the table
-	tbody.appendChild(row);
+	tbody.appendChild(create_element(row));
 
 	// Set the focus on the day dropdown
 	var dropdown = document.getElementById('newday');
@@ -1035,17 +986,12 @@ function submit_new_item()
 	var parent = row.parentNode;
 	parent.removeChild(row);
 
-	row = document.createElement('tr');
-	row.setAttribute('id', 'newrow');
-	row.setAttribute('class', 'front');
-
-	var cell = document.createElement('td');
-	cell.setAttribute('colspan', '5');
-	cell.setAttribute('style', 'font-style: italic; text-align: center');
-	cell.innerHTML = 'Processing...';
-
-	row.appendChild(cell);
-	parent.appendChild(row);
+	parent.appendChild(create_element({
+		element: 'tr', id: 'newrow', class: 'front',
+		children: [
+			{ element: 'td', colspan: 5, style: 'font-style: italic; text-align: center', text: 'Processing...' }
+		]
+	}));
 }
 
 ///////
@@ -1080,30 +1026,26 @@ function show_day_edit(id)
 	cell.empty();
 
 	// Create new dropdown
-	var dropdown = document.createElement('select');
-	dropdown.setAttribute('name', 'day');
-	dropdown.setAttribute('id', 'day');
-	dropdown.setAttribute('onchange', 'save_day(' + id + ')');
+	var dropdown = {
+		element: 'select', id: 'day', onchange: 'save_day(' + id + ')',
+		children: [
+
+		]
+	};
 
 	// Create options for each day choice
 	for (var i = -1; i < 7; i++) {
-		var option = document.createElement('option');
-		option.setAttribute('value', i);
-		option.innerHTML = get_day_from_value(i);
-		if (!template && i >= 0 && dates[i])
-			option.innerHTML += dates[i].strftime(date_format);
-		if (i == item.day())
-			option.setAttribute('selected', 'selected');
-		dropdown.appendChild(option);
+		dropdown.children.push({
+			element: 'option', value: i, text: get_day_from_value(i) + ((!template && i >= 0 && dates[i]) ? dates[i].strftime(date_format) : ''), selected: (i == item.day())
+		});
 	}
 
-	var next_week_option = document.createElement('option');
-	next_week_option.setAttribute('value', '8');
-	next_week_option.appendChild(document.createTextNode('->'));
-	dropdown.appendChild(next_week_option);
+	dropdown.children.push({
+		element: 'option', value: '8', text: '->'
+	});
 
-	cell.append(dropdown);
-	dropdown.focus();
+	cell.append(create_element(dropdown));
+	document.getElementById('day').focus();
 }
 
 function save_day(id)
@@ -1152,13 +1094,10 @@ function show_event_edit(id)
 	cell.addClass('nodec');
 
 	// Create a new textbox
-	var textbox = document.createElement('input');
-	textbox.setAttribute('type', 'text');
-	textbox.setAttribute('name', 'event');
-	textbox.setAttribute('id', 'event');
 	var width = 97 - ((itags.width() / cell.width()) * 100);
-	textbox.style.width = width + '%';
-	textbox.value = item.event();
+	var textbox = create_element({
+		element: 'input', type: 'text', id: 'event', style: 'width: ' + width + '%', value: item.event()
+	});
 
 	event.empty();
 	event.append(textbox);
@@ -1196,12 +1135,9 @@ function show_location_edit(id)
 	currently_editing = id;
 
 	// Create new textbox
-	var textbox = document.createElement('input');
-	textbox.setAttribute('type', 'text');
-	textbox.setAttribute('name', 'location');
-	textbox.setAttribute('id', 'location');
-	textbox.style.width = '97%';
-	textbox.value = item.location();
+	var textbox = create_element({
+		element: 'input', type: 'text', id: 'location', style: 'width: 97%', value: item.location()
+	});
 
 	cell.empty();
 	cell.append(textbox);
@@ -1239,32 +1175,18 @@ function show_times_edit(id)
 	currently_editing = id;
 
 	// Create a new start time textbox
-	var startbox = document.createElement('input');
-	startbox.setAttribute('type', 'text');
-	startbox.setAttribute('name', 'start');
-	startbox.setAttribute('id', 'start');
-	startbox.setAttribute('class', 'time');
-
-	if (item.start() != -1)
-		startbox.value = item.start();
+	var startbox = create_element({
+		element: 'input', type: 'text', id: 'start', class: 'time', value: (item.start() != -1) ? item.start() : ''
+	});
 
 	// Create a new end time textbox
-	var endbox = document.createElement('input');
-	endbox.setAttribute('type', 'text');
-	endbox.setAttribute('name', 'end');
-	endbox.setAttribute('id', 'end');
-	endbox.setAttribute('class', 'time');
-
-	if (item.end() != -1)
-		endbox.value = item.end();
-
-	// Create a new span with an &ndash;
-	var span = document.createElement('span');
-	span.innerHTML = ' &ndash; ';
+	var endbox = create_element({
+		element: 'input', type: 'text', id: 'end', class: 'time', value: (item.end() != -1) ? item.end() : ''
+	});
 
 	cell.empty();
 	cell.append(startbox);
-	cell.append(span);
+	cell.append(create_element({ element: 'span', text: String.fromCharCode(8211) }));
 	cell.append(endbox);
 
 	// Focus the start time box
@@ -1287,8 +1209,7 @@ function toggle_done(id)
 	var row = document.getElementById('item' + id);
 
 	// Create spinner
-	var spinner = document.createElement('img');
-	spinner.setAttribute('src', index_url + 'images/processing.gif');
+	var spinner = create_element({ element: 'img', src: index_url + 'images/processing.gif' });
 
 	// Get this cell
 	var cell = row.getElementsByTagName('td')[0];
@@ -1313,8 +1234,7 @@ function toggle_mark(id)
 		var row = document.getElementById('item' + id);
 
 		// Create spinner
-		var spinner = document.createElement('img');
-		spinner.setAttribute('src', 'processing.gif');
+		var spinner = create_element({ element: 'img', src: 'processing.gif' });
 
 		// Get this cell
 		var cell = row.getElementsByTagName('td')[5];
@@ -1354,11 +1274,11 @@ function create_hidden_submit()
 	if (button)
 		return;
 
-	// Create a new button
-	button = document.createElement('input');
-	button.setAttribute('type', 'submit');
-	button.setAttribute('id', 'submit');
-	button.style.display = 'none';
+	var elem = {
+		element: 'input', type: 'submit', id: 'submit', style: 'display: none'
+	};
+
+	button = create_element(elem);
 
 	// Get the document's form
 	var form = document.getElementById('form');
@@ -1453,21 +1373,15 @@ function create_extra_box(id, title, state)
 	// Get 'extra' container
 	var extra = document.getElementById('extra');
 
-	var container = document.createElement('div');
-	container.setAttribute('class', 'container');
-	container.setAttribute('id', id);
+	var elem = {
+		element: 'div', class: container, id: id,
+		children: [
+			{ element: 'div', class: 'header', id: 'header_' + id, text: title },
+			{ element: 'div', class: 'content', id: 'content_' + id }
+		]
+	};
 
-	var header = document.createElement('div');
-	header.setAttribute('class', 'header');
-	header.setAttribute('id', 'header_' + id);
-	header.appendChild(document.createTextNode(title));
-	container.appendChild(header);
-
-	var content = document.createElement('div');
-	content.setAttribute('class', 'content');
-	content.setAttribute('id', 'content_' + id);
-
-	container.appendChild(content);
+	var container = create_element(elem);
 
 	extra.appendChild(container);
 
@@ -1519,4 +1433,3 @@ String.prototype.ltrim = function() {
 String.prototype.rtrim = function() {
 	return this.replace(/\s+$/,"");
 }
-
