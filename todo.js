@@ -177,7 +177,7 @@ function populate_row(row, item)
 	if (use_mark)
 		// Create cell for 'mark' button
 		row.appendChild(create_element({
-			element: 'td',
+			element: 'td', class: 'nodec',
 			children: [
 				{ element: 'input', type: 'button', class: 'mark', value: '*', onclick: 'toggle_mark(' + item.id() + ')', id: 'mark' + item.id() }
 			]
