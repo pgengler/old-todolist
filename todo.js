@@ -55,7 +55,7 @@ function show_options()
 		{ element: 'li', children: [ { element: 'a', href: index_url + 'template/', text: 'Edit template' } ] }
 	];
 	if (use_mark)
-		options.push({ element: 'ul', children: [ {element: 'a', id: 'showcolorkey', href: 'javascript:toggle_color_key()', text: 'Show color key' } ] });
+		options.push({ element: 'li', children: [ {element: 'a', id: 'showcolorkey', href: 'javascript:toggle_color_key()', text: 'Show color key' } ] });
 
 	var options_list = create_element({
 		element: 'ul', id: 'optionslist', children: options
