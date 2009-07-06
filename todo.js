@@ -1234,7 +1234,7 @@ function toggle_mark(id)
 		var row = document.getElementById('item' + id);
 
 		// Create spinner
-		var spinner = create_element({ element: 'img', src: 'processing.gif' });
+		var spinner = create_element({ element: 'img', src: index_url + 'images/processing.gif' });
 
 		// Get this cell
 		var cell = row.getElementsByTagName('td')[5];
