@@ -989,7 +989,7 @@ function submit_new_item()
 	parent.appendChild(create_element({
 		element: 'tr', id: 'newrow', class: 'front',
 		children: [
-			{ element: 'td', colspan: 5, style: 'font-style: italic; text-align: center', text: 'Processing...' }
+			{ element: 'td', colspan: use_mark ? 6 : 5, style: 'font-style: italic; text-align: center', text: 'Processing...' }
 		]
 	}));
 }
