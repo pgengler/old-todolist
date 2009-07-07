@@ -36,7 +36,7 @@ function create_element(elem)
 		dom_element.setAttribute('href', elem.href);
 	if (elem.src)
 		dom_element.setAttribute('src', elem.src);
-	if (elem.value)
+	if (typeof(elem.value) != 'undefined')
 		dom_element.setAttribute('value', elem.value);
 	if (elem.type)
 		dom_element.setAttribute('type', elem.type);
