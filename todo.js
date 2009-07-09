@@ -123,7 +123,7 @@ function populate_row(row, item)
 
 	// Create cell for 'done' box
 	row.appendChild(create_element({
-		element: 'td',
+		element: 'td', class: 'done',
 		children: [
 			{ element: 'input', type: 'checkbox', id: 'done' + item.id(), onclick: 'toggle_done(' + item.id() + ')' }
 		]
@@ -140,7 +140,7 @@ function populate_row(row, item)
 
 	// Create cell for event
 	var event_cell = {
-		element: 'td',
+		element: 'td', class: 'event',
 		children: [
 			{ element: 'div', class: 'tags', id: 'tags' + item.id(), children: [] }
 		]
@@ -161,11 +161,11 @@ function populate_row(row, item)
 	row.appendChild(create_element(event_cell));
 
 	// Create cell for location
-	row.appendChild(create_element({ element: 'td', onclick: 'show_location_edit(' + item.id() + ')', text: item.location() }));
+	row.appendChild(create_element({ element: 'td', class: 'location', onclick: 'show_location_edit(' + item.id() + ')', text: item.location() }));
 
 	// Create cell for start/end times
 	var time_cell = {
-		element: 'td', onclick: 'show_times_edit(' + item.id() + ')',
+		element: 'td', class: 'times', onclick: 'show_times_edit(' + item.id() + ')',
 		children: []
 	}
 	if (item.start() != -1)
@@ -177,7 +177,7 @@ function populate_row(row, item)
 	if (use_mark)
 		// Create cell for 'mark' button
 		row.appendChild(create_element({
-			element: 'td', class: 'nodec',
+			element: 'td', class: 'mark nodec',
 			children: [
 				{ element: 'input', type: 'button', class: 'mark', value: '*', onclick: 'toggle_mark(' + item.id() + ')', id: 'mark' + item.id() }
 			]

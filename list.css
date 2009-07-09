@@ -53,15 +53,11 @@ th {
 	color: white;
 }
 
-table#outer {
-	width: 90%;
+table#content {
+	background-color: black;
+	width: 89.8%;
 }
 
-	table#content {
-		width: 100%;
-	}
-
-td.back		{ background-color: black; width: 95%; padding: 0px; }
 td.day		{ font-variant: small-caps; }
 
 tr.past:hover, tr.today:hover, tr.future:hover, tr.undated:hover {
@@ -183,4 +179,24 @@ div#styles {
 
 img {
 	border: 0;
+}
+
+td.done {
+	width: 1.5em;
+}
+
+td.day {
+	width: 6.5em;
+}
+
+td.location {
+	width: 33%;
+}
+
+td.times {
+	width: 10%;
+}
+
+td.mark {
+	width: 1em;
 }

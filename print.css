@@ -1,0 +1,94 @@
+.mark {
+	display: none;
+}
+
+input[type="checkbox"] {
+	border: 1px solid white;
+}
+
+#opts {
+	display: none;
+}
+
+#weeks {
+	display: none;
+}
+
+.hidden   { display: none; }
+
+tr {
+	background-color: white;
+}
+
+.done td {
+	text-decoration: line-through;
+}
+
+.today {
+	background-color: #C2E1FF;
+}
+
+	.today.mark {
+		background-color: #CCC;
+	}
+
+	.today.done {
+		background-color: #E5F3FF;
+	}
+
+.past {
+	background-color: #FFCB9E;
+}
+
+	.past.mark {
+		background-color: #CCC;
+	}
+
+	.past.done {
+		background-color: white;
+	}
+
+.future {
+	background-color: white;
+}
+
+	.future.mark {
+		background-color: #CCC;
+	}
+
+th {
+	background-color: #343434;
+	color: white;
+}
+
+table#inner {
+	background-color: black;
+	width: 100%;
+}
+
+td.day		{ font-variant: small-caps; }
+
+div#extra {
+	display: none;
+}
+
+div.tags {
+	display: none;
+}
+
+td.done {
+	width: 1.5em;
+}
+
+td.day {
+	text-align: center;
+	width: 6em;
+}
+
+td.location {
+	width: 10em;
+}
+
+td.mark {
+	display: none;
+}

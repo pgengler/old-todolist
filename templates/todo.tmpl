@@ -13,6 +13,7 @@
 		<!-- /TMPL_IF -->
 		<link href='<!-- TMPL_VAR name='url' -->list.css' type='text/css' rel='stylesheet' />
 		<link href='<!-- TMPL_VAR name='url' -->tags.css' type='text/css' rel='stylesheet' />
+		<link href='<!-- TMPL_VAR name='url' -->print.css' type='text/css' rel='stylesheet' media='print' />
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->jquery.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->ajax.js'></script>
 		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->hashtable.js'></script>
@@ -55,41 +56,39 @@
 		<div id='extra'>
 
 		</div>
-		<table id='outer'><tr><td class='back'>
-			<table cellspacing='1' cellpadding='1' id='content'>
-				<thead>
-					<tr id='header'>
-						<th style='width: 1.5em'>
-							&nbsp;
-						</th>
-						<th style='width: 6.5em;'>
-							Day
-						</th>
-						<th>
-							Event
-						</th>
-						<th style='width: 33%'>
-							Location
-						</th>
-						<th style='width: 10%;'>
-							Time
-						</th>
-						<!-- TMPL_IF use_mark -->
-						<th style='width: 1em'>
-							&nbsp;
-						</th>
-						<!-- /TMPL_IF -->
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td colspan='6'>
-							&nbsp;
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</td></tr></table>
+		<table cellspacing='1' cellpadding='1' id='content'>
+			<thead>
+				<tr id='header'>
+					<th>
+						&nbsp;
+					</th>
+					<th>
+						Day
+					</th>
+					<th>
+						Event
+					</th>
+					<th>
+						Location
+					</th>
+					<th>
+						Time
+					</th>
+					<!-- TMPL_IF use_mark -->
+					<th>
+						&nbsp;
+					</th>
+					<!-- /TMPL_IF -->
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td colspan='6'>
+						&nbsp;
+					</td>
+				</tr>
+			</tbody>
+		</table>
 		</fieldset>
 		</form>
 		<div id='weeks'>
