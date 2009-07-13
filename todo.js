@@ -1028,9 +1028,7 @@ function show_day_edit(id)
 	// Create new dropdown
 	var dropdown = {
 		element: 'select', id: 'day', onchange: 'save_day(' + id + ')',
-		children: [
-
-		]
+		children: [ ]
 	};
 
 	// Create options for each day choice
@@ -1058,6 +1056,9 @@ function save_day(id)
 	var ajax = new AJAX(base_url, process);
 
 	ajax.send('action=day&id=' + id + '&day=' + newday);
+
+	// Disable dropdown while processing (Todo #1530)
+	daybox.setAttribute('disabled', 'disabled');
 }
 
 function show_event_edit(id)
