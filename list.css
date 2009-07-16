@@ -181,22 +181,28 @@ img {
 	border: 0;
 }
 
-td.done {
+th.done {
 	width: 1.5em;
 }
 
-td.day {
+th.day {
 	width: 6.5em;
 }
 
-td.location {
+th.location {
 	width: 33%;
 }
 
-td.times {
+th.times {
 	width: 10%;
 }
 
-td.mark {
+th.mark {
 	width: 1em;
+}
+
+
+tr#empty td {
+	font-weight: bold;
+	text-align: center;
 }

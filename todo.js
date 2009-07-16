@@ -106,6 +106,16 @@ function populate()
 	highlight();
 	sync_boxes();
 
+	// If list is empty, show a message to that effect
+	if (things.length == 0) {
+		tbody.appendChild(create_element({
+			element: 'tr', id: 'empty',
+			children: [
+				{ element: 'td', colspan: (use_mark == 1) ? 6 : 5, text: 'No items for this week' }
+			]
+		}));
+	}
+
 	populate_tag_selector();
 }
 
@@ -1257,7 +1267,7 @@ function delete_item(id)
 	var row = document.getElementById('item' + id);
 	row.parentNode.removeChild(row);
 
-	var ajax = new AJAX(base_url);
+	var ajax = new AJAX(base_url, process);
 
 	ajax.send('action=delete&id=' + id);
 
