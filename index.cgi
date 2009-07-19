@@ -75,6 +75,10 @@ sub show_list()
 		$month = substr($week->{'start'}, 5, 2);
 		$day   = substr($week->{'start'}, 8, 2);
 		$week->{'time'} = mktime(0, 0, 0, $day, $month - 1, $year - 1900, 0, 0);
+		my @parts = localtime($week->{'time'});
+		if ($parts[8]) {
+			$week->{'time'} -= 3600;
+		}
 	} else {
 		# Figure out what the current week is
 		my $query = qq~
