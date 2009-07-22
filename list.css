@@ -48,6 +48,10 @@ tr {
 		background-color: #EEE;
 	}
 
+	.undated.mark {
+		background-color: #A1FF9E;
+	}
+
 th {
 	background-color: #343434;
 	color: white;
