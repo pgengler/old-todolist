@@ -58,7 +58,7 @@ function create_element(elem)
 		else
 			dom_element.setAttribute('onchange', elem.onchange);
 	if (elem.onclick)
-		if (typeof(elem.onchange) == 'function')
+		if (typeof(elem.onclick) == 'function')
 			dom_element.onclick = elem.onclick;
 		else
 			dom_element.setAttribute('onclick', elem.onclick);
