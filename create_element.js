@@ -53,15 +53,30 @@ function create_element(elem)
 		dom_element.setAttribute('rowspan', elem.rowspan);
 
 	if (elem.onchange)
-		dom_element.setAttribute('onchange', elem.onchange);
+		if (typeof(elem.onchange) == 'function')
+			dom_element.onchange = elem.onchange;
+		else
+			dom_element.setAttribute('onchange', elem.onchange);
 	if (elem.onclick)
-		dom_element.setAttribute('onclick', elem.onclick);
+		if (typeof(elem.onchange) == 'function')
+			dom_element.onclick = elem.onclick;
+		else
+			dom_element.setAttribute('onclick', elem.onclick);
 	if (elem.onsubmit)
-		dom_element.setAttribute('onsubmit', elem.onsubmit);
+		if (typeof(elem.onsubmit) == 'function')
+			dom_element.onsubmit = elem.onsubmit;
+		else
+			dom_element.setAttribute('onsubmit', elem.onsubmit);
 	if (elem.onmouseover)
-		dom_element.setAttribute('onmouseover', elem.onmouseover);
+		if (typeof(elem.onmouseover) == 'function')
+			dom_element.onmouseover = elem.onmouseover;
+		else
+			dom_element.setAttribute('onmouseover', elem.onmouseover);
 	if (elem.onmouseout)
-		dom_element.setAttribute('onmouseout', elem.onmouseout);
+		if (typeof(elem.onmouseout) == 'function')
+			dom_element.onmouseout = elem.onmouseout;
+		else
+			dom_element.setAttribute('onmouseout', elem.onmouseout);
 
 	if (elem.text)
 		dom_element.appendChild(document.createTextNode(elem.text));
