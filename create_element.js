@@ -6,26 +6,27 @@ function create_element(elem)
 	var dom_element = document.createElement(elem.element);
 
 	/* Properties we should expect:
-   *   NAME         TYPE      APPLIES TO
-   *-----------------------------------
+	 *   NAME         TYPE      APPLIES TO
+	 *-----------------------------------
 	 *   class        string    [*]
 	 *   id           string    [*]
-   *   onclick      string    [*]
+	 *   onclick      string    [*]
 	 *   onmouseout   string    [*]
 	 *   onmouseover  string    [*]
 	 *   style        string    [*]
+	 *   title        string    [*]
 
-   *   href         string    [a]
+	 *   href         string    [a]
 
-   *   src          string    [img]
+	 *   src          string    [img]
 	 *   alt          string    [img]
 
-   *   value        string    [input, option]
+	 *   value        string    [input, option]
 
-   *   type         string    [input]
-   *   checked      bool      [input]
+	 *   type         string    [input]
+	 *   checked      bool      [input]
 
-   *   selected     bool      [option]
+	 *   selected     bool      [option]
 
 	 *   colspan      int       [td]
 	 *   rowspan      int       [td]
@@ -33,7 +34,7 @@ function create_element(elem)
 	 *   onchange     string    [select]
 
 	 *   onsubmit     string    [form]
-   */
+	 */
 
 	if (elem.id)
 		dom_element.setAttribute('id', elem.id);
@@ -53,6 +54,8 @@ function create_element(elem)
 		dom_element.setAttribute('selected', 'selected');
 	if (elem.checked)
 		dom_element.setAttribute('checked', 'checked');
+	if (elem.title)
+		dom_element.setAttribute('title', elem.title);
 	if (elem.alt)
 		dom_element.setAttribute('alt', elem.alt);
 
