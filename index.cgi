@@ -158,6 +158,7 @@ sub show_list()
 	$html->param(date_format  => $Config::date_format);
 	$html->param(undated_last => $Config::undated_last);
 	$html->param(index_url    => $Config::url);
+	$html->param(images_url   => $Config::url . '/images');
 
 	# Output
 	&Common::output($html);

@@ -110,13 +110,6 @@ div.event {
 
 }
 
-div#picktags {
-	background-color: white;
-	border: 1px solid black;
-	color: black;
-	position: absolute;
-}
-
 img.tagmenu {
 	display: none;
 	padding-left: 2px;
@@ -151,15 +144,6 @@ ul#showtaglist {
 		cursor: pointer;
 	}
 
-div.header {
-	background-color: #ccc;
-	font-weight: bold;
-	font-variant: small-caps;
-	text-align: center;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-	border-radius: 4px;
-}
 
 ul#optionslist {
 	padding: 0 0 0 1em;
@@ -167,20 +151,10 @@ ul#optionslist {
 	font-size: 80%;
 }
 
-div#edittags {
-	background-color: white;
-	border: 1px solid black;
-	padding: 0.5em;
-	position: absolute;
+div#popup_edittags {
 	width: 8.5em;
 }
 	
-div#styles {
-	background-color: white;
-	border: 1px solid gray;
-	position: absolute;
-}
-
 img {
 	border: 0;
 }

@@ -6,6 +6,13 @@ var show_tags    = new Hash();
 var extra_states = new Hash();
 var menu_stack   = [];
 
+var options_box  = null;
+var tag_sel_box  = null;
+
+var pick_tags_popup = null;
+var edit_tags_popup = null;
+var tag_style_popup = null;
+
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
 // if the user cancels or edits another one
@@ -16,7 +23,12 @@ var new_tag_style     = 1;
 ///////
 // INITIALIZATION
 ///////
+
+// Refresh the highlighting every 5 minutes (30000 ms)
 $(document).ready(function() { setInterval("highlight()", 300000); });
+
+// Add handler for keyboard input
+window.addEventListener('keydown', key_handler, false);
 
 ///////
 // KEYBOARD HANDLER
@@ -27,14 +39,10 @@ function key_handler(event)
 
 	if (event) {
 		key = (event.charCode) ? event.charCode : ((event.which) ? event.which : event.keyCode);
-		if (event.altKey && String.fromCharCode(key).toLowerCase() == 'n') { // Alt+N (new)
+		if (event.altKey && String.fromCharCode(key).toLowerCase() == 'n') // Alt+N (new)
 			new_item_form();
-		} else if (key == 27) {
+		else if (key == 27)
 			clear_edits();
-			hide_tags_menu();
-			hide_styles_dropdown();
-			hide_edit_tags();
-		}
   }
 }
 
@@ -44,10 +52,10 @@ function key_handler(event)
 function show_options()
 {
 	// Check if we already have this set up; if we do, no need to do this again
-	if (document.getElementById('content_options'))
+	if (options_box)
 		return;
 
-	create_extra_box('options', 'Options');
+	options_box = new Box('options', 'Options', 'extra');
 
 	var options = [
 		{ element: 'li', children: [ { element: 'a', href: 'javascript:load_template()', text: 'Load template' } ] },
@@ -61,7 +69,7 @@ function show_options()
 		element: 'ul', id: 'optionslist', children: options
 	});
 
-	document.getElementById('content_options').appendChild(options_list);
+	options_box.content.appendChild(options_list);
 }
 
 ///////
@@ -166,7 +174,7 @@ function populate_row(row, item)
 		event_cell.children[0].children.push({ element: 'span', id: 'itemtag' + tag.id() + '_' + item.id(), class: 'tag tag' + tag.style(), text: tag.name() });
 	}
 
-	event_cell.children[0].children.push({ element: 'img', class: 'tagmenu', src: index_url + 'images/arrow.gif', id: 't' + item.id(), onclick: 'show_tags_menu(' + item.id() + ')' });
+	event_cell.children[0].children.push({ element: 'img', class: 'tagmenu', src: images_url + '/arrow.gif', id: 't' + item.id(), onclick: 'show_tags_menu(' + item.id() + ')' });
 	event_cell.children.push({ element: 'div', class: 'event', id: 'event' + item.id(), onclick: 'show_event_edit(' + item.id() + ')', text: item.event() });
 	row.appendChild(create_element(event_cell));
 
@@ -217,15 +225,12 @@ function populate_tag_selector()
 		});
 	}
 
-	var selector_area = document.getElementById('content_showtags');
-	if (!selector_area) {
-		create_extra_box('showtags', 'Tags');
-		selector_area = document.getElementById('content_showtags');
-	}
+	if (!tag_sel_box)
+		tag_sel_box = new Box('showtags', 'Tags', 'extra');
 
-	remove_all_children(selector_area);
-	selector_area.appendChild(create_element(tag_list));
-	selector_area.appendChild(create_element({
+	remove_all_children(tag_sel_box.content);
+	tag_sel_box.content.appendChild(create_element(tag_list));
+	tag_sel_box.content.appendChild(create_element({
 		element: 'div', style: 'text-align: right',
 		children: [
 			{ element: 'a', id: 'edittagslink', href: 'javascript:edit_tags()', text: 'Edit Tags' }
@@ -263,43 +268,38 @@ function show_tags_menu(id)
 	var item  = items.get(id);
 	var itags = item.tags();
 
-	var tags_div = {
-		element: 'div', id: 'picktags', children: []
-	};
-
+	pick_tags_popup = new Popup('picktags', 'Select tags', { onclose: hide_tags_menu });
 
 	var taglist = tags.items_name();
 	for (var i = 0; i < taglist.length; i++) {
 		var tag = taglist[i];
 
-		tags_div.children.push({
+		pick_tags_popup.content.appendChild(create_element({
 			element: 'div',
 			children: [
 				{ element: 'input', type: 'checkbox', id: 'picktag' + tag.id(), checked: (itags.indexOf(tag.id()) != -1) },
 				{ element: 'span', class: 'tag tag' + tag.style(), text: tag.name() }
 			]
-		});
+		}));
 	}
 
-	tags_div.children.push({
+	pick_tags_popup.content.appendChild(create_element({
 		element: 'button', id: 'savetags' + id, onclick: 'save_item_tags(' + id + ')', text: 'Save'
-	});
-
-	document.body.appendChild(create_element(tags_div));
+	}));
 
 	// Position it
 	var img = $('#t' + id);
 	img.addClass('show');
 	var pos = img.offset();
-	$('#picktags').css(img.offset());
+	$('#popup_picktags').css(img.offset());
 }
 
 function hide_tags_menu()
 {
-	var menu = document.getElementById('picktags');
-
-	if (menu)
-		menu.parentNode.removeChild(menu);
+	if (pick_tags_popup) {
+		pick_tags_popup.close();
+		delete pick_tags_popup;
+	}
 
 	if (select_tags)
 		$('#t' + select_tags).removeClass('show');
@@ -334,31 +334,23 @@ function save_item_tags(id)
 ///////
 // EDIT TAGS
 ///////
-function hide_edit_tags()
-{
-	var div = document.getElementById('edittags');
-
-	if (div)
-		div.parentNode.removeChild(div);
-}
-
 function edit_tags()
 {
-	hide_edit_tags();
+	if (edit_tags_popup) {
+		edit_tags_popup.close();
+		delete edit_tags_popup;
+	}
 
-	var edit_tags_div = {
-		element: 'div', id: 'edittags',
+	edit_tags_popup = new Popup('edittags', 'Edit Tags');
+
+	var form = {
+		element: 'form', onsubmit: 'return save_tags()',
 		children: [
-			{
-				element: 'form', onsubmit: 'return save_tags()',
-				children: [
-					{ element: 'table', children: [] }
-				]
-			}
+			{ element: 'table', children: [] }
 		]
 	};
 
-	var table = edit_tags_div.children[0].children[0].children;
+	var table = form.children[0].children;
 
 	var taglist = tags.items_name();
 	for (var i = 0; i < taglist.length; i++) {
@@ -390,7 +382,7 @@ function edit_tags()
 						{
 							element: 'a', href: 'javascript:remove_tag(' + tag.id() + ')',
 							children: [
-								{ element: 'img', src: index_url + 'images/remove.png' }
+								{ element: 'img', src: images_url + '/remove.png' }
 							]
 						}
 					]
@@ -411,10 +403,10 @@ function edit_tags()
 		]
 	});
 
-	document.body.appendChild(create_element(edit_tags_div));
+	edit_tags_popup.content.appendChild(create_element(form));
 
 	// Position near the 'Edit tags' link
-	var div   = $('#edittags');
+	var div   = $('#popup_edittags');
 	var link  = $('#edittagslink');
 	var pos   = link.offset();
 	pos.left -= div.width();
@@ -446,14 +438,9 @@ function show_styles_dropdown(id)
 	if (span)
 		span.setAttribute('onclick', 'hide_styles_dropdown(' + id + ')');
 
-	var styles_div = {
-		element: 'div', id: 'styles',
-		children: [
-			{ element: 'table', id: 'styletable', children: [] }
-		]
-	};
+	tag_style_popup = new Popup('tagstyles', 'Pick color', { onclose: hide_styles_dropdown, oncloseparam: id });
 
-	var table = styles_div.children[0].children;
+	var table = { element: 'table', id: 'styletable', children: [] };
 
 	for (var i = 0; i < 4; i++) {
 		var row = { element: 'tr', children: [] };
@@ -470,11 +457,11 @@ function show_styles_dropdown(id)
 				]
 			});
 		}
-		table.push(row);
+		table.children.push(row);
 	}
 
 	// Add 'no style' row
-	table.push({
+	table.children.push({
 		element: 'tr',
 		children: [
 			{
@@ -484,9 +471,9 @@ function show_styles_dropdown(id)
 		]
 	});
 
-	document.body.appendChild(create_element(styles_div));
+	tag_style_popup.content.appendChild(create_element(table));
 
-	var styles = $('#styles');
+	var styles = $('#popup_tagstyles');
 	var edit   = $('#edittag' + id);
 	var pos    = edit.offset();
 	pos.left  -= styles.width() / 2;
@@ -496,11 +483,6 @@ function show_styles_dropdown(id)
 
 function hide_styles_dropdown(id)
 {
-	var div = document.getElementById('styles');
-
-	if (div)
-		div.parentNode.removeChild(div);
-
 	if (id) {
 		// Restore onclick handler
 		var span = document.getElementById('edittag' + id);
@@ -511,7 +493,10 @@ function hide_styles_dropdown(id)
 
 function set_tag_style(tag_id, style)
 {
-	hide_styles_dropdown(tag_id);
+	if (tag_style_popup) {
+		tag_style_popup.close();
+		delete tag_style_popup;
+	}
 
 	if (tag_id == -1) {
 		new_tag_style = style;
@@ -1220,7 +1205,7 @@ function toggle_done(id)
 	var row = document.getElementById('item' + id);
 
 	// Create spinner
-	var spinner = create_element({ element: 'img', src: index_url + 'images/processing.gif' });
+	var spinner = create_element({ element: 'img', src: images_url + '/processing.gif' });
 
 	// Get this cell
 	var cell = row.getElementsByTagName('td')[0];
@@ -1245,7 +1230,7 @@ function toggle_mark(id)
 		var row = document.getElementById('item' + id);
 
 		// Create spinner
-		var spinner = create_element({ element: 'img', src: index_url + 'images/processing.gif' });
+		var spinner = create_element({ element: 'img', src: images_url + '/processing.gif' });
 
 		// Get this cell
 		var cell = row.getElementsByTagName('td')[5];
@@ -1377,26 +1362,6 @@ function move_incomplete()
 
 	// Make AJAX request
 	ajax.send('action=move&week=' + week);
-}
-
-function create_extra_box(id, title, state)
-{
-	// Get 'extra' container
-	var extra = document.getElementById('extra');
-
-	var elem = {
-		element: 'div', class: container, id: id,
-		children: [
-			{ element: 'div', class: 'header', id: 'header_' + id, text: title },
-			{ element: 'div', class: 'content', id: 'content_' + id }
-		]
-	};
-
-	var container = create_element(elem);
-
-	extra.appendChild(container);
-
-	return container;
 }
 
 function move_incomplete_timeout(ajax)
