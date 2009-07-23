@@ -8,24 +8,31 @@ function create_element(elem)
 	/* Properties we should expect:
    *   NAME         TYPE      APPLIES TO
    *-----------------------------------
-	 *   id           string    [*]
 	 *   class        string    [*]
-   *   href         string    [a]
-   *   src          string    [img]
-   *   value        string    [input, option]
-   *   type         string    [input]
+	 *   id           string    [*]
+   *   onclick      string    [*]
+	 *   onmouseout   string    [*]
+	 *   onmouseover  string    [*]
 	 *   style        string    [*]
-   *   selected     bool      [option]
+
+   *   href         string    [a]
+
+   *   src          string    [img]
+	 *   alt          string    [img]
+
+   *   value        string    [input, option]
+
+   *   type         string    [input]
    *   checked      bool      [input]
+
+   *   selected     bool      [option]
 
 	 *   colspan      int       [td]
 	 *   rowspan      int       [td]
 
 	 *   onchange     string    [select]
-   *   onclick      string    [*]
+
 	 *   onsubmit     string    [form]
-	 *   onmouseover  string    [*]
-	 *   onmouseout   string    [*]
    */
 
 	if (elem.id)
@@ -46,6 +53,8 @@ function create_element(elem)
 		dom_element.setAttribute('selected', 'selected');
 	if (elem.checked)
 		dom_element.setAttribute('checked', 'checked');
+	if (elem.alt)
+		dom_element.setAttribute('alt', elem.alt);
 
 	if (elem.colspan)
 		dom_element.setAttribute('colspan', elem.colspan);
