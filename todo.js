@@ -862,7 +862,7 @@ function dispatch()
 		for (var i = 0; i < len; i++)
 			row.removeChild(row.getElementsByTagName('td')[0]);
 
-		row.appendChild(create_element({ element: 'td', colspan: use_mark ? 6 : 5, style: 'font-style: italic; text-align: center', text: 'Processing...' }));
+		row.appendChild(create_element({ element: 'td', colspan: use_mark ? 6 : 5, class: 'nodec', style: 'font-style: italic; text-align: center', text: 'Processing...' }));
 
 		var ajax = new AJAX(base_url, process);
 
