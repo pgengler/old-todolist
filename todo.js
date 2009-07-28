@@ -328,7 +328,11 @@ function save_item_tags(id)
 	// Make AJAX request to save tags
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send('action=itemtags&id=' + id + '&tags=' + new_tags.join(','));
+	ajax.send({
+		action: 'itemtags',
+		id: id,
+		tags: new_tags.join(',')
+	});
 }
 
 ///////
@@ -508,7 +512,11 @@ function set_tag_style(tag_id, style)
 	
 		var ajax = new AJAX(base_url, load_tags);
 
-		ajax.send('action=savetag&id=' + tag_id + '&style=' + ((style == 0) ? -1 : style));
+		ajax.send({
+			action: 'savetag',
+			id: tag_id,
+			style: ((style == 0) ? -1 : style)
+		});
 
 		// Refresh tags
 		refresh_tags();
@@ -667,7 +675,11 @@ function save_tags()
 		var name = document.getElementById('addtagname').value;
 
 		if (name.trim()) {
-			ajax.send('action=addtag&name=' + name + '&style=' + new_tag_style);
+			ajax.send({
+				action: 'addtag',
+				name: name,
+				style: new_tag_style
+			});
 			hide_add_tag();
 		}
 	} else {
@@ -676,7 +688,11 @@ function save_tags()
 		var name = document.getElementById('edittagname').value;
 
 		if (name.trim()) {
-			ajax.send('action=savetag&id=' + id + '&name=' + name);
+			ajax.send({
+				action: 'savetag',
+				id: id,
+				name: name
+			});
 			hide_rename_tag();
 		}
 	}
@@ -691,7 +707,11 @@ function remove_tag(id)
 	if (confirm("Are you sure you want to remove the tag '" + tag.name() + "'?")) {
 		var week = document.getElementById('week').value;
 		var ajax = new AJAX(base_url, function(xml) { process(xml); edit_tags(); populate_tag_selector(); });
-		ajax.send('action=removetag&id=' + id + '&week=' + week);
+		ajax.send({
+			action: 'removetag',
+			id: id,
+			week: week
+		});
 	}
 }
 
@@ -844,16 +864,19 @@ function dispatch()
 			changed += 4;
 		}
 
-		// Build param string
-		var param_string = "action=save&id=" + currently_editing + '&changed= '+ changed + '&';
-		if (update_event) {
-			param_string += "event=" + encodeURIComponent(event) + "&";
-		}
-		if (update_location) {
-			param_string += "location=" + encodeURIComponent(location) + "&";
-		}
+		// Build param object
+		var params = {
+			action: 'save',
+			id: currently_editing,
+			changed: changed
+		};
+		if (update_event)
+			params['event'] = event;
+		if (update_location)
+			params['location'] = location;
 		if (update_times) {
-			param_string += "start=" + start + "&end=" + end;
+			params['start'] = start;
+			params['end']   = end;
 		}
 
 		// Replace the row with a processing message
@@ -866,7 +889,7 @@ function dispatch()
 
 		var ajax = new AJAX(base_url, process);
 
-		ajax.send(param_string);
+		ajax.send(params);
 	}
 }
 
@@ -974,7 +997,15 @@ function submit_new_item()
 
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send('action=add&week=' + week + '&day=' + day + '&event=' + encodeURIComponent(event) + '&location=' + encodeURIComponent(location) + '&start=' + start + '&end=' + end);
+	ajax.send({
+		action: 'add',
+		week: week,
+		day: day,
+		event: event,
+		location: location,
+		start: start,
+		end: end
+	});
 
 	// Provide some feedback to let the user know that something's happening
 	var row = document.getElementById('newrow');
@@ -1050,7 +1081,11 @@ function save_day(id)
 
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send('action=day&id=' + id + '&day=' + newday);
+	ajax.send({
+		action: 'day',
+		id: id,
+		day: newday
+	});
 
 	// Disable dropdown while processing (Todo #1530)
 	daybox.setAttribute('disabled', 'disabled');
@@ -1199,7 +1234,10 @@ function toggle_done(id)
 {
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send('action=done&id=' + id);
+	ajax.send({
+		action: 'done',
+		id: id
+	});
 
 	// Get the current row
 	var row = document.getElementById('item' + id);
@@ -1224,7 +1262,10 @@ function toggle_mark(id)
 {
 	if (use_mark) {
 		var ajax = new AJAX(base_url, process);
-		ajax.send('action=mark&id=' + id);
+		ajax.send({
+			action: 'mark',
+			id: id
+		});
 
 		// Get the current row
 		var row = document.getElementById('item' + id);
@@ -1254,7 +1295,10 @@ function delete_item(id)
 
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send('action=delete&id=' + id);
+	ajax.send({
+		action: 'delete',
+		id: id
+	});
 
 	currently_editing = 0;
 }
@@ -1361,7 +1405,10 @@ function move_incomplete()
 	var ajax = new AJAX(base_url, process);
 
 	// Make AJAX request
-	ajax.send('action=move&week=' + week);
+	ajax.send({
+		action: 'move',
+		week: week
+	});
 }
 
 function move_incomplete_timeout(ajax)
