@@ -8,7 +8,10 @@ function init()
 	// Make AJAX request
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send('action=load&week=' + week);
+	ajax.send({
+		action: 'load',
+		week: week
+	});
 }
 
 function process(response)
