@@ -270,18 +270,24 @@ function show_tags_menu(id)
 
 	pick_tags_popup = new Popup('picktags', 'Select tags', { onclose: hide_tags_menu });
 
+	var content = {
+		element: 'div', id: 'picktagslist', children: []
+	};
+
 	var taglist = tags.items_name();
 	for (var i = 0; i < taglist.length; i++) {
 		var tag = taglist[i];
 
-		pick_tags_popup.content.appendChild(create_element({
+		content.children.push({
 			element: 'div',
 			children: [
 				{ element: 'input', type: 'checkbox', id: 'picktag' + tag.id(), checked: (itags.indexOf(tag.id()) != -1) },
 				{ element: 'span', class: 'tag tag' + tag.style(), text: tag.name() }
 			]
-		}));
+		});
 	}
+
+	pick_tags_popup.content.appendChild(create_element(content));
 
 	pick_tags_popup.content.appendChild(create_element({
 		element: 'button', id: 'savetags' + id, onclick: 'save_item_tags(' + id + ')', text: 'Save'

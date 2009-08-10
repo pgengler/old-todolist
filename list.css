@@ -188,3 +188,9 @@ tr#empty td {
 	font-weight: bold;
 	text-align: center;
 }
+
+div#picktagslist {
+	border-bottom: 1px solid black;
+	max-height: 15em;
+	overflow-y: auto;
+}
