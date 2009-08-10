@@ -364,7 +364,7 @@ function edit_tags()
 			element: 'tr',
 			children: [
 				{
-					element: 'td', id: 'tagname' + tag.id(), onclick: 'rename_tag(' + tag.id() + ')',
+					element: 'td', id: 'tagname' + tag.id(), onclick: 'rename_tag(' + tag.id() + ')', class: 'tagname',
 					children: [
 						{ element: 'span', class: 'tag tag' + tag.style(), id: 'edittagname' + tag.id(), text: tag.name() }
 					]

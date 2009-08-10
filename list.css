@@ -71,7 +71,7 @@ tr.past:hover, tr.today:hover, tr.future:hover, tr.undated:hover {
 input.time { width: 2.5em; }
 
 input.tagname {
-	width: 7em;
+	width: 6em;
 }
 
 fieldset { border: 0; margin: 0; padding: 0; }
@@ -152,8 +152,12 @@ ul#optionslist {
 }
 
 div#popup_edittags {
-	width: 8.5em;
+	width: 9.5em;
 }
+
+	div#popup_edittags td.tagname {
+		width: 6em;
+	}
 	
 img {
 	border: 0;
