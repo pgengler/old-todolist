@@ -8,12 +8,13 @@ div.tags {
 		font-family: sans-serif;
 		font-size: 70%;
 		margin-right: 2px;
+		min-width: 1en;
 		padding: 0 .5em 0 .5em;
 		text-align: center;
+		white-space: nowrap;
 		-moz-border-radius: 2px;
 		-webkit-border-radius: 2px;
 		border-radius: 2px;
-		min-width: 1en;
 	}
 
 	span.tag0 {
