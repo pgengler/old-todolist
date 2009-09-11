@@ -1465,3 +1465,13 @@ String.prototype.ltrim = function() {
 String.prototype.rtrim = function() {
 	return this.replace(/\s+$/,"");
 }
+
+if (!Array.indexOf) {
+	Array.prototype.indexOf = function(obj) {
+		for (var i = 0; i < this.length; i++)
+			if(this[i] == obj)
+				return i;
+		return -1;
+	}
+}
+
