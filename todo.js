@@ -141,7 +141,7 @@ function populate_row(row, item)
 
 	// Create cell for 'done' box
 	row.appendChild(create_element({
-		element: 'td', class: 'done',
+		element: 'td', cssclass: 'done',
 		children: [
 			{ element: 'input', type: 'checkbox', id: 'done' + item.id(), onclick: 'toggle_done(' + item.id() + ')' }
 		]
@@ -149,41 +149,41 @@ function populate_row(row, item)
 
 	// Create cell for day
 	var day_cell = {
-		element: 'td', class: 'day', onclick: 'show_day_edit(' + item.id() + ')',
+		element: 'td', cssclass: 'day', onclick: 'show_day_edit(' + item.id() + ')',
 		text: get_day_from_value(item.day())
 	};
 	if (show_date)
-		day_cell.children = [ { element: 'span', class: 'date', text: item.date() } ];
+		day_cell.children = [ { element: 'span', cssclass: 'date', text: item.date() } ];
 	row.appendChild(create_element(day_cell));
 
 	// Create cell for event
 	var event_cell = {
-		element: 'td', class: 'event',
+		element: 'td', cssclass: 'event',
 		children: [
-			{ element: 'div', class: 'tags', id: 'tags' + item.id(), children: [] }
+			{ element: 'div', cssclass: 'tags', id: 'tags' + item.id(), children: [] }
 		]
 	};
 
 	var tags_elems = {
-		element: 'div', class: 'tags', id: 'tags' + item.id(), children: []
+		element: 'div', cssclass: 'tags', id: 'tags' + item.id(), children: []
 	};
 
 	var item_tags = item.tags();
 	for (var j = 0; j < item_tags.length; j++) {
 		var tag = tags.get(item_tags[j]);
-		event_cell.children[0].children.push({ element: 'span', id: 'itemtag' + tag.id() + '_' + item.id(), class: 'tag tag' + tag.style(), text: tag.name() });
+		event_cell.children[0].children.push({ element: 'span', id: 'itemtag' + tag.id() + '_' + item.id(), cssclass: 'tag tag' + tag.style(), text: tag.name() });
 	}
 
-	event_cell.children[0].children.push({ element: 'img', class: 'tagmenu', src: images_url + '/arrow.gif', id: 't' + item.id(), onclick: 'show_tags_menu(' + item.id() + ')' });
-	event_cell.children.push({ element: 'div', class: 'event', id: 'event' + item.id(), onclick: 'show_event_edit(' + item.id() + ')', text: item.event() });
+	event_cell.children[0].children.push({ element: 'img', cssclass: 'tagmenu', src: images_url + '/arrow.gif', id: 't' + item.id(), onclick: 'show_tags_menu(' + item.id() + ')' });
+	event_cell.children.push({ element: 'div', cssclass: 'event', id: 'event' + item.id(), onclick: 'show_event_edit(' + item.id() + ')', text: item.event() });
 	row.appendChild(create_element(event_cell));
 
 	// Create cell for location
-	row.appendChild(create_element({ element: 'td', class: 'location', onclick: 'show_location_edit(' + item.id() + ')', text: item.location() }));
+	row.appendChild(create_element({ element: 'td', cssclass: 'location', onclick: 'show_location_edit(' + item.id() + ')', text: item.location() }));
 
 	// Create cell for start/end times
 	var time_cell = {
-		element: 'td', class: 'times', onclick: 'show_times_edit(' + item.id() + ')',
+		element: 'td', cssclass: 'times', onclick: 'show_times_edit(' + item.id() + ')',
 		children: []
 	}
 	if (item.start() != -1)
@@ -195,9 +195,9 @@ function populate_row(row, item)
 	if (use_mark)
 		// Create cell for 'mark' button
 		row.appendChild(create_element({
-			element: 'td', class: 'mark nodec',
+			element: 'td', cssclass: 'mark nodec',
 			children: [
-				{ element: 'input', type: 'button', class: 'mark', value: '*', onclick: 'toggle_mark(' + item.id() + ')', id: 'mark' + item.id() }
+				{ element: 'input', type: 'button', cssclass: 'mark', value: '*', onclick: 'toggle_mark(' + item.id() + ')', id: 'mark' + item.id() }
 			]
 		}));
 }
@@ -219,7 +219,7 @@ function populate_tag_selector()
 			element: 'li',
 			children: [ {
 				element: 'span', id: 'showtag' + tag.id(), onclick: 'toggle_tag_display(' + tag.id() + ')',
-				class: 'tag tag' + tag.style() + (show_tags.hasItem(tag.id()) ? '' : ' unselected'),
+				cssclass: 'tag tag' + tag.style() + (show_tags.hasItem(tag.id()) ? '' : ' unselected'),
 				text: tag.name() + (!show_tags.hasItem(tag.id()) ? '' : String.fromCharCode(10004))
 			} ]
 		});
@@ -282,7 +282,7 @@ function show_tags_menu(id)
 			element: 'div',
 			children: [
 				{ element: 'input', type: 'checkbox', id: 'picktag' + tag.id(), checked: (itags.indexOf(tag.id()) != -1) },
-				{ element: 'span', class: 'tag tag' + tag.style(), text: tag.name() }
+				{ element: 'span', cssclass: 'tag tag' + tag.style(), text: tag.name() }
 			]
 		});
 	}
@@ -370,16 +370,16 @@ function edit_tags()
 			element: 'tr',
 			children: [
 				{
-					element: 'td', id: 'tagname' + tag.id(), onclick: 'rename_tag(' + tag.id() + ')', class: 'tagname',
+					element: 'td', id: 'tagname' + tag.id(), onclick: 'rename_tag(' + tag.id() + ')', cssclass: 'tagname',
 					children: [
-						{ element: 'span', class: 'tag tag' + tag.style(), id: 'edittagname' + tag.id(), text: tag.name() }
+						{ element: 'span', cssclass: 'tag tag' + tag.style(), id: 'edittagname' + tag.id(), text: tag.name() }
 					]
 				},
 				{
 					element: 'td',
 					children: [
 						{
-							element: 'span', id: 'edittag' + tag.id(), class: 'dropdown tag tag' + tag.style(), style: 'cursor: pointer', text: String.fromCharCode(8194),
+							element: 'span', id: 'edittag' + tag.id(), cssclass: 'dropdown tag tag' + tag.style(), style: 'cursor: pointer', text: String.fromCharCode(8194),
 							onmouseover: 'show_dropdown_arrow(' + tag.id() + ')',
 							onmouseout: 'hide_dropdown_arrow(' + tag.id() + ')',
 							onclick: 'show_styles_dropdown(' + tag.id() + ')'
@@ -461,7 +461,7 @@ function show_styles_dropdown(id)
 				element: 'td',
 				children: [
 					{
-						element: 'span', style: 'cursor: pointer; display: block; width: 1em', class: 'tag tag' + style, onclick: 'set_tag_style(' + id + ',' + style + ')',
+						element: 'span', style: 'cursor: pointer; display: block; width: 1em', cssclass: 'tag tag' + style, onclick: 'set_tag_style(' + id + ',' + style + ')',
 						text: ((tag && tag.style() == style) || (!tag && new_tag_style == style)) ? String.fromCharCode(10004) : 'a'
 					}
 				]
@@ -583,7 +583,7 @@ function rename_tag(id)
 	var tag = tags.get(id);
 
 	cell.appendChild(create_element({
-		element: 'input', type: 'text', class: 'tagname', id: 'edittagname', value: tag.name()
+		element: 'input', type: 'text', cssclass: 'tagname', id: 'edittagname', value: tag.name()
 	}));
 
 	document.getElementById('edittagname').focus();
@@ -611,7 +611,7 @@ function hide_rename_tag()
 		var tag  = tags.get(id);
 
 		cell.appendChild(create_element({
-			element: 'span', class: 'tag tag' + tag.style(), text: tag.name()
+			element: 'span', cssclass: 'tag tag' + tag.style(), text: tag.name()
 		}));
 	}
 }
@@ -630,7 +630,7 @@ function add_tag_form()
 	row.appendChild(create_element({
 		element: 'td',
 		children: [
-			{ element: 'input', type: 'text', class: 'tagname', id: 'addtagname' },
+			{ element: 'input', type: 'text', cssclass: 'tagname', id: 'addtagname' },
 			{ element: 'input', type: 'hidden', id: 'edittagid', value: '-1' }
 		]
 	}));
@@ -639,7 +639,7 @@ function add_tag_form()
 		element: 'td',
 		children: [
 			{
-				element: 'span', id: 'edittag-1', class: 'dropdown tag tag1', style: 'cursor: pointer',
+				element: 'span', id: 'edittag-1', cssclass: 'dropdown tag tag1', style: 'cursor: pointer',
 				onmouseover: 'show_dropdown_arrow(-1)',
 				onmouseout: 'hide_dropdown_arrow(-1)',
 				onclick: 'show_styles_dropdown(-1)',
@@ -891,7 +891,7 @@ function dispatch()
 		for (var i = 0; i < len; i++)
 			row.removeChild(row.getElementsByTagName('td')[0]);
 
-		row.appendChild(create_element({ element: 'td', colspan: use_mark ? 6 : 5, class: 'nodec', style: 'font-style: italic; text-align: center', text: 'Processing...' }));
+		row.appendChild(create_element({ element: 'td', colspan: use_mark ? 6 : 5, cssclass: 'nodec', style: 'font-style: italic; text-align: center', text: 'Processing...' }));
 
 		var ajax = new AJAX(base_url, process);
 
@@ -945,9 +945,9 @@ function new_item_form()
 			{
 				element: 'td',
 				children: [
-					{ element: 'input', type: 'text', id: 'newstart', class: 'time' },
+					{ element: 'input', type: 'text', id: 'newstart', cssclass: 'time' },
 					{ element: 'text', text: String.fromCharCode(8211) },
-					{ element: 'input', type: 'text', id: 'newend', class: 'time' }
+					{ element: 'input', type: 'text', id: 'newend', cssclass: 'time' }
 				]
 			}
 		]
@@ -1019,7 +1019,7 @@ function submit_new_item()
 	parent.removeChild(row);
 
 	parent.appendChild(create_element({
-		element: 'tr', id: 'newrow', class: 'front',
+		element: 'tr', id: 'newrow', cssclass: 'front',
 		children: [
 			{ element: 'td', colspan: use_mark ? 6 : 5, style: 'font-style: italic; text-align: center', text: 'Processing...' }
 		]
@@ -1213,12 +1213,12 @@ function show_times_edit(id)
 
 	// Create a new start time textbox
 	var startbox = create_element({
-		element: 'input', type: 'text', id: 'start', class: 'time', value: (item.start() != -1) ? item.start() : ''
+		element: 'input', type: 'text', id: 'start', cssclass: 'time', value: (item.start() != -1) ? item.start() : ''
 	});
 
 	// Create a new end time textbox
 	var endbox = create_element({
-		element: 'input', type: 'text', id: 'end', class: 'time', value: (item.end() != -1) ? item.end() : ''
+		element: 'input', type: 'text', id: 'end', cssclass: 'time', value: (item.end() != -1) ? item.end() : ''
 	});
 
 	cell.empty();
