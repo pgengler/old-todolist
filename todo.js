@@ -28,7 +28,10 @@ var new_tag_style     = 1;
 $(document).ready(function() { setInterval("highlight()", 300000); });
 
 // Add handler for keyboard input
-window.addEventListener('keydown', key_handler, false);
+if (window.addEventListener)
+	window.addEventListener('keydown', key_handler, false);
+else if (window.attachEvent)
+	window.document.attachEvent('onkeydown', key_handler);
 
 ///////
 // KEYBOARD HANDLER
