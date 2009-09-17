@@ -277,7 +277,7 @@ function show_tags_menu(id)
 	var item  = items.get(id);
 	var itags = item.tags();
 
-	pick_tags_popup = new Popup('picktags', 'Select tags', { onclose: hide_tags_menu });
+	pick_tags_popup = new Popup('picktags', 'Select tags', { onclose: hide_tags_menu, onresize: function(e) { setPosition($('#popup_picktags'), $('#t' + select_tags)); } });
 
 	var content = {
 		element: 'div', id: 'picktagslist', children: []
@@ -361,7 +361,7 @@ function edit_tags()
 		delete edit_tags_popup;
 	}
 
-	edit_tags_popup = new Popup('edittags', 'Edit Tags');
+	edit_tags_popup = new Popup('edittags', 'Edit Tags', { onresize: function(e) { setPosition($('#popup_edittags'), $('#edittagslink')); } });
 
 	var form = {
 		element: 'form', onsubmit: 'return save_tags()',
@@ -454,7 +454,7 @@ function show_styles_dropdown(id)
 	if (span)
 		span.setAttribute('onclick', 'hide_styles_dropdown(' + id + ')');
 
-	tag_style_popup = new Popup('tagstyles', 'Pick color', { onclose: hide_styles_dropdown, oncloseparam: id });
+	tag_style_popup = new Popup('tagstyles', 'Pick color', { onclose: hide_styles_dropdown, oncloseparam: id, onresize: function(e) { setPosition($('#popup_tagstyles'), $('#edittag' + id)); } });
 
 	var table = { element: 'table', id: 'styletable', children: [] };
 
@@ -1446,6 +1446,9 @@ function toggle_color_key()
 ///////
 function setPosition(elem, near)
 {
+	if (!elem || !near)
+		return;
+
 	var scroll_top;
 	var scroll_left;
 	var window_width  = $(window).width();
