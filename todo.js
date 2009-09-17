@@ -102,7 +102,7 @@ function populate()
 		// Figure out if any of the item's tags match
 		var itags = c.tags();
 		var tlen  = itags.length;
-		var ok    = (tlen == 0 && show_tags.length == 0) ? true : false;
+		var ok    = (tlen == 0 && (show_tags.length == 0 || show_tags.hasItem(0)))  ? true : false;
 		for (var j = 0; j < tlen; j++) {
 			if (show_tags.length == 0 || show_tags.hasItem(itags[j]))
 				ok = true;
@@ -208,7 +208,13 @@ function populate_row(row, item)
 function populate_tag_selector()
 {
 	var tag_list = {
-		element: 'ul', id: 'showtaglist', children: []
+		element: 'ul', id: 'showtaglist', children: [
+			{
+				element: 'span', id: 'showtag0', onclick: 'toggle_tag_display(0)',
+				cssclass: 'tag' + (show_tags.hasItem(0) ? '' : ' unselected'),
+				text: '[none]' + (!show_tags.hasItem(0) ? '' : String.fromCharCode(10004))
+			}
+		]
 	};
 
 	var taglist = tags.items_name();
