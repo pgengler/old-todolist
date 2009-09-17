@@ -306,7 +306,8 @@ function show_tags_menu(id)
 	var img = $('#t' + id);
 	img.addClass('show');
 	var pos = img.offset();
-	$('#popup_picktags').css(img.offset());
+
+	setPosition($('#popup_picktags'), img);
 }
 
 function hide_tags_menu()
@@ -425,11 +426,7 @@ function edit_tags()
 	edit_tags_popup.content.appendChild(create_element(form));
 
 	// Position near the 'Edit tags' link
-	var div   = $('#popup_edittags');
-	var link  = $('#edittagslink');
-	var pos   = link.offset();
-	pos.left -= div.width();
-	div.css(pos);
+	setPosition($('#popup_edittags'), $('#edittagslink'));
 }
 
 function show_dropdown_arrow(id)
@@ -492,12 +489,8 @@ function show_styles_dropdown(id)
 
 	tag_style_popup.content.appendChild(create_element(table));
 
-	var styles = $('#popup_tagstyles');
-	var edit   = $('#edittag' + id);
-	var pos    = edit.offset();
-	pos.left  -= styles.width() / 2;
-	pos.top   += edit.height();
-	styles.css(pos);
+	// Set position
+	setPosition($('#popup_tagstyles'), $('#edittag' + id));
 }
 
 function hide_styles_dropdown(id)
@@ -1446,6 +1439,44 @@ function toggle_color_key()
 		key.addClass('hidden');
 		link.empty().text('Show color key');
 	}
+}
+
+///////
+// POSITIONING
+///////
+function setPosition(elem, near)
+{
+	var scroll_top;
+	var scroll_left;
+	var window_width  = $(window).width();
+	var window_height = $(window).height();
+	var elem_height   = elem[0].clientHeight;
+	var elem_width    = elem[0].clientWidth;
+
+	// Position right below the target
+	var offset = near.offset();
+	var x_pos  = offset.left;
+	var y_pos  = offset.top + near.height();
+
+	// Set y-axis position
+	scroll_top = $(window).scrollTop();
+
+	// Check if element needs additional positions
+	if (window_height < elem_height)
+		// Element is larger than viewable window; position it at the top of the visible area
+		y_pos = scroll_top;
+	else if (window_height + scroll_top < y_pos + elem_height)
+		// Element extends beyond bottom of window; position it so its bottom aligns with the bottom of the window
+		y_pos -= y_pos + elem_height - (window_height + scroll_top) + 5;
+
+	// Set x-axis position
+	scroll_left = $(window).scrollLeft();
+	if (window_width + scroll_left < x_pos + elem_width)
+		// Element extends beyond right of window; shift the element to the left until it fits
+		x_pos -= x_pos + elem_width - (window_width + scroll_left) + 5;
+
+	// Set position
+	elem.css({left: x_pos, top: y_pos});
 }
 
 ///////
