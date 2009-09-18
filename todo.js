@@ -6,8 +6,9 @@ var show_tags    = new Hash();
 var extra_states = new Hash();
 var menu_stack   = [];
 
-var options_box  = null;
-var tag_sel_box  = null;
+var options_box   = null;
+var tag_sel_box   = null;
+var color_key_box = null;
 
 var pick_tags_popup = null;
 var edit_tags_popup = null;
@@ -65,8 +66,6 @@ function show_options()
 		{ element: 'li', children: [ { element: 'a', href: 'javascript:move_incomplete()', text: 'Move unfinished items to next week' } ] },
 		{ element: 'li', children: [ { element: 'a', href: index_url + 'template/', text: 'Edit template' } ] }
 	];
-	if (use_mark)
-		options.push({ element: 'li', children: [ {element: 'a', id: 'showcolorkey', href: 'javascript:toggle_color_key()', text: 'Show color key' } ] });
 
 	var options_list = create_element({
 		element: 'ul', id: 'optionslist', children: options
@@ -76,16 +75,57 @@ function show_options()
 }
 
 ///////
+// COLOR KEY
+///////
+
+function show_color_key()
+{
+	// Check if we already have this set up; if we do, no need to do it again
+	if (color_key_box)
+		return;
+
+	color_key_box = new Box('colorkey', 'Color Key', 'extra');
+
+	color_key_box.content.appendChild(create_element({
+		element: 'table', id: 'colorkey',
+		children: [
+			{
+				element: 'tr', children: [
+					{ element: 'td', cssclass: 'future', text: 'Upcoming' },
+					{ element: 'td', cssclass: 'future mark', text: 'Upcoming, marked' }
+				]
+			},
+			{
+				element: 'tr', children: [
+					{ element: 'td', cssclass: 'today', text: 'Today' },
+					{ element: 'td', cssclass: 'today mark', text: 'Today, marked' }
+				]
+			},
+			{
+				element: 'tr', children: [
+					{ element: 'td', cssclass: 'past', text: 'Overdue' },
+					{ element: 'td', cssclass: 'past mark', text: 'Overdue, marked' }
+				]
+			}
+		]
+	}));
+}
+
+///////
 // POPULATE
 // Clear the table and (re)populate it based on the 'items' object/array
 ///////
 function populate()
 {
+	// Show initial/static boxes
+	if (!template) {
+		show_options();
+		if (use_mark)
+			show_color_key();
+	}
+
 	// Get the table body
 	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
-
-	if (!template)
-		show_options();
 
 	// Empty it
 	remove_all_children(tbody);
@@ -1422,23 +1462,6 @@ function move_incomplete()
 function move_incomplete_timeout(ajax)
 {
 	ajax.abort();
-}
-
-///////
-// TOGGLE COLOR KEY
-///////
-function toggle_color_key()
-{
-	var key = $('#colorkey');
-	var link = $('#showcolorkey');
-
-	if (key.hasClass('hidden')) {
-		key.removeClass('hidden');
-		link.empty().text('Hide color key');
-	} else {
-		key.addClass('hidden');
-		link.empty().text('Show color key');
-	}
 }
 
 ///////

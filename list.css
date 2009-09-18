@@ -194,3 +194,11 @@ div#picktagslist {
 	max-height: 15em;
 	overflow-y: auto;
 }
+
+table#colorkey {
+	font-size: 8pt;
+	text-align: center;
+}
+	table#colorkey td {
+		width: 50%;
+	}
