@@ -11,6 +11,7 @@ use strict;
 require 'config.pl';
 
 use CGI;
+use CGI::Carp 'fatalsToBrowser';
 use Database;
 use HTML::Template;
 use POSIX;
@@ -23,91 +24,6 @@ our $db = new Database;
 $db->init($Config::db_user, $Config::db_pass, $Config::db_name, 'localhost', \&error);
 
 ##############
-
-#######
-## CREATE WEEK
-## Given a date (YYYYMMDD), creates the week containing it in the database
-#######
-sub create_week()
-{
-	my $date = shift;
-
-	# Get component parts of date
-	my $year  = substr($date, 0, 4);
-	my $month = substr($date, 4, 2);
-	my $day   = substr($date, 6, 2);
-
-	# Build UNIX-style date for date
-	my $unix_date = mktime(0, 0, 0, $day, $month - 1, $year - 1900, 0, 0);
-
-	# Get parts to find out what day of the week this is
-	my @date_parts = localtime($unix_date);
-
-	# Set this date back to Sunday
-	my $start_date = $unix_date - ($date_parts[6] * 24 * 60 * 60);
-
-	# Add 6 days to start date to get end date
-	my $end_date = $start_date + (6 * 24 * 60 * 60);
-
-	# Get component parts for start date
-	my @start_date  = localtime($start_date);
-	my $start_year  = $start_date[5] + 1900;
-	my $start_month = $start_date[4] + 1;
-	my $start_day   = $start_date[3];
-
-	# Get component parts for end date
-	my @end_date  = localtime($end_date);
-	my $end_year  = $end_date[5] + 1900;
-	my $end_month = $end_date[4] + 1;
-	my $end_day   = $end_date[3];
-
-	# Build start date string
-	$start_date = $start_year . &fix_date($start_month) . &fix_date($start_day);
-
-	# Build end date string
-	$end_date = $end_year . &fix_date($end_month) . &fix_date($end_day);
-
-	my $query = qq~
-		INSERT INTO todo_weeks
-		(start, end)
-		VALUES
-		(?, ?)
-	~;
-	$db->prepare($query);
-	$db->execute($start_date, $end_date);
-
-	my $new_id = $db->insert_id();
-
-	# Load template, if requested
-	if ($Config::auto_load) {
-		&load_template($new_id);
-	}
-
-	$query = qq~
-		SELECT id, start
-		FROM todo_weeks
-		WHERE id = ?
-	~;
-	$db->prepare($query);
-	my $sth = $db->execute($new_id);
-
-	return $sth->fetchrow_hashref();
-}
-
-#######
-## FIX DATE
-## Given a part of a date, adds a leading 0 if the value is less than 10 and a leading 0 isn't present
-#######
-sub fix_date()
-{
-	my $date = shift;
-
-	if ($date >= 10 || length($date) == 2) {
-		return $date;
-	}
-
-	return '0' . $date;
-}
 
 #######
 ## LOAD HTML TEMPLATE
@@ -190,96 +106,95 @@ sub get_day_name()
 }
 
 #######
+## IS TEMPLATE LOADED?
+## Checks if the template has been loaded for the specified day.
+## If the given day is earlier than the current day, treat it as though it has the template loaded.
+#######
+sub template_loaded()
+{
+	my $date = shift;
+
+	my $query = qq~
+		SELECT (IF(COUNT(*) > 0, 1, 0) + IF(? < DATE(NOW()), 1, 0)) loaded
+		FROM template_loaded
+		WHERE `date` = ?
+	~;
+	$db->prepare($query);
+	my $sth = $db->execute($date, $date);
+
+	my $loaded = $sth->fetchrow_hashref()->{'loaded'};
+
+	return $loaded;
+}
+
+#######
 ## LOAD TEMPLATE
-## Loads the template into the specified week
+## Loads the template for the specified date.
 #######
 sub load_template()
 {
 	# Get parameters
-	my $week_id = shift;
+	my $date = shift;
 
-	my $week;
+	$db->start_transaction();
 
-	unless ($week_id) {
-		# use current date if none is given
-		my @date_parts = localtime(time());
-
-		my $day = ($date_parts[5] + 1900) . &Common::fix_date($date_parts[4] + 1) . &Common::fix_date($date_parts[3]);
-
-		# Get the week this day is in
-		my $query = qq~
-			SELECT id, start
-			FROM todo_weeks
-			WHERE start <= ? AND end >= ?
-		~;
-		$db->prepare($query);
-		my $sth = $db->execute($day, $day);
-
-		$week = $sth->fetchrow_hashref();
-
-		unless ($week) {
-			$week = &Common::create_week($day);
-		}
-	} else {
-		my $query = qq~
-			SELECT id, start
-			FROM todo_weeks
-			WHERE id = ?
-		~;
-		$db->prepare($query);
-		my $sth = $db->execute($week_id);
-
-		$week = $sth->fetchrow_hashref();		
-	}
-
-	exit unless $week;
-
-	# Get the week ID for the template week
+	# Get all template items for the day
 	my $query = qq~
-		SELECT id
-		FROM todo_weeks
-		WHERE start IS NULL AND end IS NULL
+		SELECT id, event, location, start, end, mark
+		FROM template_items
+		WHERE day = DAYOFWEEK(?)
 	~;
 	$db->prepare($query);
-	my $sth = $db->execute();
+	my $get_items = $db->execute($date);
 
-	my $template_week = $sth->fetchrow_hashref();
-
-	# Fetch the items in the template
+	# Query for getting tags from a template item
 	$query = qq~
-		SELECT id, day, event, location, start, end, done, mark
-		FROM todo
-		WHERE week = ?
+		SELECT tag_id
+		FROM template_item_tags
+		WHERE item_id = ?
 	~;
-	$db->prepare($query);
-	$sth = $db->execute($template_week->{'id'});
+	my $get_tags = $db->prepare($query);
 
-	# Add the items to the specified week
-	while (my $item = $sth->fetchrow_hashref()) {
-		$query = qq~
-			INSERT INTO todo
-			(week, day, event, location, start, end, done, mark)
-			VALUES
-			(?, ?, ?, ?, ?, ?, ?, ?)
-		~;
-		$db->prepare($query);
-		$db->execute($week->{'id'}, $item->{'day'}, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'done'}, $item->{'mark'});
+	# Query to insert items into 'todo' table
+	$query = qq~
+		INSERT INTO todo
+		(`date`, event, location, start, end, mark)
+		VALUES
+		(?, ?, ?, ?, ?, ?)
+	~;
+	my $insert = $db->prepare($query);
 
-		my $new_id = $db->insert_id();
+	# Query to add tags to new item
+	$query = qq~
+		INSERT INTO item_tags
+		(item_id, tag_id)
+		VALUES
+		(?, ?)
+	~;
+	my $add_tags = $db->prepare($query);
 
-		# Add tags
-		$query = qq~
-			INSERT INTO item_tags
-			(item_id, tag_id)
-			SELECT ?, tag_id
-			FROM item_tags
-			WHERE item_id = ?
-		~;
-		$db->prepare($query);
-		$db->execute($new_id, $item->{'id'});
+	while (my $item = $get_items->fetchrow_hashref()) {
+		$insert->execute($date, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'mark'});
+		my $new_id = $insert->{'mysql_insertid'};
+
+		# Get tags for this template item
+		$get_tags->execute($item->{'id'});
+		while (my $tag = $get_tags->fetchrow_hashref()) {
+			$add_tags->execute($new_id, $tag->{'tag_id'});
+		}
 	}
 
-	return $week;
+	# Mark the template as loaded for this day
+	$query = qq~
+		INSERT INTO template_loaded
+		(`date`)
+		VALUES
+		(?)
+	~;
+	$db->prepare($query);
+	$db->execute($date);
+
+	$db->commit_transaction();
 }
 
 #######
@@ -294,51 +209,19 @@ sub item_to_xml()
 	my $xml = &load_xml_template('item');
 
 	# Set template params
-	$xml->param(id       => $item->{'id'});
-	$xml->param(week     => $item->{'week'});
-	$xml->param(day      => $item->{'day'});
-	$xml->param(date     => $item->{'date'});
-	$xml->param(event    => $item->{'event'});
-	$xml->param(location => $item->{'location'});
-	$xml->param(start    => $item->{'start'});
-	$xml->param(end      => $item->{'end'});
-	$xml->param(done     => $item->{'done'});
-	$xml->param(mark     => $item->{'mark'});
-	$xml->param(tags     => $item->{'tags'});
+	$xml->param(id        => $item->{'id'});
+	$xml->param(day       => $item->{'day'});
+	$xml->param(date      => $item->{'date'});
+	$xml->param(event     => $item->{'event'});
+	$xml->param(location  => $item->{'location'});
+	$xml->param(start     => $item->{'start'});
+	$xml->param(end       => $item->{'end'});
+	$xml->param(done      => $item->{'done'});
+	$xml->param(mark      => $item->{'mark'});
+	$xml->param(tags      => $item->{'tags'});
+	$xml->parm(keep_until => $item->{'keep_until'});
 	
 	return $xml;
-}
-
-#######
-## CREATE WEEK AFTER
-## Create a week after the given one
-#######
-sub create_week_after()
-{
-	my $old_week = shift;
-
-	# Add new week
-	my $query = qq~
-		INSERT INTO todo_weeks
-		(start, end)
-		VALUES
-		(DATE_ADD(?, INTERVAL 1 DAY), DATE_ADD(?, INTERVAL 7 DAY))
-	~;
-	$db->prepare($query);
-	$db->execute($old_week->{'end'}, $old_week->{'end'});
-
-	my $new_week_id = $db->insert_id();
-
-	# Get new week
-	$query = qq~
-		SELECT id, start, end
-		FROM todo_weeks
-		WHERE id = ?
-	~;
-	$db->prepare($query);
-	my $sth = $db->execute($new_week_id);
-
-	return $sth->fetchrow_hashref();
 }
 
 #######

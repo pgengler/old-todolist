@@ -1,4 +1,3 @@
-var template     = 0;
 var items        = new Items();
 var tags         = new Tags();
 var used_tags    = new Hash();
@@ -13,6 +12,9 @@ var color_key_box = null;
 var pick_tags_popup = null;
 var edit_tags_popup = null;
 var tag_style_popup = null;
+
+var picker        = null;
+var new_date      = null;
 
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
@@ -63,9 +65,13 @@ function show_options()
 
 	var options = [
 		{ element: 'li', children: [ { element: 'a', href: 'javascript:load_template()', text: 'Load template' } ] },
-		{ element: 'li', children: [ { element: 'a', href: 'javascript:move_incomplete()', text: 'Move unfinished items to next week' } ] },
-		{ element: 'li', children: [ { element: 'a', href: index_url + 'template/', text: 'Edit template' } ] }
+		{ element: 'li', children: [ { element: 'a', href: index_url + '#template', onclick: "return load('template')", text: 'Edit template' } ] }
 	];
+
+	if (!rolling && !template)
+		options.push({
+			element: 'li', children: [ { element: 'a', href: 'javascript:move_unfinished()', text: 'Move unfinished items to next week' } ]
+		});
 
 	var options_list = create_element({
 		element: 'ul', id: 'optionslist', children: options
@@ -190,13 +196,11 @@ function populate_row(row, item)
 		]
 	}));
 
-	// Create cell for day
+	// Create cell for day & date
 	var day_cell = {
-		element: 'td', cssclass: 'day', onclick: 'show_day_edit(' + item.id() + ')',
-		text: get_day_from_value(item.day())
+		element: 'td', cssclass: 'day', onclick: 'show_date_edit(' + item.id() + ')',
+		text: item.date() ? item.date().strftime(date_format) : '--'
 	};
-	if (show_date)
-		day_cell.children = [ { element: 'span', cssclass: 'date', text: item.date() } ];
 	row.appendChild(create_element(day_cell));
 
 	// Create cell for event
@@ -317,7 +321,7 @@ function show_tags_menu(id)
 	var item  = items.get(id);
 	var itags = item.tags();
 
-	pick_tags_popup = new Popup('picktags', 'Select tags', { onclose: hide_tags_menu, onresize: function(e) { setPosition($('#popup_picktags'), $('#t' + select_tags)); } });
+	pick_tags_popup = new Popup('picktags', 'Select tags', { shadow: true, onclose: hide_tags_menu, onresize: function(e) { setPosition($('#popup_picktags'), $('#t' + select_tags)); } });
 
 	var content = {
 		element: 'div', id: 'picktagslist', children: []
@@ -384,11 +388,11 @@ function save_item_tags(id)
 	// Make AJAX request to save tags
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send({
+	ajax.send(extend({
 		action: 'itemtags',
 		id: id,
 		tags: new_tags.join(',')
-	});
+	}, get_view()));
 }
 
 ///////
@@ -401,7 +405,7 @@ function edit_tags()
 		delete edit_tags_popup;
 	}
 
-	edit_tags_popup = new Popup('edittags', 'Edit Tags', { onresize: function(e) { setPosition($('#popup_edittags'), $('#edittagslink')); } });
+	edit_tags_popup = new Popup('edittags', 'Edit Tags', { shadow: true, onresize: function(e) { setPosition($('#popup_edittags'), $('#edittagslink')); } });
 
 	var form = {
 		element: 'form', onsubmit: 'return save_tags()',
@@ -494,7 +498,7 @@ function show_styles_dropdown(id)
 	if (span)
 		span.setAttribute('onclick', 'hide_styles_dropdown(' + id + ')');
 
-	tag_style_popup = new Popup('tagstyles', 'Pick color', { onclose: hide_styles_dropdown, oncloseparam: id, onresize: function(e) { setPosition($('#popup_tagstyles'), $('#edittag' + id)); } });
+	tag_style_popup = new Popup('tagstyles', 'Pick color', { shadow: true, onclose: hide_styles_dropdown, oncloseparam: id, onresize: function(e) { setPosition($('#popup_tagstyles'), $('#edittag' + id)); } });
 
 	var table = { element: 'table', id: 'styletable', children: [] };
 
@@ -560,11 +564,11 @@ function set_tag_style(tag_id, style)
 	
 		var ajax = new AJAX(base_url, load_tags);
 
-		ajax.send({
+		ajax.send(extend({
 			action: 'savetag',
 			id: tag_id,
 			style: ((style == 0) ? -1 : style)
-		});
+		}, get_view()));
 
 		// Refresh tags
 		refresh_tags();
@@ -753,13 +757,12 @@ function remove_tag(id)
 	var tag = tags.get(id);
 
 	if (confirm("Are you sure you want to remove the tag '" + tag.name() + "'?")) {
-		var week = document.getElementById('week').value;
 		var ajax = new AJAX(base_url, function(xml) { process(xml); edit_tags(); populate_tag_selector(); });
-		ajax.send({
+		ajax.send(extend({
 			action: 'removetag',
 			id: id,
 			week: week
-		});
+		}, get_view()));
 	}
 }
 
@@ -768,80 +771,55 @@ function remove_tag(id)
 ///////
 function highlight()
 {
-	var curr_week = false;
-	var old_week  = false;
+	if (template)
+		return;
 
-	if (!document.getElementById('template')) {
-		// Check if what we're looking at isn't the current week
-		var next_week_link = document.getElementById('nextweek');
-		var next_week_url  = next_week_link.getAttribute('href');
-		var next_week_date = next_week_url.substr(next_week_url.length - 9, 8);
-		var next_week_year = next_week_date.substr(0, 4);
-		var next_week_mon  = next_week_date.substr(4, 2) - 1;
-		var next_week_day  = next_week_date.substr(6, 2);
-		var next_week = new Date(next_week_year, next_week_mon, next_week_day);
+	var today = new Date();
 
-		var today = new Date();
-		if (today < next_week && !document.getElementById('currweek'))
-			curr_week = true;
-		else if (today >= next_week)
-			old_week = true;
+	// Get table
+	var table = document.getElementById('content');
+
+	var rows = table.getElementsByTagName('tr');
+	for (var i = 1; i < rows.length; i++) {
+		var id  = rows[i].getAttribute('id');
+		var row = $('#' + id);
+
+		var item = items.get(id.replace(/item/, ''));
+		if (!item)
+			next;
+
+		var keep_until = item.keep_until();
+		if (keep_until && keep_until < today) {
+			rows[i].parentNode.removeChild(rows[i]);
+			continue;
+		}
+
+		var done = row.hasClass('done');
+		var mark = row.hasClass('mark');
+
+		row.removeClass();
+		if (item.date() && item.date().equals(today))
+			row.addClass('today');
+		else if (item.date() && item.date() < today)
+			row.addClass('past');
+		else if (item.date() && item.date() > today)
+			row.addClass('future');
+		else
+			row.addClass('undated');
+
+		if (done)
+			row.addClass('done');
+		if (mark)
+			row.addClass('mark');
 	}
 
-	if (curr_week) {
-		var today = (new Date()).getDay();
-
-		// Get table
-		var table = document.getElementById('content');
-
-		var rows = table.getElementsByTagName('tr');
-		for (var i = 1; i < rows.length; i++) {
-			var id  = rows[i].getAttribute('id');
-			var row = $('#' + id);
-
-			var item = items.get(id.replace(/item/, ''));
-
-			var done = row.hasClass('done');
-			var mark = row.hasClass('mark');
-
-			row.removeClass();
-			if (item.day() == today)
-				row.addClass('today');
-			else if (item.day() >= 0 && item.day() < today)
-				row.addClass('past');
-			else if (item.day() >= 0 && item.day() < 7)
-				row.addClass('future');
-			else
-				row.addClass('undated');
-
-			if (done)
-				row.addClass('done');
-			if (mark)
-				row.addClass('mark');
-		}
-	} else {
-		// Get table
-		var table = document.getElementById('content');
-		var rows = table.getElementsByTagName('tr');
-		for (var i = 1; i < rows.length; i++) {
-			var id  = rows[i].getAttribute('id');
-			var row = $('#' + id);
-
-			var done = row.hasClass('done');
-			var mark = row.hasClass('mark');
-
-			row.removeClass();
-			if (old_week)
-				row.addClass('past');
-			else
-				row.addClass('future');
-
-			if (done)
-				row.addClass('done');
-			if (mark)
-				row.addClass('mark');
-		}
-	}
+	// Set page title
+	if (rolling && !template)
+		document.title = ('Todo - ' + (new Date()).strftime('%Y-%m-%d'));
+	else if (template)
+		document.title = 'Todo - Template';
+	else
+		document.title = ('Todo - Week of ' + view_date.strftime('%Y-%m-%d'));
 }
 
 ///////
@@ -937,7 +915,7 @@ function dispatch()
 
 		var ajax = new AJAX(base_url, process);
 
-		ajax.send(params);
+		ajax.send(extend(params, get_view()));
 	}
 }
 
@@ -958,15 +936,16 @@ function new_item_form()
 	// Get tbody
 	var tbody = table.getElementsByTagName('tbody')[0];
 
+
 	// Add a new row to the table
 	var row = {
 		element: 'tr', id: 'newrow',
 		children: [
-			// Day column
+			// Date column
 			{
 				element: 'td', colspan: 2,
 				children: [
-					{ element: 'select', id: 'newday', children: [] }
+					{ element: 'input', type: 'text', id: 'newdate', children: [ ], readonly: true, onclick: 'new_item_show_picker()' }
 				]
 			},
 			// Event column
@@ -995,65 +974,113 @@ function new_item_form()
 		]
 	}
 
-	// Create dropdown for day
-	var dropdown = row.children[0].children[0].children;
-
-	// Create options for each day choice
-	for (var i = -1; i < 7; i++) {
-		var day = get_day_from_value(i);
-		if (!template && i >= 0 && dates[i])
-			day += dates[i].strftime(date_format);
-		dropdown.push({
-			element: 'option', value: i, text: day
-		});
-	}
-
-	// Add column for "mark", if that feature is used
+	// Add empty column for "mark", if that feature is used
 	if (use_mark)
 		row.children.push({ element: 'td', text: ' ' });
 
 	// Add the new row to the table
 	tbody.appendChild(create_element(row));
 
-	// Set the focus on the day dropdown
-	var dropdown = document.getElementById('newday');
-	dropdown.focus();
+	// Show date picker
+	new_item_show_picker();
+}
+
+function new_item_show_picker()
+{
+	new_date = null;
+
+	if (picker) {
+		picker.hide();
+		delete picker;
+	}
+
+	picker = new Picker({ anim_callback: scroll_to_new, closed: move_to_event });
+	picker.show($('#newdate'), new_item_select_date);
+}
+
+function move_to_event()
+{
+	var event_box = document.getElementById('newevent');
+
+	if (event_box)
+		event_box.focus();
+}
+
+function scroll_to_new()
+{
+	// Scroll to show 'new' row
+	var newrow = document.getElementById('newrow');
+	var picker = document.getElementById('picker');
+	window.scrollTo(0, newrow.offsetTop + 200);
+}
+
+function new_item_select_date(day, date)
+{
+	var d;
+
+	if (day !== undefined) {
+		if (rolling) {
+			var today = new Date();
+			var start = new Date();
+			start.setDate(start.getDate() - start.getDay());
+
+			if (day < today.getDay())
+				day += 7;
+
+			d = start;
+			d.setDate(d.getDate() + day);
+		} else {
+			var view  = get_view(true).view();
+			var start = date_from_str(view);
+			start.setDate(start.getDate() - start.getDay());
+
+			if (day >= 0) {
+				d = week_start;
+				d.setDate(week_start.getDate() + day);
+			}
+		}
+	} else if (date !== undefined) {
+		d = date_from_parts(date);
+	}
+
+	var elem = document.getElementById('newdate');
+	if (d)
+		elem.value = d.strftime(date_format);
+	else
+		elem.value = '--';
+
+	new_date = d;
 }
 
 function submit_new_item()
 {
 	// Get values
-	var week = document.getElementById('week').value;
-
-	var day_box      = document.getElementById('newday');
 	var event_box    = document.getElementById('newevent');
 	var location_box = document.getElementById('newlocation');
 	var start_box    = document.getElementById('newstart');
 	var end_box      = document.getElementById('newend');
 
-	var day      = day_box.value;
 	var event    = event_box.value;
 	var location = location_box.value;
 	var start    = start_box.value;
 	var end      = end_box.value;
 
 	// Make sure the important fields have values (Todo #1367)
-	if (!week || !event) {
+	if (!event) {
 		alert("Missing some key information!");
 		return;
 	}
 
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send({
+	ajax.send(extend({
 		action: 'add',
-		week: week,
-		day: day,
+		date: new_date ? new_date.strftime('%Y-%m-%d') : null,
 		event: event,
 		location: location,
 		start: start,
 		end: end
-	});
+	}, get_view()));
 
 	// Provide some feedback to let the user know that something's happening
 	var row = document.getElementById('newrow');
@@ -1072,7 +1099,7 @@ function submit_new_item()
 // EDITING
 ///////
 
-function show_day_edit(id)
+function show_date_edit(id)
 {
 	// Clear other edits
 	clear_edits(id);
@@ -1097,46 +1124,54 @@ function show_day_edit(id)
 
 	currently_editing = id;
 
-	cell.empty();
-
-	// Create new dropdown
-	var dropdown = {
-		element: 'select', id: 'day', onchange: 'save_day(' + id + ')',
-		children: [ ]
-	};
-
-	// Create options for each day choice
-	for (var i = -1; i < 7; i++) {
-		dropdown.children.push({
-			element: 'option', value: i, text: get_day_from_value(i) + ((!template && i >= 0 && dates[i]) ? dates[i].strftime(date_format) : ''), selected: (i == item.day())
-		});
+	if (picker) {
+		picker.hide();
+		delete picker;
 	}
 
-	dropdown.children.push({
-		element: 'option', value: '8', text: '->'
-	});
-
-	cell.append(create_element(dropdown));
-	document.getElementById('day').focus();
+	picker = new Picker({ date: item.date(), day: item.day(), closed: null });
+	picker.show(cell, function(day, date) { set_date(id, day, date); });
 }
 
-function save_day(id)
+function set_date(id, day, date)
 {
-	// Get the day box
-	var daybox = document.getElementById('day');
+	var d;
 
-	var newday = daybox.value;
+	var cell = document.getElementById('item' + id).getElementsByTagName('td')[1];
 
-	var ajax = new AJAX(base_url, process);
+	show_spinner(cell);
 
-	ajax.send({
-		action: 'day',
-		id: id,
-		day: newday
-	});
+	if (day !== undefined) {
+		if (rolling) {
+			var today = new Date();
+			var start = new Date();
+			start.setDate(start.getDate() - start.getDay());
 
-	// Disable dropdown while processing (Todo #1530)
-	daybox.setAttribute('disabled', 'disabled');
+			if (day < today.getDay())
+				day += 7;
+
+			d = start;
+			d.setDate(d.getDate() + day);
+		} else {
+			var view  = get_view(true).view();
+			var start = date_from_str(view);
+			start.setDate(start.getDate() - start.getDay());
+
+			if (day >= 0) {
+				d = week_start;
+				d.setDate(week_start.getDate() + day);
+			}
+		}
+	} else if (date !== undefined) {
+		d = date_from_parts(date);
+	}
+
+	var ajax = new AJAX(base_url, process)
+	ajax.send(extend({
+		action: 'date',
+		id:     id,
+		date:   d ? d.strftime('%Y-%m-%d') : ''
+	}, get_view()));
 }
 
 function show_event_edit(id)
@@ -1282,25 +1317,16 @@ function toggle_done(id)
 {
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send({
+	ajax.send(extend({
 		action: 'done',
 		id: id
-	});
+	}, get_view()));
 
 	// Get the current row
 	var row = document.getElementById('item' + id);
 
-	// Create spinner
-	var spinner = create_element({ element: 'img', src: images_url + '/processing.gif' });
-
-	// Get this cell
-	var cell = row.getElementsByTagName('td')[0];
-
-	// Clear cell
-	remove_all_children(cell);
-
-	// Show spinner
-	cell.appendChild(spinner);
+	// Show 'processing' image in 'done' cell
+	show_spinner(row.getElementsByTagName('td')[0]);
 }
 
 ///////
@@ -1310,25 +1336,16 @@ function toggle_mark(id)
 {
 	if (use_mark) {
 		var ajax = new AJAX(base_url, process);
-		ajax.send({
+		ajax.send(extend({
 			action: 'mark',
 			id: id
-		});
+		}, get_view()));
 
 		// Get the current row
 		var row = document.getElementById('item' + id);
 
-		// Create spinner
-		var spinner = create_element({ element: 'img', src: images_url + '/processing.gif' });
-
-		// Get this cell
-		var cell = row.getElementsByTagName('td')[5];
-
-		// Clear cell
-		remove_all_children(cell);
-
-		// Show spinner
-		cell.appendChild(spinner);
+		// Show 'processing' image in 'mark' cell
+		show_spinner(row.getElementsByTagName('td')[5]);
 	}
 }
 
@@ -1343,12 +1360,59 @@ function delete_item(id)
 
 	var ajax = new AJAX(base_url, process);
 
-	ajax.send({
+	ajax.send(extend({
 		action: 'delete',
 		id: id
-	});
+	}, get_view()));
 
 	currently_editing = 0;
+}
+
+///////
+// UPDATE PREVIOUS/NEXT LINKS
+///////
+function update_links()
+{
+	var view = get_view(true).view;
+
+	// Get table
+	var table = document.getElementById('weeks');
+
+	if (view && view == 'template') {
+		table.className = 'hidden';
+		return;
+	}
+
+	table.className = '';
+
+	var parts;
+	var d;
+
+	if (view && (parts = view.match(/(\d{4})-(\d{2})-(\d{2})/)))
+		d = date_from_parts(view);
+	else if (view_date)
+		d = view_date;
+
+	if (d) {
+		var start = new Date(d);
+		start.setDate(d.getDate() - d.getDay());
+
+		var prev = new Date(start);
+		prev.setDate(start.getDate() - 7);
+
+		var next = new Date(start);
+		next.setDate(start.getDate() + 7);
+
+		var prev_link = document.getElementById('prevweek');
+		prev_link.setAttribute('href', index_url + '#' + prev.strftime('%Y%m%d'));
+		prev_link.onclick = function() { return load(prev); };
+		prev_link.innerHTML = 'Week of ' + prev.strftime('%Y-%m-%d');
+
+		var next_link = document.getElementById('nextweek');
+		next_link.setAttribute('href', index_url + '#' + next.strftime('%Y%m%d'));
+		next_link.onclick = function() { return load(next); };
+		next_link.innerHTML = 'Week of ' + next.strftime('%Y-%m-%d');
+	}
 }
 
 ///////
@@ -1428,40 +1492,34 @@ function get_day_from_value(value)
 	}
 }
 
-
-function load_template()
+function move_unfinished()
 {
-	// Get week ID
-	var week = document.getElementById('week').value;
-
-	if (!week)
+	// Don't allow if using rolling view or editing template
+	if (rolling || template)
 		return;
-
-	// Construct URL
-	var url = index_url + '?act=template;week=' + week;
-
-	// Go to new URL
-	window.location.href = url;
-}
-
-function move_incomplete()
-{
-	// Get week ID
-	var week = document.getElementById('week').value;
 
 	// Create AJAX object
 	var ajax = new AJAX(base_url, process);
 
 	// Make AJAX request
-	ajax.send({
-		action: 'move',
-		week: week
-	});
+	ajax.send(extend({
+		action: 'move'
+	}, get_view()));
 }
 
-function move_incomplete_timeout(ajax)
+///////
+// SHOW 'PROCESSING' IMAGE
+///////
+function show_spinner(elem)
 {
-	ajax.abort();
+	// Create spinner
+	var spinner = create_element({ element: 'img', src: images_url + '/processing.gif' });
+
+	// Clear element
+	remove_all_children(elem);
+
+	// Show spinner
+	elem.appendChild(spinner);
 }
 
 ///////
@@ -1476,8 +1534,8 @@ function setPosition(elem, near)
 	var scroll_left;
 	var window_width  = $(window).width();
 	var window_height = $(window).height();
-	var elem_height   = elem[0].clientHeight;
-	var elem_width    = elem[0].clientWidth;
+	var elem_height   = elem.outerHeight(true);
+	var elem_width    = elem.outerWidth(true);
 
 	// Position right below the target
 	var offset = near.offset();
@@ -1509,6 +1567,38 @@ function setPosition(elem, near)
 // HELPER FUNCTIONS
 ///////
 
+function get_view(always_return_date)
+{
+	if (location.hash) {
+		var matches = location.hash.match(/#(\d{4})(\d{2})(\d{2})/);
+		if (matches && matches.length > 0) {
+			var view = matches[1] + '-' + matches[2] + '-' + matches[3];
+			return { view: view };
+		} else if (location.hash.match(/#template/))
+			return { view: 'template' };
+	}
+	if (view_date && always_return_date)
+		return { view: view_date.strftime('%Y-%m-%d') };
+	return { view: null };
+}
+
+function extend(obj1, obj2)
+{
+	if (!obj1)
+		return obj2;
+	if (!obj2)
+		return obj1;
+	for (var name in obj2)
+		obj1[name] = obj2[name];
+	return obj1;
+}
+
+function date_from_string(str)
+{
+	var parts = date.split(/-/);
+	return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
 function remove_all_children(elem)
 {
 	if (!elem)
@@ -1538,3 +1628,9 @@ if (!Array.indexOf) {
 	}
 }
 
+Date.prototype.equals = function(date)
+{
+	if (this.getFullYear() == date.getFullYear() && this.getMonth() == date.getMonth() && this.getDate() == date.getDate())
+		return true;
+	return false;
+}

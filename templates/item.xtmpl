@@ -1,14 +1,11 @@
-<item>
-	<id><!-- TMPL_VAR name='id' --></id>
-	<week><!-- TMPL_VAR name='week' --></week>
-	<day><!-- TMPL_VAR name='day' --></day>
-	<date><!-- TMPL_VAR name='date' --></date>
+<item id='<!-- TMPL_VAR name='id' -->' date='<!-- TMPL_VAR name='date' -->' day='<!-- TMPL_VAR name='day' -->' done='<!-- TMPL_VAR name='done' -->' marked='<!-- TMPL_VAR name='mark' -->'>
 	<event><!-- TMPL_VAR name='event' escape='html' --></event>
 	<location><!-- TMPL_VAR name='location' escape='html' --></location>
 	<start><!-- TMPL_VAR name='start' --></start>
 	<end><!-- TMPL_VAR name='end' --></end>
-	<done><!-- TMPL_VAR name='done' --></done>
-	<mark><!-- TMPL_VAR name='mark' --></mark>
+	<!-- TMPL_IF keep_until -->
+	<keep_until><!-- TMPL_VAR name='keep_until' --></keep_until>
+	<!-- /TMPL_IF -->
 	<tags>
 		<!-- TMPL_LOOP name='tags' -->
 		<tag id='<!-- TMPL_VAR name='id' -->' style='<!-- TMPL_VAR name='style' -->'><!-- TMPL_VAR name='name' escape='html' --></tag>

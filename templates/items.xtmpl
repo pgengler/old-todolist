@@ -1,4 +1,4 @@
-<todo week='<!-- TMPL_VAR name='week' -->' template='<!-- TMPL_VAR name='template' -->'>
+<todo week='<!-- TMPL_VAR name='week' -->' template='<!-- TMPL_VAR name='template' default='0' -->'>
 	<tags>
 		<!-- TMPL_LOOP name='tags' -->
 		<tag id='<!-- TMPL_VAR name='id' -->' style='<!-- TMPL_VAR name='style' -->'><!-- TMPL_VAR name='name' escape='html' --></tag>
@@ -6,18 +6,7 @@
 	</tags>
 	<items>
 		<!-- TMPL_LOOP name='items' -->
-		<item id='<!-- TMPL_VAR name='id' -->' day='<!-- TMPL_VAR name='day' -->' done='<!-- TMPL_VAR name='done' -->' marked='<!-- TMPL_VAR name='mark' -->'>
-			<date><!-- TMPL_VAR name='date' escape='html' --></date>
-			<event><!-- TMPL_VAR name='event' escape='html' --></event>
-			<location><!-- TMPL_VAR name='location' escape='html' --></location>
-			<start><!-- TMPL_VAR name='start' --></start>
-			<end><!-- TMPL_VAR name='end' --></end>
-			<tags>
-				<!-- TMPL_LOOP name='tags' -->
-				<tag id='<!-- TMPL_VAR name='id' -->' />
-				<!-- /TMPL_LOOP -->
-			</tags>
-		</item>
+		<!-- TMPL_INCLUDE name='item.xtmpl' -->
 		<!-- /TMPL_LOOP -->
 	</items>
 </todo>

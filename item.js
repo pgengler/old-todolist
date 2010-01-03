@@ -1,8 +1,14 @@
-function Item(id, day, date, event, location, start, end, done, marked, tags)
+function Item(id, date, event, location, start, end, done, marked, tags, keep_until, day)
 {
 	var m_id       = id;
-	var m_day      = day;
-	var m_date     = date;
+	var m_date     = null;
+	if (typeof(date) == 'string' && date != '') {
+		var parts = date.split('-');
+		m_date = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59);
+	} else if (typeof(date) == 'object') {
+		m_date = date;
+	}
+	var m_day      = (m_date == null) ? day : null;
 	var m_event    = event;
 	var m_location = location;
 	var m_start    = start || -1;
@@ -10,6 +16,18 @@ function Item(id, day, date, event, location, start, end, done, marked, tags)
 	var m_done     = done;
 	var m_marked   = marked;
 	var m_tags     = tags || [];
+	var m_keep_until = null;
+	if (keep_until)
+		if (typeof(keep_until) == 'string') {
+			var pieces = keep_until.split(' ');
+			// pieces[0] is date (YYYY-MM-DD), pieces[1] is time (HH:MM:SS)
+			var date_parts = pieces[0].split('-');
+			var time_parts = pieces[1].split(':');
+
+			m_keep_until = new Date(date_parts[0], date_parts[1] - 1, date_parts[2], time_parts[0], time_parts[1], time_parts[2]);
+		} else if (typeof(keep_until) == 'date') {
+			m_keep_until = keep_until;
+		}
 
 	this.id = function()
 	{
@@ -17,6 +35,8 @@ function Item(id, day, date, event, location, start, end, done, marked, tags)
 	}
 	this.day = function()
 	{
+		if (m_date)
+			return m_date.getDay();
 		return m_day;
 	}
 	this.date = function()
@@ -51,11 +71,9 @@ function Item(id, day, date, event, location, start, end, done, marked, tags)
 	{
 		return m_tags;
 	}
-
-	this.set_day = function(day)
+	this.keep_until = function()
 	{
-		if (day >= -1 && day < 7)
-			m_day = day;
+		return m_keep_until;
 	}
 
 	this.set_date = function(date)
@@ -137,10 +155,26 @@ function Items()
 		for (var i = 0; i < m_items.length; i++) {
 			var c = m_items[i];
 
-			if (item.day() < c.day()) {
+			var item_val = null;
+			var c_val    = null;
+			if (template || !rolling) {
+				item_val = item.day() 
+				c_val    = c.day();
+
+				item_val = (item_val == -1 && undated_last) ? 7 : item_val;
+				c_val    = (c_val == -1 && undated_last) ? 7 : c_val;
+			} else {
+				item_val = item.date();
+				c_val    = c.date()
+
+				item_val = (item_val == null && undated_last) ? new Date(9999, 12, 31) : item_val;
+				c_val    = (c_val == null && undated_last) ? new Date(9999, 12, 31) : c_val;
+			}
+
+			if (item_val < c_val) {
 				at = i;
 				break;
-			} else if (item.day() == c.day()) {
+			} else if (item_val == c_val) {
 				// Same day, check for differing times and sort appropriately
 				if (item.start() == -1 && item.end() == -1) {
 					if ((item.event().toUpperCase() < c.event().toUpperCase()) || (c.start() != -1 || c.end() != -1)) {

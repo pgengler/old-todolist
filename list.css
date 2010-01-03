@@ -202,3 +202,16 @@ table#colorkey {
 	table#colorkey td {
 		width: 50%;
 	}
+
+input.hasDatepicker {
+	width: 6em;
+}
+
+td.loading {
+	font-size: 150%;
+	font-weight: bold;
+}
+
+input#newdate {
+	background-color: #ccc;
+}

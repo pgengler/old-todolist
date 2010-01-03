@@ -1,0 +1,36 @@
+div#picker {
+	background-color: white;
+	border: 1px solid black;
+	position: absolute;
+}
+
+input.picker {
+	background-color: transparent;
+	border: 0;
+	display: block;
+	width: 100%;
+}
+
+input.sel {
+	font-weight: bold;
+}
+
+input.hover {
+	background-color: #BBF !important;
+}
+
+button.ui-datepicker-trigger {
+	padding: 0;
+}
+
+.ui-datepicker {
+	font-size: 8pt;
+}
+
+a.ui-state-active {
+	border: 1px solid black !important;
+}
+
+#ui-datepicker-div {
+	z-index: 5;
+}
