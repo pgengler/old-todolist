@@ -199,7 +199,7 @@ function populate_row(row, item)
 	// Create cell for day & date
 	var day_cell = {
 		element: 'td', cssclass: 'day', onclick: 'show_date_edit(' + item.id() + ')',
-		text: item.date() ? item.date().strftime(date_format) : '--'
+		text: item.date() ? item.date().strftime(date_format) : (item.day() != null ? get_day_from_value(item.day()) : '--')
 	};
 	row.appendChild(create_element(day_cell));
 
