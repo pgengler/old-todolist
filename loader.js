@@ -51,7 +51,10 @@ function load(date)
 	if (window.onhashchange)
 		return true;
 
-	location.hash = '#' + date.strftime('%Y%m%d');
+	if (typeof(date) == 'object')
+		location.hash = '#' + date.strftime('%Y%m%d');
+	else
+		location.hash = '#' + date;
 
 	do_load();
 
