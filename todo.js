@@ -1022,7 +1022,7 @@ function new_item_select_date(day, date)
 {
 	var d;
 
-	if (day !== undefined) {
+	if (day !== undefined && day != -1) {
 		if (rolling) {
 			var today = new Date();
 			var start = new Date();
@@ -1145,7 +1145,7 @@ function set_date(id, day, date)
 
 	show_spinner(cell);
 
-	if (day !== undefined) {
+	if (day !== undefined && day != -1) {
 		if (rolling) {
 			var today = new Date();
 			var start = new Date();
