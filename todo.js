@@ -335,7 +335,11 @@ function show_tags_menu(id)
 			element: 'div',
 			children: [
 				{ element: 'input', type: 'checkbox', id: 'picktag' + tag.id(), checked: (itags.indexOf(tag.id()) != -1) },
-				{ element: 'span', cssclass: 'tag tag' + tag.style(), text: tag.name() }
+				{ element: 'label', assoc: 'picktag' + tag.id(),
+					children: [
+						{ element: 'span', cssclass: 'tag tag' + tag.style(), text: tag.name() }
+					]
+				}
 			]
 		});
 	}
