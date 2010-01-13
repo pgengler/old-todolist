@@ -790,7 +790,7 @@ function highlight()
 
 		var item = items.get(id.replace(/item/, ''));
 		if (!item)
-			next;
+			continue;
 
 		var keep_until = item.keep_until();
 		if (keep_until && keep_until < today) {
