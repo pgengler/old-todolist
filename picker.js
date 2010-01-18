@@ -143,8 +143,22 @@ var Picker = function(options)
 
 				/* Other key: Check if it matches an accelerator key */
 				default:
-					var keys = ['-', 's', 'm', 't', 'w', 'h', 'f', 'a'];
-					var pos = keys.indexOf(char);
+					/*
+					  Use character codes instead of ASCII characters because the minus sign (-)
+					  generates a code that ends up in the range of lowercase letters in ASCII.
+						(Todo #2002)
+					*/
+					var keys = [
+						109, /* '-' */
+						83,  /* 'S' */
+						77,  /* 'M' */
+						84,  /* 'T' */
+						87,  /* 'W' */
+						72,  /* 'H' */
+						70,  /* 'F' */
+						65   /* 'A' */
+					];
+					var pos = keys.indexOf(key);
 					if (pos != -1) {
 						var button = document.getElementById('picker_' + pos);
 						if (button) button.click();
