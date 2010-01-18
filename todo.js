@@ -1023,7 +1023,7 @@ function new_item_select_date(day, date)
 	var d;
 
 	if (day !== undefined && day != -1) {
-		if (rolling) {
+		if (rolling && get_view().view == null) {
 			var today = new Date();
 			var start = new Date();
 			start.setDate(start.getDate() - start.getDay());
@@ -1034,17 +1034,17 @@ function new_item_select_date(day, date)
 			d = start;
 			d.setDate(d.getDate() + day);
 		} else {
-			var view  = get_view(true).view();
-			var start = date_from_str(view);
+			var view  = get_view(true).view;
+			var start = date_from_string(view);
 			start.setDate(start.getDate() - start.getDay());
 
 			if (day >= 0) {
-				d = week_start;
-				d.setDate(week_start.getDate() + day);
+				d = start;
+				d.setDate(start.getDate() + day);
 			}
 		}
 	} else if (date !== undefined) {
-		d = date_from_parts(date);
+		d = date_from_string(date);
 	}
 
 	var elem = document.getElementById('newdate');
@@ -1146,7 +1146,7 @@ function set_date(id, day, date)
 	show_spinner(cell);
 
 	if (day !== undefined && day != -1) {
-		if (rolling) {
+		if (rolling && get_view().view == null) {
 			var today = new Date();
 			var start = new Date();
 			start.setDate(start.getDate() - start.getDay());
@@ -1157,17 +1157,17 @@ function set_date(id, day, date)
 			d = start;
 			d.setDate(d.getDate() + day);
 		} else {
-			var view  = get_view(true).view();
-			var start = date_from_str(view);
+			var view  = get_view(true).view;
+			var start = date_from_string(view);
 			start.setDate(start.getDate() - start.getDay());
 
 			if (day >= 0) {
-				d = week_start;
-				d.setDate(week_start.getDate() + day);
+				d = start;
+				d.setDate(start.getDate() + day);
 			}
 		}
 	} else if (date !== undefined) {
-		d = date_from_parts(date);
+		d = date_from_string(date);
 	}
 
 	var ajax = new AJAX(base_url, process)
@@ -1393,7 +1393,7 @@ function update_links()
 	var d;
 
 	if (view && (parts = view.match(/(\d{4})-(\d{2})-(\d{2})/)))
-		d = date_from_parts(view);
+		d = date_from_string(view);
 	else if (view_date)
 		d = view_date;
 
@@ -1599,7 +1599,7 @@ function extend(obj1, obj2)
 
 function date_from_string(str)
 {
-	var parts = date.split(/-/);
+	var parts = str.split(/-/);
 	return new Date(parts[0], parts[1] - 1, parts[2]);
 }
 
