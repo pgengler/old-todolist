@@ -818,7 +818,7 @@ function highlight()
 	}
 
 	// Set page title
-	if (rolling && !template)
+	if (!template && (rolling && get_view().view == null))
 		document.title = ('Todo - ' + (new Date()).strftime('%Y-%m-%d'));
 	else if (template)
 		document.title = 'Todo - Template';
