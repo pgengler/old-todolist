@@ -1,4 +1,4 @@
-<todo week='<!-- TMPL_VAR name='week' -->' template='<!-- TMPL_VAR name='template' default='0' -->'>
+<todo template='<!-- TMPL_VAR name='template' default='0' -->'>
 	<tags>
 		<!-- TMPL_LOOP name='tags' -->
 		<tag id='<!-- TMPL_VAR name='id' -->' style='<!-- TMPL_VAR name='style' -->'><!-- TMPL_VAR name='name' escape='html' --></tag>
