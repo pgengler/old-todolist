@@ -1421,6 +1421,20 @@ function update_links()
 		next_link.setAttribute('href', index_url + '#' + next.strftime('%Y%m%d'));
 		next_link.onclick = function() { return load(next); };
 		next_link.innerHTML = 'Week of ' + next.strftime('%Y-%m-%d');
+
+		var curr_link = document.getElementById('currweek');
+
+		// Figure out if we're in the current week
+		var curr_start = new Date();
+		curr_start.setDate(curr_start.getDate() - curr_start.getDay());
+
+		if (curr_start.equals(start)) {
+			// In current week; don't show 'view current week' link
+			curr_link.className = 'hidden';
+		} else {
+			// Viewing some other week; show 'view current week' link
+			curr_link.className = '';
+		}
 	}
 }
 
