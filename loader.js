@@ -117,7 +117,7 @@ function process(response)
 	populate();
 
 	// Update previous week/next week links, if necessary
-	if (!rolling && !template)
+	if (!template && (!rolling || get_view().view != null))
 		update_links();
 }
 
