@@ -1433,7 +1433,9 @@ function update_links()
 			curr_link.className = 'hidden';
 		} else {
 			// Viewing some other week; show 'view current week' link
+
 			curr_link.className = '';
+			curr_link.setAttribute('href', index_url + '#' + curr_start.strftime('%Y%m%d'));
 		}
 	}
 }
