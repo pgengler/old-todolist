@@ -43,7 +43,14 @@ var Picker = function(options)
 		$(picker).hide();
 
 		document.body.appendChild(picker);
+
+		// Set focus to first item in picker
+		document.getElementById('picker_0').focus();
+
+		// Position near the element that opened this
 		$(picker).css(elem.position());
+
+		// Animate opening
 		$(picker).slideDown('fast', m_anim_callback);
 
 		// Add mouseover/mouseout handlers
