@@ -287,19 +287,35 @@ sub delete_item()
 	my $id    = $Common::cgi->param('id');
 	my $view  = $Common::cgi->param('view');
 
-	my $table = 'todo';
+	my $item_table = 'todo';
+	my $tags_table = 'item_tags';
 
 	if ($view && $view eq 'template') {
-		$table = 'template_items';
+		$item_table = 'template_items';
+		$tags_table = 'template_item_tags';
 	}
 
-	# Delete the item
+	# Start a transaction
+	$Common::db->start_transaction();
+
+	# Remove any tags from this item
 	my $query = qq~
-		DELETE FROM $table
+		DELETE FROM $tags_table
+		WHERE item_id = ?
+	~;
+	$Common::db->prepare($query);
+	$Common::db->execute($id);
+
+	# Now remove the item
+	$query = qq~
+		DELETE FROM $item_table
 		WHERE id = ?
 	~;
 	$Common::db->prepare($query);
 	$Common::db->execute($id);
+
+	# If we made it this far without errors, commit the transaction
+	$Common::db->commit_transaction();
 
 	&list_items();
 }
