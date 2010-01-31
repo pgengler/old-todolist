@@ -68,7 +68,7 @@ function show_options()
 		{ element: 'li', children: [ { element: 'a', href: index_url + '#template', onclick: "return load('template')", text: 'Edit template' } ] }
 	];
 
-	if (!rolling && !template)
+	if (!template && (!rolling || get_view().view != null))
 		options.push({
 			element: 'li', children: [ { element: 'a', href: 'javascript:move_unfinished()', text: 'Move unfinished items to next week' } ]
 		});
@@ -1504,7 +1504,7 @@ function get_day_from_value(value)
 function move_unfinished()
 {
 	// Don't allow if using rolling view or editing template
-	if (rolling || template)
+	if (template || (rolling && get_view().view == null))
 		return;
 
 	// Create AJAX object
