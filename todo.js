@@ -822,8 +822,13 @@ function highlight()
 		document.title = ('Todo - ' + (new Date()).strftime('%Y-%m-%d'));
 	else if (template)
 		document.title = 'Todo - Template';
-	else
-		document.title = ('Todo - Week of ' + view_date.strftime('%Y-%m-%d'));
+	else {
+		var start  = new Date(view_date);
+		start.setDate(start.getDate() - start.getDay());
+
+		document.title = ('Todo - Week of ' + start.strftime('%Y-%m-%d'));
+
+	}
 }
 
 ///////

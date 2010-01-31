@@ -66,8 +66,10 @@ function do_load()
 	var date = location.hash.substring(1);
 
 	var parts;
-	if (date && (parts = date.match(/(\d{4})(\d{2})(\d{2})/)))
+	if (date && (parts = date.match(/(\d{4})(\d{2})(\d{2})/))) {
 		date = parts[1] + '-' + parts[2] + '-' + parts[3];
+		view_date = new Date(parts[1], parts[2] - 1, parts[3]);
+	}
 
 	// Show 'processing...' text and spinner
 	var table = document.getElementById('content').getElementsByTagName('tbody')[0];
