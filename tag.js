@@ -1,8 +1,8 @@
-function Tag(id, name, style)
+function Tag(xml)
 {
-	var m_id    = id;
-	var m_name  = name;
-	var m_style = style;
+	var m_id    = parseInt(xml.getAttribute('id'));
+	var m_style = parseInt(xml.getAttribute('style'));
+	var m_name  = xml.firstChild.nodeValue;
 
 	this.id = function()
 	{
