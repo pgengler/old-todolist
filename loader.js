@@ -146,20 +146,3 @@ function load_items(xml)
 		items.add(new Item(things[i]));
 }
 
-function tags_from_xml(xml)
-{
-	var list = xml.getElementsByTagName('tag');
-	var len = list.length;
-
-	if (len == 0)
-		return null;
-
-	var tags = [];
-
-	for (var i = 0; i < len; i++) {
-		var id    = parseInt(list[i].getAttribute('id'));
-
-		tags.push(id);
-	}
-	return tags;
-}

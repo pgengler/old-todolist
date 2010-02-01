@@ -21,7 +21,17 @@ function Item(xml)
 
 	var m_done       = parseInt(xml.getAttribute('done'));
 	var m_marked     = parseInt(xml.getAttribute('marked'));
-	var m_tags       = tags_from_xml(xml);
+
+	// Load item tags
+	var m_tags = [ ];
+
+	if (xml.getElementsByTagName('tag').length > 0) {
+		var list = xml.getElementsByTagName('tag');
+		var len  = list.length;
+
+		for (var i = 0; i < len; i++)
+			m_tags.push(parseInt(list[i].getAttribute('id')));
+	}
 
 	var m_keep_until = null;
 	if (xml.getElementsByTagName('keep_until').length > 0) {
