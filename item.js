@@ -1,33 +1,38 @@
-function Item(id, date, event, location, start, end, done, marked, tags, keep_until, day)
+function Item(xml)
 {
-	var m_id       = id;
-	var m_date     = null;
-	if (typeof(date) == 'string' && date != '') {
-		var parts = date.split('-');
-		m_date = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59);
-	} else if (typeof(date) == 'object') {
-		m_date = date;
-	}
-	var m_day      = (m_date == null) ? day : null;
-	var m_event    = event;
-	var m_location = location;
-	var m_start    = start || -1;
-	var m_end      = end || -1;
-	var m_done     = done;
-	var m_marked   = marked;
-	var m_tags     = tags || [];
-	var m_keep_until = null;
-	if (keep_until)
-		if (typeof(keep_until) == 'string') {
-			var pieces = keep_until.split(' ');
-			// pieces[0] is date (YYYY-MM-DD), pieces[1] is time (HH:MM:SS)
-			var date_parts = pieces[0].split('-');
-			var time_parts = pieces[1].split(':');
+	var m_id         = parseInt(xml.getAttribute('id'));
 
-			m_keep_until = new Date(date_parts[0], date_parts[1] - 1, date_parts[2], time_parts[0], time_parts[1], time_parts[2]);
-		} else if (typeof(keep_until) == 'date') {
-			m_keep_until = keep_until;
-		}
+	var m_date       = null;
+	if (xml.getAttribute('date')) {
+		var parts = xml.getAttribute('date').split('-');
+		m_date = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59);
+	}
+
+	var m_day        = null;
+	if (m_date == null)
+		m_day = (xml.getAttribute('day') !== undefined) ? parseInt(xml.getAttribute('day')) : null;
+
+	var m_event      = xml.getElementsByTagName('event')[0].firstChild.nodeValue;
+	var m_location   = xml.getElementsByTagName('location')[0].firstChild ? xml.getElementsByTagName('location')[0].firstChild.nodeValue : null;
+
+	// Start & end times are not passed through parseInt because we want to preserve leading zeroes
+	var m_start      = xml.getElementsByTagName('start')[0].firstChild ? xml.getElementsByTagName('start')[0].firstChild.nodeValue : -1;
+	var m_end        = xml.getElementsByTagName('end')[0].firstChild ? xml.getElementsByTagName('end')[0].firstChild.nodeValue : -1;
+
+	var m_done       = parseInt(xml.getAttribute('done'));
+	var m_marked     = parseInt(xml.getAttribute('marked'));
+	var m_tags       = tags_from_xml(xml);
+
+	var m_keep_until = null;
+	if (xml.getElementsByTagName('keep_until').length > 0) {
+	 var pieces = xml.getElementsByTagName('keep_until')[0].firstChild.nodeValue.split(' ');
+
+		// pieces[0] is date (YYYY-MM-DD), pieces[1] is time (HH:MM:SS)
+		var date_parts = pieces[0].split('-');
+		var time_parts = pieces[1].split(':');
+
+		m_keep_until = new Date(date_parts[0], date_parts[1] - 1, date_parts[2], time_parts[0], time_parts[1], time_parts[2]);
+	}
 
 	this.id = function()
 	{
@@ -69,7 +74,7 @@ function Item(id, date, event, location, start, end, done, marked, tags, keep_un
 	}
 	this.tags = function()
 	{
-		return m_tags;
+		return m_tags || [ ];
 	}
 	this.keep_until = function()
 	{

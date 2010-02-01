@@ -144,7 +144,7 @@ function load_items(xml)
 
 	var len = things.length;
 	for (var i = 0; i < len; i++)
-		items.add(item_from_xml(things[i]));
+		items.add(new Item(things[i]));
 }
 
 function tag_from_xml(xml)
@@ -154,24 +154,6 @@ function tag_from_xml(xml)
 	var name  = xml.firstChild.nodeValue;
 
 	return new Tag(id, name, style);
-}
-
-function item_from_xml(xml)
-{
-	var id         = parseInt(xml.getAttribute('id'));
-	var date       = xml.getAttribute('date');
-	var day        = (xml.getAttribute('day') !== undefined) ? parseInt(xml.getAttribute('day')) : null;
-	var event      = xml.getElementsByTagName('event')[0].firstChild.nodeValue;
-	var location   = xml.getElementsByTagName('location')[0].firstChild ? xml.getElementsByTagName('location')[0].firstChild.nodeValue : null;
-	// Start & end times are not passed through parseInt because we want to preserve leading zeroes
-	var start      = xml.getElementsByTagName('start')[0].firstChild ? xml.getElementsByTagName('start')[0].firstChild.nodeValue : null;
-	var end        = xml.getElementsByTagName('end')[0].firstChild ? xml.getElementsByTagName('end')[0].firstChild.nodeValue : null;
-	var done       = parseInt(xml.getAttribute('done'));
-	var marked     = parseInt(xml.getAttribute('marked'));
-	var tags       = tags_from_xml(xml);
-	var keep_until = xml.getElementsByTagName('keep_until').length > 0 ? xml.getElementsByTagName('keep_until')[0].firstChild.nodeValue : null;
-
-	return new Item(id, date, event, location, start, end, done, marked, tags, keep_until, day);
 }
 
 function tags_from_xml(xml)
