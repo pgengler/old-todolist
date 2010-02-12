@@ -78,34 +78,6 @@ sub error()
 }
 
 #######
-## GET MONTH NAME
-## Returns the name corresponding to the given value (1-12)
-#######
-sub get_month_name()
-{
-	my $month = shift;
-
-	my @months = ( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' );
-
-	return $months[$month - 1];
-}
-
-#######
-## GET DAY NAME
-## Returns the name (or display value) corresponding to the given numeric value
-#######
-sub get_day_name()
-{
-	my $day = shift;
-
-	return '--' if ($day == -1 || $day == 7);
-
-	my @days = ( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );
-
-	return $days[$day];
-}
-
-#######
 ## IS TEMPLATE LOADED?
 ## Checks if the template has been loaded for the specified day.
 ## If the given day is earlier than the current day, treat it as though it has the template loaded.
