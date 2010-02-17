@@ -657,9 +657,18 @@ sub update_item_tags()
 	# Get CGI params
 	my $item_id   = $Common::cgi->param('id');
 	my $item_tags = $Common::cgi->param('tags');
+	my $view      = $Common::cgi->param('view');
+
+	my ($item, $table) = (undef, 'item_tags');
+
+	if ($view && $view eq 'template') {
+		$table = 'template_item_tags';
+		$item  = &get_template_item($item_id);
+	} else {
+		$item  = &get_item_by_id($item_id);
+	}
 
 	# Make sure item exists
-	my $item = &get_item_by_id($item_id);
 	unless ($item && $item->{'id'}) {
 		&error('Invalid item');
 	}
@@ -669,7 +678,7 @@ sub update_item_tags()
 
 	# Remove all current tags for the item
 	my $query = qq~
-		DELETE FROM item_tags
+		DELETE FROM $table
 		WHERE item_id = ?
 	~;
 	$Common::db->prepare($query);
@@ -681,7 +690,7 @@ sub update_item_tags()
 	# Add tags, if any
 	if (scalar(@tags) > 0) {
 		$query = qq~
-			INSERT INTO item_tags
+			INSERT INTO $table
 			(item_id, tag_id)
 			VALUES
 			(?, ?)
