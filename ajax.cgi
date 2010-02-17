@@ -594,10 +594,11 @@ sub list_items()
 
 	my @items;
 
+	my $table = ($view eq 'template') ? 'template_item_tags' : 'item_tags';
 	my $query = qq~
 		SELECT t.id
 		FROM tags t
-		LEFT JOIN item_tags it ON it.tag_id = t.id
+		LEFT JOIN $table it ON it.tag_id = t.id
 		WHERE it.item_id = ? AND t.active = 1
 		ORDER BY t.name
 	~;
