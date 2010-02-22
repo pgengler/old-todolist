@@ -115,7 +115,7 @@ img.tagmenu {
 	padding-left: 2px;
 }
 
-	tr:hover > td > div > img.tagmenu {
+	td.event:hover > div > img.tagmenu {
 		display: inline;
 	}
 
