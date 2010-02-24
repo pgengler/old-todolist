@@ -15,6 +15,7 @@ var tag_style_popup = null;
 
 var picker        = null;
 var new_date      = null;
+var new_day       = null;
 
 // Since we'll only allow edits to one thing at a time,
 // save the current values when we edit so that they can be restored
@@ -996,7 +997,7 @@ function new_item_form()
 
 function new_item_show_picker()
 {
-	new_date = null;
+	new_date = new_day = null;
 
 	if (picker) {
 		picker.hide();
@@ -1026,6 +1027,9 @@ function scroll_to_new()
 function new_item_select_date(day, date)
 {
 	var d;
+
+	if (template)
+		return template_new_item_select_day(day);
 
 	if (day !== undefined && day != -1) {
 		if (rolling && get_view().view == null) {
@@ -1061,6 +1065,24 @@ function new_item_select_date(day, date)
 	new_date = d;
 }
 
+function template_new_item_select_day(day)
+{
+	var value = '--';
+
+	if (day != -1) {
+		// Build a fake Date object, to be able to use strftime()
+		var date = new Date();
+		date.setDate(date.getDate() - date.getDay() + day);
+
+		value = date.strftime('%a');
+
+		new_day = day;
+	}
+
+	var elem = document.getElementById('newdate');
+	elem.value = value;
+}
+
 function submit_new_item()
 {
 	// Get values
@@ -1084,7 +1106,7 @@ function submit_new_item()
 
 	ajax.send(extend({
 		action: 'add',
-		date: new_date ? new_date.strftime('%Y-%m-%d') : null,
+		date: template ? new_day : (new_date ? new_date.strftime('%Y-%m-%d') : null),
 		event: event,
 		location: location,
 		start: start,
@@ -1150,7 +1172,9 @@ function set_date(id, day, date)
 
 	show_spinner(cell);
 
-	if (day !== undefined && day != -1) {
+	if (template) {
+		return template_set_day(id, day);
+	} else if (day !== undefined && day != -1) {
 		if (rolling && get_view().view == null) {
 			var today = new Date();
 			var start = new Date();
@@ -1180,6 +1204,16 @@ function set_date(id, day, date)
 		action: 'date',
 		id:     id,
 		date:   d ? d.strftime('%Y-%m-%d') : ''
+	}, get_view()));
+}
+
+function template_set_day(id, day)
+{
+	var ajax = new AJAX(base_url, process);
+	ajax.send(extend({
+		action: 'day',
+		id:     id,
+		day:    day
 	}, get_view()));
 }
 
