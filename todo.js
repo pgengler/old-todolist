@@ -1004,7 +1004,7 @@ function new_item_show_picker()
 		delete picker;
 	}
 
-	picker = new Picker({ anim_callback: scroll_to_new, closed: move_to_event });
+	picker = new Picker({ anim_callback: scroll_to_new, closed: move_to_event, any_date: !template });
 	picker.show($('#newdate'), new_item_select_date);
 }
 
@@ -1160,7 +1160,7 @@ function show_date_edit(id)
 		delete picker;
 	}
 
-	picker = new Picker({ date: item.date(), day: item.day(), closed: null });
+	picker = new Picker({ date: item.date(), day: item.day(), closed: null, any_date: !template });
 	picker.show(cell, function(day, date) { set_date(id, day, date); });
 }
 

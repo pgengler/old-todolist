@@ -7,6 +7,7 @@ var Picker = function(options)
 	var m_selected = null;
 	var m_anim_callback = options ? options.anim_callback : null;
 	var m_closed   = options ? options.closed : null;
+	var m_any_date = options ? options.any_date : true;
 
 	this.show = function(elem, callback)
 	{
@@ -29,16 +30,18 @@ var Picker = function(options)
 			picker.appendChild(day);
 		}
 
-		var dp = document.createElement('input');
-		dp.setAttribute('type', 'button');
-		dp.setAttribute('class', m_date ? 'picker sel' : 'picker');
-		dp.setAttribute('value', 'Pick ->');
-		dp.setAttribute('id', 'picker_pick');
-		$(dp).datepicker({ buttonText: 'Pick', onSelect: this.select_date, defaultDate: m_date, dateFormat: 'yy-mm-dd' });
-		dp.onclick = function() {
-			$('#picker_pick').datepicker('show');
+		if (m_any_date) {
+			var dp = document.createElement('input');
+			dp.setAttribute('type', 'button');
+			dp.setAttribute('class', m_date ? 'picker sel' : 'picker');
+			dp.setAttribute('value', 'Pick ->');
+			dp.setAttribute('id', 'picker_pick');
+			$(dp).datepicker({ buttonText: 'Pick', onSelect: this.select_date, defaultDate: m_date, dateFormat: 'yy-mm-dd' });
+			dp.onclick = function() {
+				$('#picker_pick').datepicker('show');
+			}
+			picker.appendChild(dp);
 		}
-		picker.appendChild(dp);
 
 		$(picker).hide();
 
