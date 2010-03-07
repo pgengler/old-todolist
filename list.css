@@ -214,4 +214,5 @@ td.loading {
 
 input#newdate {
 	background-color: #ccc;
+	width: 95%;
 }
