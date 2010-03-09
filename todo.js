@@ -155,7 +155,7 @@ function populate()
 				ok = true;
 			used_tags.setItem(itags[j], 1);
 		}
-					
+
 		if (ok) {
 			var row = tbody.insertRow(-1);
 			populate_row(row, c);
@@ -566,7 +566,7 @@ function set_tag_style(tag_id, style)
 	} else {
 		var tag = tags.get(tag_id);
 		tag.set_style(style);
-	
+
 		var ajax = new AJAX(base_url, load_tags);
 
 		ajax.send(extend({
@@ -718,7 +718,7 @@ function hide_add_tag()
 
 function save_tags()
 {
-	var ajax = new AJAX(base_url, function(xml) { load_tags(xml); edit_tags(); refresh_tags(); populate_tag_selector(); }); 
+	var ajax = new AJAX(base_url, function(xml) { load_tags(xml); edit_tags(); refresh_tags(); populate_tag_selector(); });
 
 	if (!document.getElementById('edittagid'))
 		return false;
@@ -853,7 +853,7 @@ function sync_boxes()
 
 		if (box)
 			box.checked = done;
-	}	
+	}
 }
 
 ///////
@@ -1501,7 +1501,7 @@ function create_hidden_submit()
 function clear_edits(id)
 {
 	// Reset any items in an "edit" state
-	
+
 	// Remove the add bar, if it's around
 	var add_row = document.getElementById('newrow');
 

@@ -726,7 +726,7 @@ sub add_tag()
 	$Common::db->prepare($query);
 	$Common::db->execute($name, $style);
 
-	&list_tags();	
+	&list_tags();
 }
 
 #######

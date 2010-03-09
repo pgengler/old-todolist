@@ -173,7 +173,7 @@ function Items()
 			var item_val = null;
 			var c_val    = null;
 			if (template || !rolling) {
-				item_val = item.day() 
+				item_val = item.day();
 				c_val    = c.day();
 
 				item_val = (item_val == -1 && undated_last) ? 7 : item_val;

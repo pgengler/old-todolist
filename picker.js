@@ -192,7 +192,7 @@ var Picker = function(options)
 		var elem = e.currentTarget;
 		var day  = parseInt(elem.id.replace('picker_', '')) - 1;
 
-		me.hide();		
+		me.hide();
 
 		me.callback(day);
 	};
