@@ -300,7 +300,7 @@ function Items()
 			// Making it here means both items have start times
 
 			// Figure out which start time (if either) comes first
-			if (a.start() < b.start)
+			if (a.start() < b.start())
 				return -1;
 			else if (a.start() > b.start())
 				return 1;
