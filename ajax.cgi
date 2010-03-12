@@ -84,18 +84,18 @@ sub add_new_item()
 		$date = int($date);
 		my $query = qq~
 			INSERT INTO ${Config::db_prefix}template_items
-			(day, event, location, start, end)
+			(day, event, location, start, end, `timestamp`)
 			VALUES
-			(?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, UNIX_TIMESTAMP())
 		~;
 		$Common::db->prepare($query);
 		$Common::db->execute($date >= 0 ? $date : undef, $event, $location, $start, $end);
 	} else {
 		my $query = qq~
 			INSERT INTO ${Config::db_prefix}todo
-			(date, event, location, start, end)
+			(date, event, location, start, end, `timestamp`)
 			VALUES
-			(?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, UNIX_TIMESTAMP())
 		~;
 		$Common::db->prepare($query);
 		$Common::db->execute($date, $event, $location, $start, $end);
@@ -125,7 +125,8 @@ sub change_day()
 		# Remove date
 		my $query = qq~
 			UPDATE todo SET
-				date = NULL
+				date      = NULL,
+				timestamp = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->prepare($query);
@@ -137,7 +138,8 @@ sub change_day()
 			# Update the record
 			my $query = qq~
 				UPDATE todo SET
-					date = DATE_ADD(`date`, INTERVAL ? DAY)
+					date        = DATE_ADD(`date`, INTERVAL ? DAY),
+					`timestamp` = UNIX_TIMESTAMP()
 				WHERE id = ?
 			~;
 			$Common::db->prepare($query);
@@ -145,7 +147,8 @@ sub change_day()
 		} else {
 			my $query = qq~
 				UPDATE todo SET
-					date = DATE_ADD(DATE_SUB(?, INTERVAL DAYOFWEEK(?) - 1 DAY), INTERVAL ? DAY)
+					date        = DATE_ADD(DATE_SUB(?, INTERVAL DAYOFWEEK(?) - 1 DAY), INTERVAL ? DAY),
+					`timestamp` = UNIX_TIMESTAMP()
 				WHERE id = ?
 			~;
 			$Common::db->prepare($query);
@@ -167,7 +170,8 @@ sub template_change_day()
 		# Update day
 		my $query = qq~
 			UPDATE template_items SET
-				day = ?
+				day         = ?,
+				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->prepare($query);
@@ -176,7 +180,8 @@ sub template_change_day()
 		# No day
 		my $query = qq~
 			UPDATE template_items SET
-				day = NULL
+				day         = NULL,
+				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->prepare($query);
@@ -205,7 +210,8 @@ sub change_date()
 	# Update the record
 	my $query = qq~
 		UPDATE todo SET
-			date = ?
+			date        = ?,
+			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->prepare($query);
@@ -243,7 +249,8 @@ sub save_item()
 		$event = &Common::trim($event);
 		my $query = qq~
 			UPDATE $table SET
-				event = ?
+				event       = ?,
+				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->prepare($query);
@@ -255,7 +262,8 @@ sub save_item()
 		$location = &Common::trim($location);
 		my $query = qq~
 			UPDATE $table SET
-				location = ?
+				location    = ?,
+				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->prepare($query);
@@ -267,8 +275,9 @@ sub save_item()
 		undef $end unless $end;
 		my $query = qq~
 			UPDATE $table SET
-				start = ?,
-				end   = ?
+				start       = ?,
+				end         = ?,
+				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->prepare($query);
@@ -306,9 +315,12 @@ sub delete_item()
 	$Common::db->prepare($query);
 	$Common::db->execute($id);
 
-	# Now remove the item
+	# Now mark the item as deleted
 	$query = qq~
-		DELETE FROM $item_table
+		UPDATE $item_table
+		SET
+			deleted     = 1,
+			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->prepare($query);
@@ -336,8 +348,9 @@ sub toggle_item_done()
 	# Update item
 	my $query = qq~
 		UPDATE todo SET
-			done = ?,
-			keep_until = IF(?, DATE_ADD(NOW(), INTERVAL 1 DAY), NULL)
+			done        = ?,
+			keep_until  = IF(?, DATE_ADD(NOW(), INTERVAL 1 DAY), NULL),
+			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->prepare($query);
@@ -371,7 +384,8 @@ sub toggle_marked()
 	# Update item
 	my $query = qq~
 		UPDATE $table SET
-			mark = ?
+			mark        = ?,
+			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->prepare($query);
@@ -400,7 +414,8 @@ sub move_unfinished()
 	# For any unfinished items in the same week as this, add 7 days to their date (move to the following week, on the same day of the week)
 	$query = qq~
 		UPDATE todo t SET
-			`date` = DATE_ADD(`date`, INTERVAL 7 DAY)
+			`date`      = DATE_ADD(`date`, INTERVAL 7 DAY),
+			`timestamp` = UNIX_TIMESTAMP()
 		WHERE `date` BETWEEN ? AND DATE_ADD(?, INTERVAL 6 DAY) AND done = 0
 	~;
 	$Common::db->prepare($query);
@@ -512,6 +527,7 @@ sub list_items()
 {
 	# Get parameters
 	my $view = shift || $Common::cgi->param('view');
+	my $timestamp = $Common::cgi->param('timestamp') ? int($Common::cgi->param('timestamp')) : 0;
 
 	if (!$view || ($view !~ /^\d{4}-\d{2}-\d{2}$/ && $view ne 'template')) {
 		undef $view;
@@ -522,12 +538,13 @@ sub list_items()
 	if ($view eq 'template') {
 		# Load template items
 		my $query = qq~
-			SELECT id, IF(day IS NOT NULL, day, ?) day, event, location, start, end, mark
+			SELECT id, IF(day IS NOT NULL, day, ?) day, event, location, start, end, mark, deleted, `timestamp`
 			FROM template_items
+			WHERE timestamp >= ?
 			ORDER BY day, start, end
 		~;
 		$Common::db->prepare($query);
-		$sth = $Common::db->execute($Config::undated_last ? 7 : -1);
+		$sth = $Common::db->execute($Config::undated_last ? 7 : -1, $timestamp);
 	} elsif ($view || !$Config::use_rolling) {
 		# Figure out which days are in the same week
 		unless ($view) {
@@ -552,18 +569,20 @@ sub list_items()
 
 		# Get all items in the same week as the given date
 		my $query = qq~
-			SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date
+			SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, t.deleted, t.timestamp
 			FROM todo t
 			WHERE
-				(t.date >= DATE_SUB(?, INTERVAL (DAYOFWEEK(?) - 1) DAY))
-				AND
-				(t.date <= DATE_ADD(?, INTERVAL (7 - DAYOFWEEK(?)) DAY))
-				OR
-				(t.date IS NULL AND (t.done = 0 OR t.keep_until > NOW()))
+				(
+					(t.date >= DATE_SUB(?, INTERVAL (DAYOFWEEK(?) - 1) DAY))
+					AND
+					(t.date <= DATE_ADD(?, INTERVAL (7 - DAYOFWEEK(?)) DAY))
+					OR
+					(t.date IS NULL AND (t.done = 0 OR t.keep_until > NOW()))
+				) AND timestamp >= ?
 			ORDER BY `date`, t.start, t.end, t.event, t.done
 		~;
 		$Common::db->prepare($query);
-		$sth = $Common::db->execute($view, $view, $view, $view);
+		$sth = $Common::db->execute($view, $view, $view, $view, $timestamp);
 	} else {
 		# Load template for any days that aren't covered
 		my $unixdate = time();
@@ -578,18 +597,20 @@ sub list_items()
 
 		# Get all unfinished items older than today, plus all items within seven days of today
 		my $query = qq~
-			SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, t.keep_until
+			SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, t.keep_until, t.deleted, t.timestamp
 			FROM todo t
 			WHERE
-				(t.done = 1 AND t.keep_until > NOW())
-				OR
-				(t.done = 0 AND `date` < DATE_ADD(NOW(), INTERVAL 7 DAY))
-				OR
-				(t.done = 0 AND `date` IS NULL)
+				(
+					(t.done = 1 AND t.keep_until > NOW())
+					OR
+					(t.done = 0 AND `date` < DATE_ADD(NOW(), INTERVAL 7 DAY))
+					OR
+					(t.done = 0 AND `date` IS NULL)
+				) AND timestamp >= ?
 			ORDER BY `date`, start, end, event, done
 		~;
 		$Common::db->prepare($query);
-		$sth = $Common::db->execute();
+		$sth = $Common::db->execute($timestamp);
 	}
 
 	my @items;
@@ -604,10 +625,12 @@ sub list_items()
 	~;
 	$Common::db->prepare($query);
 
+	my $max_timestamp = 0;
 	while (my $item = $sth->fetchrow_hashref()) {
 		unless ($Config::use_mark) {
 			$item->{'mark'} = 0;
 		}
+		$max_timestamp = $item->{'timestamp'} if ($item->{'timestamp'} > $max_timestamp);
 
 		my $sth = $Common::db->execute($item->{'id'});
 		my @tags;
@@ -624,9 +647,11 @@ sub list_items()
 	my $xml = &Common::load_xml_template('items');
 
 	# Set template params
-	$xml->param(items    => \@items);
-	$xml->param(tags     => &get_tags());
-	$xml->param(template => 1) if ($view && $view eq 'template');
+	$xml->param(items     => \@items);
+	$xml->param(tags      => &get_tags());
+	$xml->param(template  => 1) if ($view && $view eq 'template');
+	$xml->param(timestamp => $max_timestamp);
+	$xml->param(full      => $timestamp == 0);
 
 	# Output
 	&Common::output($xml, 1);
@@ -701,6 +726,18 @@ sub update_item_tags()
 			$Common::db->execute($item->{'id'}, $tag);
 		}
 	}
+
+	# Update item timestamp
+	$table = ($view && $view eq 'template') ? 'template_items' : 'todo';
+	$query = qq~
+		UPDATE $table
+		SET
+			`timestamp` = UNIX_TIMESTAMP()
+		WHERE id = ?
+	~;
+	$Common::db->prepare($query);
+	$Common::db->execute($item->{'id'});
+
 	$Common::db->commit_transaction();
 
 	&list_items();

@@ -122,50 +122,87 @@ function show_color_key()
 // POPULATE
 // Clear the table and (re)populate it based on the 'items' object/array
 ///////
-function populate()
+function populate(full)
 {
-	// Show initial/static boxes
-	if (!template) {
-		show_options();
-		if (use_mark)
-			show_color_key();
-	}
-
 	// Get the table body
 	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
 
-	// Empty it
-	remove_all_children(tbody);
-
-	delete used_tags;
-	used_tags = new Hash();
-
-	// Add rows
-	var things = items.get_items();
-	var len = things.length;
-	for (var i = 0; i < len; i++) {
-		var c = things[i];
-
-		// Figure out if any of the item's tags match
-		var itags = c.tags();
-		var tlen  = itags.length;
-		var ok    = (tlen == 0 && (show_tags.length == 0 || show_tags.hasItem(0)))  ? true : false;
-		for (var j = 0; j < tlen; j++) {
-			if (show_tags.length == 0 || show_tags.hasItem(itags[j]))
-				ok = true;
-			used_tags.setItem(itags[j], 1);
+	if (full) {
+		// Show initial/static boxes
+		if (!template) {
+			show_options();
+			if (use_mark)
+				show_color_key();
 		}
 
-		if (ok) {
-			var row = tbody.insertRow(-1);
-			populate_row(row, c);
+		// Empty the table
+		remove_all_children(tbody);
+
+		delete used_tags;
+		used_tags = new Hash();
+
+		// Add rows
+		var things = items.get_items();
+		var len = things.length;
+		for (var i = 0; i < len; i++) {
+			var c = things[i];
+
+			// Figure out if any of the item's tags match
+			var itags = c.tags();
+			var tlen  = itags.length;
+			var ok    = (tlen == 0 && (show_tags.length == 0 || show_tags.hasItem(0)))  ? true : false;
+			for (var j = 0; j < tlen; j++) {
+				if (show_tags.length == 0 || show_tags.hasItem(itags[j]))
+					ok = true;
+				used_tags.setItem(itags[j], 1);
+			}
+
+			if (ok) {
+				var row = tbody.insertRow(-1);
+				populate_row(row, c);
+			}
+		}
+	} else {
+		var item_list = items.get_items();
+		var row_num = 0;
+		for (var i in item_list) {
+			var item = item_list[i];
+
+			// If item was deleted, remove its row
+			if (item.deleted()) {
+				var row = document.getElementById('item' + item.id());
+				if (row)
+					row.parentNode.removeChild(row);
+				continue;
+			}
+
+			// If item is new, add it
+			if (item.is_new()) {
+				var row = tbody.insertRow(row_num);
+				populate_row(row, item);
+			} else if (item.is_changed()) {
+				// Item has changed
+
+				// Remove existing row for item
+				var row = document.getElementById('item' + item.id());
+				row.parentNode.removeChild(row);
+
+				// Add new row
+				row = tbody.insertRow(row_num);
+				populate_row(row, item);
+			}
+
+			row_num++;
 		}
 	}
+
+	items.clear_flags();
+
 	highlight();
 	sync_boxes();
 
 	// If list is empty, show a message to that effect
-	if (things.length == 0) {
+	if (items.length == 0) {
 		tbody.appendChild(create_element({
 			element: 'tr', id: 'empty',
 			children: [
@@ -394,9 +431,10 @@ function save_item_tags(id)
 	var ajax = new AJAX(base_url, process);
 
 	ajax.send(extend({
-		action: 'itemtags',
-		id: id,
-		tags: new_tags.join(',')
+		action:    'itemtags',
+		id:        id,
+		timestamp: last_timestamp,
+		tags:      new_tags.join(',')
 	}, get_view()));
 }
 
@@ -915,6 +953,8 @@ function dispatch()
 			params['end']   = end;
 		}
 
+		params.timestamp = last_timestamp;
+
 		// Replace the row with a processing message
 		var row = document.getElementById('item' + currently_editing);
 		var len = row.getElementsByTagName('td').length;
@@ -1105,12 +1145,13 @@ function submit_new_item()
 	var ajax = new AJAX(base_url, process);
 
 	ajax.send(extend({
-		action: 'add',
-		date: template ? new_day : (new_date ? new_date.strftime('%Y-%m-%d') : null),
-		event: event,
-		location: location,
-		start: start,
-		end: end
+		action:    'add',
+		date:      template ? new_day : (new_date ? new_date.strftime('%Y-%m-%d') : null),
+		event:     event,
+		location:  location,
+		start:     start,
+		end:       end,
+		timestamp: last_timestamp
 	}, get_view()));
 
 	// Provide some feedback to let the user know that something's happening
@@ -1201,9 +1242,10 @@ function set_date(id, day, date)
 
 	var ajax = new AJAX(base_url, process)
 	ajax.send(extend({
-		action: 'date',
-		id:     id,
-		date:   d ? d.strftime('%Y-%m-%d') : ''
+		action:    'date',
+		id:        id,
+		date:      d ? d.strftime('%Y-%m-%d') : '',
+		timestamp: last_timestamp
 	}, get_view()));
 }
 
@@ -1211,9 +1253,10 @@ function template_set_day(id, day)
 {
 	var ajax = new AJAX(base_url, process);
 	ajax.send(extend({
-		action: 'day',
-		id:     id,
-		day:    day
+		action:    'day',
+		id:        id,
+		day:       day,
+		timestamp: last_timestamp
 	}, get_view()));
 }
 
@@ -1361,8 +1404,9 @@ function toggle_done(id)
 	var ajax = new AJAX(base_url, process);
 
 	ajax.send(extend({
-		action: 'done',
-		id: id
+		action:    'done',
+		id:        id,
+		timestamp: last_timestamp
 	}, get_view()));
 
 	// Get the current row
@@ -1380,8 +1424,9 @@ function toggle_mark(id)
 	if (use_mark) {
 		var ajax = new AJAX(base_url, process);
 		ajax.send(extend({
-			action: 'mark',
-			id: id
+			action:    'mark',
+			id:        id,
+			timestamp: last_timestamp
 		}, get_view()));
 
 		// Get the current row
@@ -1404,8 +1449,9 @@ function delete_item(id)
 	var ajax = new AJAX(base_url, process);
 
 	ajax.send(extend({
-		action: 'delete',
-		id: id
+		action:    'delete',
+		id:        id,
+		timestamp: last_timestamp
 	}, get_view()));
 
 	currently_editing = 0;
@@ -1562,7 +1608,8 @@ function move_unfinished()
 
 	// Make AJAX request
 	ajax.send(extend({
-		action: 'move'
+		action:    'move',
+		timestamp: last_timestamp
 	}, get_view()));
 }
 

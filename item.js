@@ -1,53 +1,32 @@
-function Item(xml)
+function Item(values)
 {
-	var m_id         = parseInt(xml.getAttribute('id'));
+	var m_id         = values.id;
+	var m_deleted    = values.deleted || 0;
+	var m_date       = values.date || null;
+	var m_day        = values.day || -1;
+	var m_event      = values.event || '';
+	var m_location   = values.location || null;
+	var m_start      = values.start || -1;
+	var m_end        = values.end || -1;
+	var m_done       = values.done || 0;
+	var m_marked     = values.marked || 0;
+	var m_keep_until = values.keep_until || null;
+	var m_tags       = values.tags || [ ];
+	var m_timestamp  = values.timestamp || null;
 
-	var m_date       = null;
-	if (xml.getAttribute('date')) {
-		var parts = xml.getAttribute('date').split('-');
-		m_date = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59);
-	}
-
-	var m_day        = null;
-	if (m_date == null)
-		m_day = (xml.getAttribute('day') !== undefined) ? parseInt(xml.getAttribute('day')) : null;
-
-	var m_event      = xml.getElementsByTagName('event')[0].firstChild.nodeValue;
-	var m_location   = xml.getElementsByTagName('location')[0].firstChild ? xml.getElementsByTagName('location')[0].firstChild.nodeValue : null;
-
-	// Start & end times are not passed through parseInt because we want to preserve leading zeroes
-	var m_start      = xml.getElementsByTagName('start')[0].firstChild ? xml.getElementsByTagName('start')[0].firstChild.nodeValue : -1;
-	var m_end        = xml.getElementsByTagName('end')[0].firstChild ? xml.getElementsByTagName('end')[0].firstChild.nodeValue : -1;
-
-	var m_done       = parseInt(xml.getAttribute('done'));
-	var m_marked     = parseInt(xml.getAttribute('marked'));
-
-	// Load item tags
-	var m_tags = [ ];
-
-	if (xml.getElementsByTagName('tag').length > 0) {
-		var list = xml.getElementsByTagName('tag');
-		var len  = list.length;
-
-		for (var i = 0; i < len; i++)
-			m_tags.push(parseInt(list[i].getAttribute('id')));
-	}
-
-	var m_keep_until = null;
-	if (xml.getElementsByTagName('keep_until').length > 0) {
-	 var pieces = xml.getElementsByTagName('keep_until')[0].firstChild.nodeValue.split(' ');
-
-		// pieces[0] is date (YYYY-MM-DD), pieces[1] is time (HH:MM:SS)
-		var date_parts = pieces[0].split('-');
-		var time_parts = pieces[1].split(':');
-
-		m_keep_until = new Date(date_parts[0], date_parts[1] - 1, date_parts[2], time_parts[0], time_parts[1], time_parts[2]);
-	}
+	var m_new        = false;
+	var m_changed    = false;
 
 	this.id = function()
 	{
 		return m_id;
 	}
+
+	this.deleted = function()
+	{
+		return m_deleted;
+	}
+
 	this.day = function()
 	{
 		if (m_date)
@@ -148,8 +127,85 @@ function Item(xml)
 	{
 		m_tags.push(tag);
 	}
+
+	this.timestamp = function(timestamp)
+	{
+		if (m_timestamp !== undefined)
+			m_timestamp = timestamp;
+		return timestamp;
+	}
+
+	this.is_new = function()
+	{
+		return m_new;
+	}
+
+	this.set_new = function(is_new)
+	{
+		m_new = is_new;
+	}
+
+	this.is_changed = function()
+	{
+		return m_changed;
+	}
+
+	this.set_changed = function(changed)
+	{
+		m_changed = changed;
+	}
 }
 
+Item.from_xml = function(xml)
+{
+	var values = {
+		id:         parseInt(xml.getAttribute('id')),
+		deleted:    parseInt(xml.getAttribute('deleted')),
+		date:       null,
+		day:        null,
+		event:      xml.getElementsByTagName('event')[0].firstChild.nodeValue,
+		location:   xml.getElementsByTagName('location')[0].firstChild ? xml.getElementsByTagName('location')[0].firstChild.nodeValue : null,
+
+		// Start & end times are not passed through parseInt because we want to preserve leading zeroes
+		start:      xml.getElementsByTagName('start')[0].firstChild ? xml.getElementsByTagName('start')[0].firstChild.nodeValue : -1,
+		end:        xml.getElementsByTagName('end')[0].firstChild ? xml.getElementsByTagName('end')[0].firstChild.nodeValue : -1,
+
+		done:       parseInt(xml.getAttribute('done')),
+		marked:     parseInt(xml.getAttribute('marked')),
+		keep_until: null,
+		timestamp:  parseInt(xml.getAttribute('timestamp')),
+
+		tags:       [ ]
+	};
+
+	if (xml.getAttribute('date')) {
+		var parts = xml.getAttribute('date').split('-');
+		values.date = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59);
+	}
+
+	if (values.date == null)
+		values.day = (xml.getAttribute('day') !== undefined) ? parseInt(xml.getAttribute('day')) : null;
+
+	if (xml.getElementsByTagName('tag').length > 0) {
+		var tags = xml.getElementsByTagName('tag');
+		var len  = tags.length;
+
+		for (var i = 0; i < len; i++)
+			values.tags.push(parseInt(tags[i].getAttribute('id')));
+	}
+
+	if (xml.getElementsByTagName('keep_until').length > 0) {
+	 var pieces = xml.getElementsByTagName('keep_until')[0].firstChild.nodeValue.split(' ');
+
+		// pieces[0] is date (YYYY-MM-DD), pieces[1] is time (HH:MM:SS)
+		var date_parts = pieces[0].split('-');
+		var time_parts = pieces[1].split(':');
+
+		values.keep_until = new Date(date_parts[0], date_parts[1] - 1, date_parts[2], time_parts[0], time_parts[1], time_parts[2]);
+	}
+
+	return new Item(values);
+}
 
 function Items()
 {
@@ -157,97 +213,107 @@ function Items()
 
 	this.add = function(item)
 	{
-		if (m_items.length == 0) {
-			m_items.push(item);
+		if (item.deleted())
 			return;
-		}
+		item.set_new(true);
+		m_items.push(item);
+	}
 
-		// Items without a date go in front of this with; otherwise, normal week order applies (Sunday-Saturday)
-		// Items without a start or end time go ahead of those with either, followed by items with only end times
-		// (sorted by end time). These are followed by items with start times, ordered by start time.
+	this.update = function(item)
+	{
+		var len = m_items.length;
 
-		var at = -1;
-		for (var i = 0; i < m_items.length; i++) {
-			var c = m_items[i];
-
-			var item_val = null;
-			var c_val    = null;
-			if (template || !rolling) {
-				item_val = item.day();
-				c_val    = c.day();
-
-				item_val = (item_val == -1 && undated_last) ? 7 : item_val;
-				c_val    = (c_val == -1 && undated_last) ? 7 : c_val;
-			} else {
-				item_val = item.date();
-				c_val    = c.date()
-
-				item_val = (item_val == null && undated_last) ? new Date(9999, 12, 31) : item_val;
-				c_val    = (c_val == null && undated_last) ? new Date(9999, 12, 31) : c_val;
-			}
-
-			if (item_val < c_val) {
-				at = i;
-				break;
-			} else if (item_val == c_val) {
-				// Same day, check for differing times and sort appropriately
-				if (item.start() == -1 && item.end() == -1) {
-					if ((item.event().toUpperCase() < c.event().toUpperCase()) || (c.start() != -1 || c.end() != -1)) {
-						at = i;
-						break;
-					}
-				} else if (item.start() == -1 && item.end() != -1) {
-					if (c.start() != -1) {
-						at = i;
-						break;
-					} else if (item.end() < c.end()) {
-						at = i;
-						break;
-					} else if (item.end() == c.end()) {
-						if (item.event().toUpperCase() < c.event().toUpperCase()) {
-							at = i;
-							break;
-						}
-					}
-				} else if (item.start() != -1 && item.end() == -1) {
-					if (item.start() < c.start()) {
-						at = i;
-						break;
-					} else if (item.start() == c.start()) {
-						if (item.event().toUpperCase() < c.event().toUpperCase()) {
-							at = i;
-							break;
-						}
-					}
-				} else if (item.start() < c.start()) {
-					at = i;
-					break;
-				} else if (item.start() == c.start()) {
-					if (item.event().toUpperCase() < c.event().toUpperCase()) {
-						at = i;
-						break;
-					}
-				}
+		for (var i = 0; i < len; i++) {
+			if (m_items[i].id() == item.id()) {
+				item.set_changed(true);
+				m_items[i] = item;
+				return;
 			}
 		}
 
-		// Now insert into the array
-		if (at == -1)
-			m_items.push(item);
-		else if (at == 0)
-			m_items.unshift(item)
-		else {
-			var front = m_items.slice(0, at);
-			front.push(item);
-			var rear = m_items.slice(at);
-			for (var i = 0; i < rear.length; i++)
-				front.push(rear[i]);
-			m_items = front;
+		throw "Item with ID " + item.id() + " not in list!";
+	}
+
+	this.add_or_update = function(item)
+	{
+		if (this.get(item.id()) != null)
+			this.update(item);
+		else
+			this.add(item);
+	}
+
+	/* This function clears all new/changed flags for the items. */
+	this.clear_flags = function()
+	{
+		for (var i in m_items) {
+			m_items[i].set_new(false);
+			m_items[i].set_changed(false);
 		}
 	}
 
 	this.get_items = function()
 	{
+		m_items.sort(function(a, b) {
+			/* Sort order depends on the user's 'undated_last' preference
+			 * If this pref is set to a true value, then undated items come after items with days;
+			 * otherwise they appear before.
+			 * Items with days are sorted by date (or normal week order (with a Sunday week start))
+			 * For items on the same day:
+			 *   - items without any times go first
+			 *   - then items with only end times, sorted by end time (these items have an implicit '0000' start time)
+			 *   - then items with start times, ordered by start item
+			 *   - for items with the same start or end time, sort by name
+			 */
+
+			// First do days/dates
+			if (a.day() == -1 && b.day() != -1)
+				return undated_last ? 1 : -1;
+			else if (a.day() != -1 && b.day() == -1)
+				return undated_last ? -1 : 1;
+			else if (a.day() != -1 && b.day() != -1) {
+				// Neither item is undated; check dates
+				if (a.date() && b.date()) {
+					if (a.date().compareTo(b.date()) != 0)
+						return a.date().compareTo(b.date());
+				} else
+					return a.day() - b.day();
+			}
+
+			// Since we made it here, the items have the same day/date
+
+			// If 'a' has no times and 'b' has at least one, 'a' goes first
+			// If 'a' has at least one time but 'b' has none, 'b' goes first
+			if ((a.start() == -1 && a.end() == -1) && (b.start() != -1 || b.end() != -1))
+				return -1;
+			else if ((a.start() != -1 || a.end() != -1) && (b.start() == -1 && b.end() == -1))
+				return 1;
+
+			// Since we're here, both items have at least one time
+
+			// If 'a' has no start time but 'b' does, 'a' goes first
+			// Likewise, if 'a' has a start time but 'b' does not, 'b' goes first
+			if (a.start() == -1 && b.start() != -1)
+				return -1;
+			else if (a.start() != -1 && b.start() == -1)
+				return 1;
+
+			// Making it here means both items have start times
+
+			// Figure out which start time (if either) comes first
+			if (a.start() < b.start)
+				return -1;
+			else if (a.start() > b.start())
+				return 1;
+
+			// Both items have the same start time; sort by event name
+			if (a.event() < b.event())
+				return -1;
+			else if (a.event() > b.event())
+				return 1;
+
+			// Same day/date, same times, same name -- say they're the same
+			return 0;
+		});
 		return m_items;
 	}
 
@@ -260,4 +326,24 @@ function Items()
 		}
 		return null;
 	}
+}
+
+Date.prototype.compareTo = function(date)
+{
+	if (this.getFullYear() < date.getFullYear())
+		return -1;
+	else if (this.getFullYear() > date.getFullYear())
+		return 1;
+
+	if (this.getMonth() < date.getMonth())
+		return -1;
+	else if (this.getMonth > date.getMonth())
+		return 1;
+
+	if (this.getDate() < date.getDate())
+		return -1;
+	else if (this.getDate() > date.getDate())
+		return 1;
+
+	return 0;
 }

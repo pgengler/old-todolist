@@ -11,6 +11,7 @@ if (!('onhashchange' in window))
 	setInterval(check_hashchange, 125);
 
 var view_date = null;
+var last_timestamp = 0;
 
 function init()
 {
@@ -34,7 +35,7 @@ function init()
 
 	ajax.send({
 		action: 'load',
-		view: date || ''
+		view:   date || '',
 	});
 }
 
@@ -76,7 +77,7 @@ function do_load()
 	remove_all_children(table);
 
 	table.appendChild(create_element({
-		element: 'tr', children: [
+		element: 'tr', id: 'loading', children: [
 			{
 				element: 'td', colspan: 6, cssclass: 'loading', children: [
 					{
@@ -94,7 +95,7 @@ function do_load()
 
 	ajax.send({
 		action: 'load',
-		view: date || ''
+		view:   date || ''
 	});
 }
 
@@ -106,15 +107,17 @@ function process(response)
 	clear_edits();
 	hide_tags_menu();
 
-	template = parseInt(root.getAttribute('template'));
+	template       = parseInt(root.getAttribute('template'));
+	last_timestamp = parseInt(root.getAttribute('timestamp'));
+	var full       = parseInt(root.getAttribute('full'));
 
 	// Load tag data
 	load_tags(root.getElementsByTagName('tags')[0]);
 
 	// Load item data
-	load_items(root.getElementsByTagName('items')[0]);
+	load_items(root.getElementsByTagName('items')[0], full);
 
-	populate();
+	populate(full);
 
 	// Update previous week/next week links, if necessary
 	if (!template && (!rolling || get_view().view != null))
@@ -123,26 +126,28 @@ function process(response)
 
 function load_tags(xml)
 {
-	var list = xml.getElementsByTagName('tag');
-	var len  = list.length;
+	var taglist = xml.getElementsByTagName('tag');
+	var len     = taglist.length;
 
 	delete tags;
 	tags = new Tags();
 
 	for (var i = 0; i < len; i++) {
-		tags.add(new Tag(list[i]));
+		tags.add(Tag.from_xml(taglist[i]));
 	}
 }
 
-function load_items(xml)
+function load_items(xml, full)
 {
-	delete items;
-	items = new Items();
+	if (full) {
+		delete items;
+		items = new Items();
+	}
 
 	var things = xml.getElementsByTagName('item');
 
 	var len = things.length;
 	for (var i = 0; i < len; i++)
-		items.add(new Item(things[i]));
+		items.add_or_update(Item.from_xml(things[i]));
 }
 

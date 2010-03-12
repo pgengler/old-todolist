@@ -1,8 +1,8 @@
-function Tag(xml)
+function Tag(id, style, name)
 {
-	var m_id    = parseInt(xml.getAttribute('id'));
-	var m_style = parseInt(xml.getAttribute('style'));
-	var m_name  = xml.firstChild.nodeValue;
+	var m_id    = id;
+	var m_style = style;
+	var m_name  = name;
 
 	this.id = function()
 	{
@@ -24,6 +24,15 @@ function Tag(xml)
 		if (style >= 0 && style <= 24)
 			m_style = style;
 	}
+}
+
+Tag.from_xml = function(xml)
+{
+	var id    = parseInt(xml.getAttribute('id'));
+	var style = parseInt(xml.getAttribute('style'));
+	var name  = xml.firstChild.nodeValue;
+
+	return new Tag(id, style, name);
 }
 
 function Tags()
