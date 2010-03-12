@@ -955,7 +955,7 @@ function new_item_form()
 			{
 				element: 'td', colspan: 2,
 				children: [
-					{ element: 'input', type: 'text', id: 'newdate', children: [ ], readonly: true, onclick: 'new_item_show_picker()' }
+					{ element: 'input', type: 'text', id: 'newdate', children: [ ], readonly: true, onclick: new_item_show_picker, onfocus: new_item_show_picker }
 				]
 			},
 			// Event column
