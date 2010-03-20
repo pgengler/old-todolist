@@ -28,8 +28,13 @@ var new_tag_style     = 1;
 // INITIALIZATION
 ///////
 
-// Refresh the highlighting every 5 minutes (30000 ms)
+// Refresh the highlighting every 5 minutes (300,000 ms)
 $(document).ready(function() { setInterval("highlight()", 300000); });
+
+// Automatically reload the page every 30 seconds (30,000 ms)
+$(document).ready(function() {
+	setInterval(reload, 30000);
+});
 
 // Add handler for keyboard input
 if (window.addEventListener)
@@ -50,7 +55,7 @@ function key_handler(event)
 			new_item_form();
 		else if (key == 27)
 			clear_edits();
-  }
+	}
 }
 
 ///////
@@ -810,6 +815,24 @@ function remove_tag(id)
 }
 
 ///////
+// RELOAD DATA
+///////
+function reload()
+{
+	// If we're editing something, don't reload
+	if (currently_editing != 0)
+		return;
+
+	var ajax = new AJAX(base_url, process);
+
+	ajax.send({
+		action:    'load',
+		view:      get_view().view || '',
+		timestamp: last_timestamp
+	});
+}
+
+///////
 // HIGHLIGHT CURRENT DAY'S ITEMS
 ///////
 function highlight()
@@ -900,7 +923,7 @@ function sync_boxes()
 function dispatch()
 {
 	// If the form is being submitted but nothing is being edited, assume we're adding a new item
-	if (!currently_editing) {
+	if (currently_editing == -1) {
 		submit_new_item();
 	} else {
 		// Figure out what's changing
@@ -981,11 +1004,12 @@ function new_item_form()
 		return;
 	}
 
+	currently_editing = -1;
+
 	// Get the table
 	var table = document.getElementById('content');
 	// Get tbody
 	var tbody = table.getElementsByTagName('tbody')[0];
-
 
 	// Add a new row to the table
 	var row = {
@@ -1559,6 +1583,8 @@ function clear_edits(id)
 	if (button)
 		button.parentNode.removeChild(button);
 
+	if (currently_editing == -1)
+		currently_editing = 0;
 	if (currently_editing == 0 || currently_editing == id)
 		return;
 
