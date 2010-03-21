@@ -245,7 +245,8 @@ function Items()
 	/* This function clears all new/changed flags for the items. */
 	this.clear_flags = function()
 	{
-		for (var i in m_items) {
+		var len = m_items.length;
+		for (var i = 0; i < len; i++) {
 			m_items[i].set_new(false);
 			m_items[i].set_changed(false);
 		}

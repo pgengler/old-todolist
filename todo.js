@@ -170,7 +170,8 @@ function populate(full)
 	} else {
 		var item_list = items.get_items();
 		var row_num = 0;
-		for (var i in item_list) {
+		var len = item_list.length;
+		for (var i = 0; i < len; i++) {
 			var item = item_list[i];
 
 			// If item was deleted, remove its row
