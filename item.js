@@ -154,6 +154,69 @@ function Item(values)
 	{
 		m_changed = changed;
 	}
+
+	this.compareTo = function(b)
+	{
+		/* Sort order depends on the user's 'undated_last' preference
+		 * If this pref is set to a true value, then undated items come after items with days;
+		 * otherwise they appear before.
+		 * Items with days are sorted by date (or normal week order (with a Sunday week start))
+		 * For items on the same day:
+		 *   - items without any times go first
+		 *   - then items with only end times, sorted by end time (these items have an implicit '0000' start time)
+		 *   - then items with start times, ordered by start item
+		 *   - for items with the same start or end time, sort by name
+		 */
+
+		// First do days/dates
+		if (this.day() == -1 && b.day() != -1)
+			return undated_last ? 1 : -1;
+		else if (this.day() != -1 && b.day() == -1)
+			return undated_last ? -1 : 1;
+		else if (this.day() != -1 && b.day() != -1) {
+			// Neither item is undated; check dates
+			if (this.date() && b.date()) {
+				if (this.date().compareTo(b.date()) != 0)
+					return this.date().compareTo(b.date());
+		} else
+			return this.day() - b.day();
+		}
+
+		// Since we made it here, the items have the same day/date
+
+		// If 'this' has no times and 'b' has at least one, 'this' goes first
+		// If 'this' has at least one time but 'b' has none, 'b' goes first
+		if ((this.start() == -1 && this.end() == -1) && (b.start() != -1 || b.end() != -1))
+			return -1;
+		else if ((this.start() != -1 || this.end() != -1) && (b.start() == -1 && b.end() == -1))
+			return 1;
+
+		// Since we're here, both items have at least one time
+
+		// If 'this' has no start time but 'b' does, 'this' goes first
+		// Likewise, if 'this' has a start time but 'b' does not, 'b' goes first
+		if (this.start() == -1 && b.start() != -1)
+			return -1;
+		else if (this.start() != -1 && b.start() == -1)
+			return 1;
+
+		// Making it here means both items have start times
+
+		// Figure out which start time (if either) comes first
+		if (this.start() < b.start())
+			return -1;
+		else if (this.start() > b.start())
+			return 1;
+
+		// Both items have the same start time; sort by event name
+		if (this.event() < b.event())
+			return -1;
+		else if (this.event() > b.event())
+			return 1;
+
+		// Same day/date, same times, same name -- say they're the same
+		return 0;
+	}
 }
 
 Item.from_xml = function(xml)
@@ -254,67 +317,7 @@ function Items()
 
 	this.get_items = function()
 	{
-		m_items.sort(function(a, b) {
-			/* Sort order depends on the user's 'undated_last' preference
-			 * If this pref is set to a true value, then undated items come after items with days;
-			 * otherwise they appear before.
-			 * Items with days are sorted by date (or normal week order (with a Sunday week start))
-			 * For items on the same day:
-			 *   - items without any times go first
-			 *   - then items with only end times, sorted by end time (these items have an implicit '0000' start time)
-			 *   - then items with start times, ordered by start item
-			 *   - for items with the same start or end time, sort by name
-			 */
-
-			// First do days/dates
-			if (a.day() == -1 && b.day() != -1)
-				return undated_last ? 1 : -1;
-			else if (a.day() != -1 && b.day() == -1)
-				return undated_last ? -1 : 1;
-			else if (a.day() != -1 && b.day() != -1) {
-				// Neither item is undated; check dates
-				if (a.date() && b.date()) {
-					if (a.date().compareTo(b.date()) != 0)
-						return a.date().compareTo(b.date());
-				} else
-					return a.day() - b.day();
-			}
-
-			// Since we made it here, the items have the same day/date
-
-			// If 'a' has no times and 'b' has at least one, 'a' goes first
-			// If 'a' has at least one time but 'b' has none, 'b' goes first
-			if ((a.start() == -1 && a.end() == -1) && (b.start() != -1 || b.end() != -1))
-				return -1;
-			else if ((a.start() != -1 || a.end() != -1) && (b.start() == -1 && b.end() == -1))
-				return 1;
-
-			// Since we're here, both items have at least one time
-
-			// If 'a' has no start time but 'b' does, 'a' goes first
-			// Likewise, if 'a' has a start time but 'b' does not, 'b' goes first
-			if (a.start() == -1 && b.start() != -1)
-				return -1;
-			else if (a.start() != -1 && b.start() == -1)
-				return 1;
-
-			// Making it here means both items have start times
-
-			// Figure out which start time (if either) comes first
-			if (a.start() < b.start())
-				return -1;
-			else if (a.start() > b.start())
-				return 1;
-
-			// Both items have the same start time; sort by event name
-			if (a.event() < b.event())
-				return -1;
-			else if (a.event() > b.event())
-				return 1;
-
-			// Same day/date, same times, same name -- say they're the same
-			return 0;
-		});
+		m_items.sort(function(a, b) { return a.compareTo(b); });
 		return m_items;
 	}
 
