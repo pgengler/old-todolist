@@ -191,7 +191,8 @@ function populate(full)
 
 				// Remove existing row for item
 				var row = document.getElementById('item' + item.id());
-				row.parentNode.removeChild(row);
+				if (row)
+					row.parentNode.removeChild(row);
 
 				// Add new row
 				row = tbody.insertRow(row_num);
