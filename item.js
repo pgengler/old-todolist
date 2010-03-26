@@ -341,7 +341,7 @@ Date.prototype.compareTo = function(date)
 
 	if (this.getMonth() < date.getMonth())
 		return -1;
-	else if (this.getMonth > date.getMonth())
+	else if (this.getMonth() > date.getMonth())
 		return 1;
 
 	if (this.getDate() < date.getDate())
