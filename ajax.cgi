@@ -597,7 +597,7 @@ sub list_items()
 			}
 		}
 
-		# Get all unfinished items older than today, plus all items within seven days of today
+		# Get all unfinished items older than today, plus all items within six days of today
 		my $query = qq~
 			SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, t.keep_until, t.deleted, t.timestamp
 			FROM todo t
@@ -605,7 +605,7 @@ sub list_items()
 				(
 					(t.done = 1 AND t.keep_until > NOW())
 					OR
-					(t.done = 0 AND `date` < DATE_ADD(NOW(), INTERVAL 7 DAY))
+					(t.done = 0 AND `date` < DATE_ADD(NOW(), INTERVAL 6 DAY))
 					OR
 					(t.done = 0 AND `date` IS NULL)
 				) AND timestamp >= ?
