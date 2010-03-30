@@ -25,19 +25,21 @@ my $parser = new XML::Simple;
 my $action = $Common::cgi->param('action');
 
 my %actions = (
-	'add'       => \&add_new_item,
-	'day'       => \&change_day,
-	'date'      => \&change_date,
-	'save'      => \&save_item,
-	'done'      => \&toggle_item_done,
-	'delete'    => \&delete_item,
-	'mark'      => \&toggle_marked,
-	'move'      => \&move_unfinished,
-	'load'      => \&list_items,
-	'itemtags'  => \&update_item_tags,
-	'addtag'    => \&add_tag,
-	'savetag'   => \&save_tag,
-	'removetag' => \&remove_tag
+	'add'        => \&add_new_item,
+	'day'        => \&change_day,
+	'date'       => \&change_date,
+	'save'       => \&save_item,
+	'done'       => \&toggle_item_done,
+	'delete'     => \&delete_item,
+	'mark'       => \&toggle_marked,
+	'move'       => \&move_unfinished,
+	'load'       => \&list_items,
+	'additemtag' => \&add_item_tag,
+	'delitemtag' => \&remove_item_tag,
+	'itemtags'   => \&update_item_tags,
+	'addtag'     => \&add_tag,
+	'savetag'    => \&save_tag,
+	'removetag'  => \&remove_tag
 );
 
 if ($action && $actions{ $action }) {
@@ -675,6 +677,92 @@ sub get_tags()
 	}
 
 	return \@tags;
+}
+
+sub add_item_tag()
+{
+	my $item_id = int($Common::cgi->param('item'));
+	my $tag_id  = int($Common::cgi->param('tag'));
+	my $view    = $Common::cgi->param('view');
+
+	my ($item, $table) = (undef, 'item_tags');
+
+	if ($view && $view eq 'template') {
+		$table = 'template_item_tags';
+		$item = &get_template_item($item_id);
+	} else {
+		$item = &get_item_by_id($item_id);
+	}
+
+	# Error if item is invalid
+	unless ($item && $item->{'id'}) {
+		&error("Invalid item");
+	}
+
+	# Add tag to item
+	my $sql = qq~
+		INSERT INTO $table
+		(item_id, tag_id)
+		VALUES
+		(?, ?)
+	~;
+	$Common::db->prepare($sql);
+	$Common::db->execute($item_id, $tag_id);
+
+	# Update item timestamp
+	$table = ($view && $view eq 'template') ? 'template_items' : 'todo';
+	$sql = qq~
+		UPDATE $table
+		SET
+			`timestamp` = UNIX_TIMESTAMP()
+		WHERE id = ?
+	~;
+	$Common::db->prepare($sql);
+	$Common::db->execute($item->{'id'});
+
+	&list_items();
+}
+
+sub remove_item_tag()
+{
+	my $item_id = int($Common::cgi->param('item'));
+	my $tag_id  = int($Common::cgi->param('tag'));
+	my $view    = $Common::cgi->param('view');
+
+	my ($item, $table) = (undef, 'item_tags');
+
+	if ($view && $view eq 'template') {
+		$table = 'template_item_tags';
+		$item = &get_template_item($item_id);
+	} else {
+		$item = &get_item_by_id($item_id);
+	}
+
+	# Error if item is invalid
+	unless ($item && $item->{'id'}) {
+		&error("Invalid item");
+	}
+
+	# Remove tag from item
+	my $sql = qq~
+		DELETE FROM $table
+		WHERE item_id = ? AND tag_id = ?
+	~;
+	$Common::db->prepare($sql);
+	$Common::db->execute($item_id, $tag_id);
+
+	# Update item timestamp
+	$table = ($view && $view eq 'template') ? 'template_items' : 'todo';
+	$sql = qq~
+		UPDATE $table
+		SET
+			`timestamp` = UNIX_TIMESTAMP()
+		WHERE id = ?
+	~;
+	$Common::db->prepare($sql);
+	$Common::db->execute($item->{'id'});
+
+	&list_items();
 }
 
 sub update_item_tags()

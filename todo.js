@@ -380,7 +380,7 @@ function show_tags_menu(id)
 			element: 'div',
 			children: [
 				{ element: 'input', type: 'checkbox', id: 'picktag' + tag.id(), checked: (itags.indexOf(tag.id()) != -1) },
-				{ element: 'label', assoc: 'picktag' + tag.id(),
+				{ element: 'label', assoc: 'picktag' + tag.id(), onclick: function(has_tag, tag_id) { return function() { has_tag ? remove_item_tag(id, tag_id) : add_item_tag(id, tag_id); } }(itags.indexOf(tag.id()) != -1, tag.id()),
 					children: [
 						{ element: 'span', cssclass: 'tag tag' + tag.style(), text: tag.name() }
 					]
@@ -414,6 +414,42 @@ function hide_tags_menu()
 		$('#t' + select_tags).removeClass('show');
 
 	select_tags = 0;
+}
+
+function add_item_tag(item_id, tag_id)
+{
+	// Disable 'Save' button
+	var save_button = document.getElementById('savetags' + item_id);
+	save_button.disabled = true;
+	save_button.innerHTML = 'Saving...';
+
+	// Make AJAX request to add tag
+	var ajax = new AJAX(base_url, process);
+
+	ajax.send({
+		action:    'additemtag',
+		item:      item_id,
+		timestamp: last_timestamp,
+		tag:       tag_id
+	});
+}
+
+function remove_item_tag(item_id, tag_id)
+{
+	// Disable 'Save' button
+	var save_button = document.getElementById('savetags' + item_id);
+	save_button.disabled = true;
+	save_button.innerHTML = 'Saving...';
+
+	// Make AJAX request to add tag
+	var ajax = new AJAX(base_url, process);
+
+	ajax.send({
+		action:    'delitemtag',
+		item:      item_id,
+		timestamp: last_timestamp,
+		tag:       tag_id
+	});	
 }
 
 function save_item_tags(id)
