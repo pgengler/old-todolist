@@ -31,9 +31,9 @@ var new_tag_style     = 1;
 // Refresh the highlighting every 5 minutes (300,000 ms)
 $(document).ready(function() { setInterval("highlight()", 300000); });
 
-// Automatically reload the page every 30 seconds (30,000 ms)
+// Automatically reload the page every 60 seconds (60,000 ms)
 $(document).ready(function() {
-	setInterval(reload, 30000);
+	setInterval(reload, 60000);
 });
 
 // Add handler for keyboard input
