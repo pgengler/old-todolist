@@ -345,7 +345,7 @@ function toggle_tag_display(id)
 	else
 		show_tags.removeItem(id);
 
-	populate();
+	populate(true);
 }
 
 function clear_tag_display()
@@ -354,7 +354,7 @@ function clear_tag_display()
 		show_tags.removeItem(id);
 		$('#showtag' + id).addClass('unselected');
 	}
-	populate();
+	populate(true);
 }
 
 function show_tags_menu(id)
