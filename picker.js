@@ -1,13 +1,15 @@
 var Picker = function(options)
 {
-	var m_date     = options ? options.date : new Date();
-	var m_day      = m_date == null ? (options ? options.day : 0) : m_date.getDay();
-	var days       = ['--', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-	var me         = this;
-	var m_selected = null;
+	var m_date       = options ? options.date : new Date();
+	var m_day        = m_date == null ? (options ? options.day : 0) : m_date.getDay();
+	var days         =  ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+	var me           = this;
+	var m_selected   = null;
 	var m_anim_callback = options ? options.anim_callback : null;
-	var m_closed   = options ? options.closed : null;
-	var m_any_date = options ? options.any_date : true;
+	var m_closed     = options ? options.closed : null;
+	var m_any_date   = options ? options.any_date : true;
+	var m_start_day  = options ? (options.start_day ? options.start_day : 0) : 0;
+	var m_start_date = options ? options.start_date : null;
 
 	this.show = function(elem, callback)
 	{
@@ -17,13 +19,29 @@ var Picker = function(options)
 		picker.setAttribute('class', 'picker');
 		picker.setAttribute('id', 'picker');
 
-		for (var i = 0; i < days.length; i++) {
+		// Start with '--' (no date) option
+		var none = document.createElement('input');
+		none.setAttribute('class', 'picker');
+		none.setAttribute('type', 'button');
+		none.setAttribute('value', '--');
+		none.setAttribute('id', 'picker_0');
+		$(none).click(function(e) { me.select_day(e); });
+		picker.appendChild(none);
+
+		for (var i = m_start_day; i < days.length + m_start_day; i++) {
+			var this_day = i % 7;
 			var day = document.createElement('input');
 			day.setAttribute('class', 'picker');
 			day.setAttribute('type', 'button');
-			day.setAttribute('value', days[i]);
-			day.setAttribute('id', 'picker_' + i);
-			if (m_day + 1 == i)
+			var date = null;
+			if (m_start_date) {
+				date = new Date(m_start_date);
+				date.setDate(m_start_date.getDate() + i);
+				day.setAttribute('value', days[this_day] + date.strftime(" (%m/%d)"));
+			} else
+				day.setAttribute('value', days[this_day]);
+			day.setAttribute('id', 'picker_' + (this_day + 1));
+			if ((m_date && date && m_date.equals(date)) || (!m_date && m_day == this_day))
 				day.setAttribute('class', 'picker sel');
 
 			$(day).click(function(e) { me.select_day(e); });

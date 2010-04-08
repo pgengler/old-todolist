@@ -1106,7 +1106,19 @@ function new_item_show_picker()
 		delete picker;
 	}
 
-	picker = new Picker({ anim_callback: scroll_to_new, closed: move_to_event, any_date: !template });
+	var start_date = null, start_day = 0;
+	if (!template) {
+		if (rolling && get_view().view == null) {
+			start_date = new Date();
+			start_day = start_date.getDay();
+			start_date.setDate(start_date.getDate() - start_date.getDay());
+		} else {
+			start_date = date_from_string(view);
+			start_date.setDate(start_date.getDate() - start_date.getDay());
+		}
+	}
+
+	picker = new Picker({ anim_callback: scroll_to_new, closed: move_to_event, any_date: !template, start_date: start_date, start_day: start_day });
 	picker.show($('#newdate'), new_item_select_date);
 }
 
@@ -1263,7 +1275,18 @@ function show_date_edit(id)
 		delete picker;
 	}
 
-	picker = new Picker({ date: item.date(), day: item.day(), closed: null, any_date: !template });
+	var start_date = null, start_day = 0;
+	if (!template) {
+		if (rolling && get_view().view == null) {
+			start_date = new Date();
+			start_day = start_date.getDay();
+			start_date.setDate(start_date.getDate() - start_date.getDay());
+		} else {
+			start_date = date_from_string(get_view().view);
+			start_date.setDate(start_date.getDate() - start_date.getDay());
+		}
+	}
+	picker = new Picker({ date: item.date(), day: item.day(), closed: null, any_date: !template, start_date: start_date, start_day: start_day });
 	picker.show(cell, function(day, date) { set_date(id, day, date); });
 }
 
