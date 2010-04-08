@@ -15,55 +15,43 @@ var Picker = function(options)
 	{
 		this.callback = callback;
 
-		var picker = document.createElement('div');
-		picker.setAttribute('class', 'picker');
-		picker.setAttribute('id', 'picker');
-
-		// Start with '--' (no date) option
-		var none = document.createElement('input');
-		none.setAttribute('class', 'picker');
-		none.setAttribute('type', 'button');
-		none.setAttribute('value', '--');
-		none.setAttribute('id', 'picker_0');
-		$(none).click(function(e) { me.select_day(e); });
-		picker.appendChild(none);
+		var picker = {
+			element: 'div', cssclass: 'picker', id: 'picker', children: [
+				{ element: 'input', cssclass: 'picker', type: 'button', value: '--', id: 'picker_0' }
+			]
+		};
 
 		for (var i = m_start_day; i < days.length + m_start_day; i++) {
 			var this_day = i % 7;
-			var day = document.createElement('input');
-			day.setAttribute('class', 'picker');
-			day.setAttribute('type', 'button');
-			var date = null;
+
+			var value;
 			if (m_start_date) {
 				date = new Date(m_start_date);
 				date.setDate(m_start_date.getDate() + i);
-				day.setAttribute('value', days[this_day] + date.strftime(" (%m/%d)"));
+				value = days[this_day] + date.strftime(" (%m/%d)");
 			} else
-				day.setAttribute('value', days[this_day]);
-			day.setAttribute('id', 'picker_' + (this_day + 1));
-			if ((m_date && date && m_date.equals(date)) || (!m_date && m_day == this_day))
-				day.setAttribute('class', 'picker sel');
+				value = days[this_day];
 
-			$(day).click(function(e) { me.select_day(e); });
-			picker.appendChild(day);
+			var css = 'picker';
+			if ((m_date && date && m_date.equals(date)) || (!m_date && m_day == this_day))
+				css += ' sel';
+
+			picker.children.push({
+				element: 'input', cssclass: css, type: 'button', id: 'picker_' + (this_day + 1), value: value,
+			});
 		}
 
 		if (m_any_date) {
-			var dp = document.createElement('input');
-			dp.setAttribute('type', 'button');
-			dp.setAttribute('class', m_date ? 'picker sel' : 'picker');
-			dp.setAttribute('value', 'Pick ->');
-			dp.setAttribute('id', 'picker_pick');
-			$(dp).datepicker({ buttonText: 'Pick', onSelect: this.select_date, defaultDate: m_date, dateFormat: 'yy-mm-dd' });
-			dp.onclick = function() {
-				$('#picker_pick').datepicker('show');
-			}
-			picker.appendChild(dp);
+			picker.children.push({
+				element: 'input', type: 'button', cssclass: m_date ? 'picker sel' : picker, value: 'Pick ->', id: 'picker_pick', onclick: function() { $('#picker_pick').datepicker('show'); }
+			});
 		}
 
-		$(picker).hide();
-
+		picker = create_element(picker);
 		document.body.appendChild(picker);
+
+		$('input.picker').click(function(e) { me.select_day(e); }).blur();
+		$('input#picker_pick').datepicker({ buttonText: 'Pick', onSelect: this.select_date, defaultDate: m_date, dateFormat: 'yy-mm-dd' });
 
 		// Set focus to first item in picker
 		document.getElementById('picker_0').focus();
