@@ -43,7 +43,7 @@ var Picker = function(options)
 
 		if (m_any_date) {
 			picker.children.push({
-				element: 'input', type: 'button', cssclass: m_date ? 'picker sel' : picker, value: 'Pick ->', id: 'picker_pick', onclick: function() { $('#picker_pick').datepicker('show'); }
+				element: 'input', type: 'button', cssclass: m_date ? 'picker sel' : 'picker', value: 'Pick ->', id: 'picker_pick', onclick: function() { $('#picker_pick').datepicker('show'); }
 			});
 		}
 
