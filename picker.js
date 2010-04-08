@@ -115,7 +115,7 @@ var Picker = function(options)
 			switch (key) {
 				/* Escape key: close whole dropdown */
 				case 27:
-					me.hide();
+					me.hide(true);
 					stop = true;
 					break;
 
@@ -222,7 +222,7 @@ var Picker = function(options)
 		me.callback(undefined, date_str);
 	}
 
-	this.hide = function()
+	this.hide = function(cancel)
 	{
 		var elem = document.getElementById('picker');
 		if (elem) {
@@ -236,7 +236,7 @@ var Picker = function(options)
 		else
 			window.onkeydown = '';
 		if (m_closed)
-			m_closed();
+			m_closed(cancel);
 	}
 };
 

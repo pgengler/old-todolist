@@ -1286,8 +1286,24 @@ function show_date_edit(id)
 			start_date.setDate(start_date.getDate() - start_date.getDay());
 		}
 	}
-	picker = new Picker({ date: item.date(), day: item.day(), closed: null, any_date: !template, start_date: start_date, start_day: start_day });
+	picker = new Picker({ date: item.date(), day: item.day(), closed: function(cancel) { datepicker_closed(id, cancel); }, any_date: !template, start_date: start_date, start_day: start_day });
 	picker.show(cell, function(day, date) { set_date(id, day, date); });
+}
+
+function datepicker_closed(id, cancel)
+{
+	if (!cancel)
+		return;
+
+	// Restore onclick handler for cell if user canceled
+	// Get the row with this ID
+	var row = $('#item' + id);
+
+	// Get the date cell
+	var cell = $('#item' + id + '>td:eq(1)');
+
+	// Temporarily suspend the "onlick" for this cell
+	cell.get(0).setAttribute('onclick', 'show_date_edit(' + id + ')');
 }
 
 function set_date(id, day, date)
