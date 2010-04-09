@@ -223,6 +223,9 @@ function populate(full)
 
 function populate_row(row, item)
 {
+	if (!row)
+		return;
+
 	remove_all_children(row);
 
 	row.setAttribute('id', 'item' + item.id());
