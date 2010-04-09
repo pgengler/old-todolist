@@ -53,11 +53,11 @@ var Picker = function(options)
 		$('input.picker').click(function(e) { me.select_day(e); }).blur();
 		$('input#picker_pick').datepicker({ buttonText: 'Pick', onSelect: this.select_date, defaultDate: m_date, dateFormat: 'yy-mm-dd' });
 
-		// Set focus to first item in picker
-		document.getElementById('picker_0').focus();
-
 		// Position near the element that opened this
 		$(picker).css(elem.position());
+
+		// Set focus to first item in picker
+		document.getElementById('picker_0').focus();
 
 		// Animate opening
 		$(picker).slideDown('fast', m_anim_callback);
