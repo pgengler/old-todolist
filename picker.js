@@ -75,10 +75,8 @@ var Picker = function(options)
 	this.highlight = function(elem)
 	{
 		me.unhighlight();
-		if (elem && elem.attr('id')) {
-			m_selected = elem.attr('id').replace(/picker_/, '');
+		if (elem)
 			elem.addClass('hover');
-		}
 	};
 
 	this.unhighlight = function(elem)
@@ -113,35 +111,37 @@ var Picker = function(options)
 
 				/* Up arrow: Move selection one element higher (wraps) */
 				case 38: // Up arrow
-					var sel;
-					if (m_selected == null)
-						sel = 0;
-					else if (m_selected == 'pick')
-						sel = 7;
-					else {
-						sel = parseInt(m_selected) - 1;
-						if (sel == -1)
-							sel = 'pick';
+					var picker = $('#picker');
+					if (!m_selected)
+						m_selected = 0;
+					var current = $('#picker_' + m_selected);
+					me.unhighlight(current);
+
+					if (current.prev().length != 0) {
+						me.highlight(current.prev());
+						m_selected = current.prev().attr('id').replace('picker_', '');
+					} else {
+						me.highlight(picker.children(':last-child'))
+						m_selected = picker.children(':last-child').attr('id').replace('picker_', '');
 					}
-					if (m_selected)
-						me.unhighlight($('#picker_' + m_selected));
-					me.highlight($('#picker_' + sel));
 					stop = true;
 					break;
 
 				/* Down arrow: Move selection one element lower (wraps) */
 				case 40:
-					var sel;
-					if (m_selected == null || m_selected == 'pick')
-						sel = 0;
-					else {
-						sel = parseInt(m_selected) + 1;
-						if (sel == 8)
-							sel = 'pick';
+					var picker = $('#picker');
+					if (!m_selected)
+						m_selected = 0;
+					var current = $('#picker_' + m_selected);
+					me.unhighlight(current);
+
+					if (current.next().length != 0) {
+						me.highlight(current.next());
+						m_selected = current.next().attr('id').replace('picker_', '');
+					} else {
+						me.highlight(picker.children(':first-child'))
+						m_selected = picker.children(':first-child').attr('id').replace('picker_', '');
 					}
-					if (m_selected)
-						me.unhighlight($('#picker_' + m_selected));
-					me.highlight($('#picker_' + sel));
 					stop = true;
 					break;
 
