@@ -66,6 +66,12 @@ function do_load()
 {
 	var date = location.hash.substring(1);
 
+	// Hide datepicker
+	if (picker) {
+		picker.hide();
+		delete picker;
+	}
+
 	var parts;
 	if (date && (parts = date.match(/(\d{4})(\d{2})(\d{2})/))) {
 		date = parts[1] + '-' + parts[2] + '-' + parts[3];
