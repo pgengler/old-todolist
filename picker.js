@@ -50,8 +50,9 @@ var Picker = function(options)
 		picker = create_element(picker);
 		document.body.appendChild(picker);
 
-		$('input.picker').click(function(e) { me.select_day(e); }).blur();
-		$('input#picker_pick').datepicker({ buttonText: 'Pick', onSelect: this.select_date, defaultDate: m_date, dateFormat: 'yy-mm-dd' });
+		// Add event handlers
+		$('input.picker').click(function(e) { me.select_day(e); }).mouseover(function(e) { me.highlight($(this)); }).mouseout(function(e) { me.unhighlight($(this)); });
+		$('input#picker_pick').unbind('click').datepicker({ buttonText: 'Pick', onSelect: this.select_date, defaultDate: m_date, dateFormat: 'yy-mm-dd' });
 
 		// Position near the element that opened this
 		$(picker).css(elem.position());
@@ -61,10 +62,6 @@ var Picker = function(options)
 
 		// Animate opening
 		$(picker).slideDown('fast', m_anim_callback);
-
-		// Add mouseover/mouseout handlers
-		$('input.picker').mouseover(function(e) { me.highlight($(this)); });
-		$('input.picker').mouseout(function(e) { me.unhighlight($(this)); });
 
 		// Add keyboard handler
 		if ('addEventListener' in window)
