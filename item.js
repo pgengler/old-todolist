@@ -12,7 +12,7 @@ function Item(values)
 	var m_marked     = values.marked || 0;
 	var m_keep_until = values.keep_until || null;
 	var m_tags       = values.tags || [ ];
-	var m_timestamp  = values.timestamp || null;
+	var m_timestamp  = values.timestamp || 0;
 
 	var m_new        = false;
 	var m_changed    = false;
@@ -132,7 +132,7 @@ function Item(values)
 	{
 		if (m_timestamp !== undefined)
 			m_timestamp = timestamp;
-		return timestamp;
+		return m_timestamp ? m_timestamp : 0;
 	}
 
 	this.is_new = function()
@@ -305,14 +305,19 @@ function Items()
 			this.add(item);
 	}
 
-	/* This function clears all new/changed flags for the items. */
+	/* This function clears all new/changed flags for the items and removed deleted items. */
 	this.clear_flags = function()
 	{
 		var len = m_items.length;
+		var items = [ ];
 		for (var i = 0; i < len; i++) {
-			m_items[i].set_new(false);
-			m_items[i].set_changed(false);
+			var item = m_items[i];
+			item.set_new(false);
+			item.set_changed(false);
+			if (!item.deleted())
+				items.push(item);
 		}
+		m_items = items;
 	}
 
 	this.get_items = function()
