@@ -538,13 +538,14 @@ sub list_items()
 	my $sth;
 
 	my $excl_deleted = ($timestamp > 0) ? '' : 'AND deleted IS NULL';
+	my $operator = ($timestamp > 0) ? '>' : '>=';
 
 	if ($view eq 'template') {
 		# Load template items
 		my $query = qq~
 			SELECT id, IF(day IS NOT NULL, day, ?) day, event, location, start, end, mark, deleted, `timestamp`
 			FROM template_items
-			WHERE timestamp >= ? $excl_deleted
+			WHERE timestamp $operator ? $excl_deleted
 			ORDER BY day, start, end
 		~;
 		$Common::db->prepare($query);
@@ -582,7 +583,7 @@ sub list_items()
 					(t.date <= DATE_ADD(?, INTERVAL (7 - DAYOFWEEK(?)) DAY))
 					OR
 					(t.date IS NULL AND (t.done = 0 OR t.keep_until > NOW()))
-				) AND timestamp >= ? $excl_deleted
+				) AND timestamp $operator ? $excl_deleted
 			ORDER BY `date`, t.start, t.end, t.event, t.done
 		~;
 		$Common::db->prepare($query);
@@ -610,7 +611,7 @@ sub list_items()
 					(t.done = 0 AND `date` < DATE_ADD(NOW(), INTERVAL 6 DAY))
 					OR
 					(t.done = 0 AND `date` IS NULL)
-				) AND timestamp >= ? $excl_deleted
+				) AND timestamp $operator ? $excl_deleted
 			ORDER BY `date`, start, end, event, done
 		~;
 		$Common::db->prepare($query);
