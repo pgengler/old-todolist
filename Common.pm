@@ -37,6 +37,8 @@ sub load_html_template()
 		global_vars       => 1,
 		loop_context_vars => 1
 	);
+
+	return $html;
 }
 
 #######
