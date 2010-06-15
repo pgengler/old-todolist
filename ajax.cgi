@@ -655,7 +655,7 @@ sub list_items()
 	$xml->param(items     => \@items);
 	$xml->param(tags      => &get_tags());
 	$xml->param(template  => 1) if ($view && $view eq 'template');
-	$xml->param(timestamp => $max_timestamp);
+	$xml->param(timestamp => $max_timestamp || $timestamp);
 	$xml->param(full      => $timestamp == 0);
 
 	# Output
