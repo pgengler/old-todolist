@@ -170,45 +170,29 @@ function Item(values)
 
 		// First do days/dates
 		if (this.day() == -1 && b.day() != -1)
+			// 'this' is undated; 'b' has a date
 			return undated_last ? 1 : -1;
 		else if (this.day() != -1 && b.day() == -1)
+			// 'this' has a date; 'b' is undated
 			return undated_last ? -1 : 1;
 		else if (this.day() != -1 && b.day() != -1) {
 			// Neither item is undated; check dates
 			if (this.date() && b.date()) {
-				if (this.date().compareTo(b.date()) != 0)
-					return this.date().compareTo(b.date());
-		} else
-			return this.day() - b.day();
+				var result = this.date().compareTo(b.date());
+				if (result != 0)
+					return result;
+			}
 		}
 
 		// Since we made it here, the items have the same day/date
+		if (this.start() != b.start()) {
+			return this.start() - b.start();
+		}
+		if (this.end() != b.end()) {
+			return this.end() - b.end();
+		}
 
-		// If 'this' has no times and 'b' has at least one, 'this' goes first
-		// If 'this' has at least one time but 'b' has none, 'b' goes first
-		if ((this.start() == -1 && this.end() == -1) && (b.start() != -1 || b.end() != -1))
-			return -1;
-		else if ((this.start() != -1 || this.end() != -1) && (b.start() == -1 && b.end() == -1))
-			return 1;
-
-		// Since we're here, both items have at least one time
-
-		// If 'this' has no start time but 'b' does, 'this' goes first
-		// Likewise, if 'this' has a start time but 'b' does not, 'b' goes first
-		if (this.start() == -1 && b.start() != -1)
-			return -1;
-		else if (this.start() != -1 && b.start() == -1)
-			return 1;
-
-		// Making it here means both items have start times
-
-		// Figure out which start time (if either) comes first
-		if (this.start() < b.start())
-			return -1;
-		else if (this.start() > b.start())
-			return 1;
-
-		// Both items have the same start time; sort by event name
+		// Both items have the same times; sort by event name
 		if (this.event() < b.event())
 			return -1;
 		else if (this.event() > b.event())
