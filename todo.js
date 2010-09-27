@@ -36,6 +36,15 @@ $(document).ready(function() {
 	setInterval(reload, 60000);
 });
 
+$(document).ready(function() {
+	$('#form').submit(dispatch);
+	$('.edit').live('keypress', function(event) {
+		var key = (event.charCode) ? event.charCode : ((event.which) ? event.which : event.keyCode);
+		if (key == 13)
+			$('#form').submit();
+	});
+});
+
 // Add handler for keyboard input
 if (window.addEventListener)
 	window.addEventListener('keydown', key_handler, false);
@@ -1031,6 +1040,7 @@ function dispatch()
 
 		ajax.send(extend(params, get_view()));
 	}
+	return false;
 }
 
 function new_item_form()
@@ -1067,23 +1077,23 @@ function new_item_form()
 			{
 				element: 'td',
 				children: [
-					{ element: 'input', type: 'text', id: 'newevent', style: 'width: 97%' }
+					{ element: 'input', type: 'text', id: 'newevent', cssclass: 'edit', style: 'width: 97%' }
 				]
 			},
 			// Location column
 			{
 				element: 'td',
 				children: [
-					{ element: 'input', type: 'text', id: 'newlocation', style: 'width: 97%' }
+					{ element: 'input', type: 'text', id: 'newlocation', cssclass: 'edit', style: 'width: 97%' }
 				]
 			},
 			// Times column
 			{
 				element: 'td',
 				children: [
-					{ element: 'input', type: 'text', id: 'newstart', cssclass: 'time' },
+					{ element: 'input', type: 'text', id: 'newstart', cssclass: 'time edit' },
 					{ element: 'text', text: String.fromCharCode(8211) },
-					{ element: 'input', type: 'text', id: 'newend', cssclass: 'time' }
+					{ element: 'input', type: 'text', id: 'newend', cssclass: 'time edit' }
 				]
 			}
 		]
@@ -1400,7 +1410,7 @@ function show_event_edit(id)
 	// Create a new textbox
 	var width = 97 - ((itags.width() / cell.width()) * 100);
 	var textbox = create_element({
-		element: 'input', type: 'text', id: 'event', style: 'width: ' + width + '%', value: item.event()
+		element: 'input', type: 'text', id: 'event', cssclass: 'edit', style: 'width: ' + width + '%', value: item.event()
 	});
 
 	event.empty();
@@ -1440,7 +1450,7 @@ function show_location_edit(id)
 
 	// Create new textbox
 	var textbox = create_element({
-		element: 'input', type: 'text', id: 'location', style: 'width: 97%', value: item.location() || ''
+		element: 'input', type: 'text', id: 'location', cssclass: 'edit', style: 'width: 97%', value: item.location() || ''
 	});
 
 	cell.empty();
@@ -1480,12 +1490,12 @@ function show_times_edit(id)
 
 	// Create a new start time textbox
 	var startbox = create_element({
-		element: 'input', type: 'text', id: 'start', cssclass: 'time', value: (item.start() != -1) ? item.start() : ''
+		element: 'input', type: 'text', id: 'start', cssclass: 'time edit', value: (item.start() != -1) ? item.start() : ''
 	});
 
 	// Create a new end time textbox
 	var endbox = create_element({
-		element: 'input', type: 'text', id: 'end', cssclass: 'time', value: (item.end() != -1) ? item.end() : ''
+		element: 'input', type: 'text', id: 'end', cssclass: 'time edit', value: (item.end() != -1) ? item.end() : ''
 	});
 
 	cell.empty();
