@@ -1440,7 +1440,7 @@ function show_location_edit(id)
 
 	// Create new textbox
 	var textbox = create_element({
-		element: 'input', type: 'text', id: 'location', style: 'width: 97%', value: item.location()
+		element: 'input', type: 'text', id: 'location', style: 'width: 97%', value: item.location() || ''
 	});
 
 	cell.empty();
