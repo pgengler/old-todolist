@@ -1126,7 +1126,7 @@ function new_item_show_picker()
 			start_day = start_date.getDay();
 			start_date.setDate(start_date.getDate() - start_date.getDay());
 		} else {
-			start_date = date_from_string(view);
+			start_date = date_from_string(get_view().view);
 			start_date.setDate(start_date.getDate() - start_date.getDay());
 		}
 	}
