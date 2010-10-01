@@ -1202,9 +1202,8 @@ function template_new_item_select_day(day)
 		date.setDate(date.getDate() - date.getDay() + day);
 
 		value = date.strftime('%a');
-
-		new_day = day;
 	}
+	new_day = day;
 
 	var elem = document.getElementById('newdate');
 	elem.value = value;

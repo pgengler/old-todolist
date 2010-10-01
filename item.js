@@ -3,7 +3,7 @@ function Item(values)
 	var m_id         = values.id;
 	var m_deleted    = values.deleted || 0;
 	var m_date       = values.date || null;
-	var m_day        = values.day || -1;
+	var m_day        = values.day == null ? -1 : values.day;
 	var m_event      = values.event || '';
 	var m_location   = values.location || null;
 	var m_start      = values.start || -1;
@@ -178,9 +178,16 @@ function Item(values)
 		else if (this.day() != -1 && b.day() != -1) {
 			// Neither item is undated; check dates
 			if (this.date() && b.date()) {
+				// Normal items (with dates)
 				var result = this.date().compareTo(b.date());
 				if (result != 0)
 					return result;
+			} else if (!this.date() && !b.date()) {
+				// Template items (no dates)
+				if (this.day() < b.day())
+					return -1;
+				else if (this.day() > b.day())
+					return 1;
 			}
 		}
 
@@ -231,7 +238,7 @@ Item.from_xml = function(xml)
 	}
 
 	if (values.date == null)
-		values.day = (xml.getAttribute('day') !== undefined) ? parseInt(xml.getAttribute('day')) : null;
+		values.day = (typeof xml.getAttribute('day') !== 'undefined') ? parseInt(xml.getAttribute('day'), 10) : null;
 
 	if (xml.getElementsByTagName('tag').length > 0) {
 		var tags = xml.getElementsByTagName('tag');
