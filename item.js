@@ -238,7 +238,7 @@ Item.from_xml = function(xml)
 	}
 
 	if (values.date == null)
-		values.day = (typeof xml.getAttribute('day') !== 'undefined') ? parseInt(xml.getAttribute('day'), 10) : null;
+		values.day = (typeof xml.getAttribute('day') !== 'undefined' && xml.getAttribute('day') !== '') ? parseInt(xml.getAttribute('day'), 10) : null;
 
 	if (xml.getElementsByTagName('tag').length > 0) {
 		var tags = xml.getElementsByTagName('tag');
