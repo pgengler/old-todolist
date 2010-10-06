@@ -30,8 +30,8 @@ function init()
 		view_date.setHours(0); view_date.setMinutes(0); view_date.setSeconds(0);
 	}
 
-	// Make AJAX request
-	var ajax = new AJAX(base_url, process);
+	// Make Ajax request
+	var ajax = new pgengler.Ajax(base_url, process);
 
 	ajax.send({
 		action: 'load',
@@ -97,7 +97,7 @@ function do_load()
 		]
 	}));
 
-	var ajax = new AJAX(base_url, process);
+	var ajax = new pgengler.Ajax(base_url, process);
 
 	ajax.send({
 		action: 'load',

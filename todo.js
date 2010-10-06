@@ -435,8 +435,8 @@ function add_item_tag(item_id, tag_id)
 	save_button.disabled = true;
 	save_button.innerHTML = 'Saving...';
 
-	// Make AJAX request to add tag
-	var ajax = new AJAX(base_url, process);
+	// Make Ajax request to add tag
+	var ajax = new pgengler.Ajax(base_url, process);
 
 	ajax.send({
 		action:    'additemtag',
@@ -453,8 +453,8 @@ function remove_item_tag(item_id, tag_id)
 	save_button.disabled = true;
 	save_button.innerHTML = 'Saving...';
 
-	// Make AJAX request to add tag
-	var ajax = new AJAX(base_url, process);
+	// Make Ajax request to add tag
+	var ajax = new pgengler.Ajax(base_url, process);
 
 	ajax.send({
 		action:    'delitemtag',
@@ -482,8 +482,8 @@ function save_item_tags(id)
 			new_tags.push(tag.id());
 	}
 
-	// Make AJAX request to save tags
-	var ajax = new AJAX(base_url, process);
+	// Make Ajax request to save tags
+	var ajax = new pgengler.Ajax(base_url, process);
 
 	ajax.send(extend({
 		action:    'itemtags',
@@ -660,7 +660,7 @@ function set_tag_style(tag_id, style)
 		var tag = tags.get(tag_id);
 		tag.set_style(style);
 
-		var ajax = new AJAX(base_url, load_tags);
+		var ajax = new pgengler.Ajax(base_url, load_tags);
 
 		ajax.send(extend({
 			action: 'savetag',
@@ -811,7 +811,7 @@ function hide_add_tag()
 
 function save_tags()
 {
-	var ajax = new AJAX(base_url, function(xml) { load_tags(xml); edit_tags(); refresh_tags(); populate_tag_selector(); });
+	var ajax = new pgengler.Ajax(base_url, function(xml) { load_tags(xml); edit_tags(); refresh_tags(); populate_tag_selector(); });
 
 	if (!document.getElementById('edittagid'))
 		return false;
@@ -855,7 +855,7 @@ function remove_tag(id)
 	var tag = tags.get(id);
 
 	if (confirm("Are you sure you want to remove the tag '" + tag.name() + "'?")) {
-		var ajax = new AJAX(base_url, function(xml) { process(xml); edit_tags(); populate_tag_selector(); });
+		var ajax = new pgengler.Ajax(base_url, function(xml) { process(xml); edit_tags(); populate_tag_selector(); });
 		ajax.send(extend({
 			action: 'removetag',
 			id: id,
@@ -873,7 +873,7 @@ function reload()
 	if (currently_editing != 0)
 		return;
 
-	var ajax = new AJAX(base_url, process);
+	var ajax = new pgengler.Ajax(base_url, process);
 
 	ajax.send({
 		action:    'load',
@@ -1036,7 +1036,7 @@ function dispatch()
 
 		row.appendChild(create_element({ element: 'td', colspan: use_mark ? 6 : 5, cssclass: 'nodec', style: 'font-style: italic; text-align: center', text: 'Processing...' }));
 
-		var ajax = new AJAX(base_url, process);
+		var ajax = new pgengler.Ajax(base_url, process);
 
 		ajax.send(extend(params, get_view()));
 	}
@@ -1228,7 +1228,7 @@ function submit_new_item()
 		return;
 	}
 
-	var ajax = new AJAX(base_url, process);
+	var ajax = new pgengler.Ajax(base_url, process);
 
 	ajax.send(extend({
 		action:    'add',
@@ -1353,7 +1353,7 @@ function set_date(id, day, date)
 		d = date_from_string(date);
 	}
 
-	var ajax = new AJAX(base_url, process)
+	var ajax = new pgengler.Ajax(base_url, process)
 	ajax.send(extend({
 		action:    'date',
 		id:        id,
@@ -1364,7 +1364,7 @@ function set_date(id, day, date)
 
 function template_set_day(id, day)
 {
-	var ajax = new AJAX(base_url, process);
+	var ajax = new pgengler.Ajax(base_url, process);
 	ajax.send(extend({
 		action:    'day',
 		id:        id,
@@ -1514,7 +1514,7 @@ function show_times_edit(id)
 ///////
 function toggle_done(id)
 {
-	var ajax = new AJAX(base_url, process);
+	var ajax = new pgengler.Ajax(base_url, process);
 
 	ajax.send(extend({
 		action:    'done',
@@ -1535,7 +1535,7 @@ function toggle_done(id)
 function toggle_mark(id)
 {
 	if (use_mark) {
-		var ajax = new AJAX(base_url, process);
+		var ajax = new pgengler.Ajax(base_url, process);
 		ajax.send(extend({
 			action:    'mark',
 			id:        id,
@@ -1559,7 +1559,7 @@ function delete_item(id)
 	var row = document.getElementById('item' + id);
 	row.parentNode.removeChild(row);
 
-	var ajax = new AJAX(base_url, process);
+	var ajax = new pgengler.Ajax(base_url, process);
 
 	ajax.send(extend({
 		action:    'delete',
@@ -1718,10 +1718,10 @@ function move_unfinished()
 	if (template || (rolling && get_view().view == null))
 		return;
 
-	// Create AJAX object
-	var ajax = new AJAX(base_url, process);
+	// Create Ajax object
+	var ajax = new pgengler.Ajax(base_url, process);
 
-	// Make AJAX request
+	// Make Ajax request
 	ajax.send(extend({
 		action:    'move',
 		timestamp: last_timestamp
