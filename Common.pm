@@ -89,14 +89,15 @@ sub template_loaded()
 	my $date = shift;
 
 	my $query = qq~
-		SELECT (IF(COUNT(*) > 0, 1, 0) + IF(? < DATE(NOW()), 1, 0)) loaded
+		SELECT COUNT(*) AS loaded, IF(? < DATE(NOW()), 1, 0) AS older
 		FROM template_loaded
 		WHERE `date` = ?
 	~;
 	$db->prepare($query);
 	my $sth = $db->execute($date, $date);
-
-	my $loaded = $sth->fetchrow_hashref()->{'loaded'};
+	my $data = $sth->fetchrow_hashref();
+	
+	my $loaded = ($data->{'loaded'} || $data->{'older'});
 
 	return $loaded;
 }
@@ -116,7 +117,7 @@ sub load_template()
 	my $query = qq~
 		SELECT id, event, location, start, end, mark
 		FROM template_items
-		WHERE day = DAYOFWEEK(?)
+		WHERE day = DAYOFWEEK(?) AND COALESCE(deleted, 0) = 0
 	~;
 	$db->prepare($query);
 	my $get_items = $db->execute($date);
@@ -148,7 +149,7 @@ sub load_template()
 	my $add_tags = $db->prepare($query);
 
 	while (my $item = $get_items->fetchrow_hashref()) {
-		$insert->execute($date, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'mark'});
+		$insert->execute($date, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'mark'} || 0);
 		my $new_id = $insert->{'mysql_insertid'};
 
 		# Get tags for this template item
