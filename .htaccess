@@ -5,7 +5,7 @@ AuthName Todo
 AuthType Basic
 
 RewriteEngine  on
-RewriteBase    /todolist/
+RewriteBase    /todo/
 RewriteRule   ^(.+)/$  #$1 [R,NE]
 
 <Files *>
