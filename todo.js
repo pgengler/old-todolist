@@ -29,42 +29,30 @@ var new_tag_style     = 1;
 ///////
 
 // Refresh the highlighting every 5 minutes (300,000 ms)
-$(document).ready(function() { setInterval("highlight()", 300000); });
-
-// Automatically reload the page every 60 seconds (60,000 ms)
-$(document).ready(function() {
-	setInterval(reload, 60000);
-});
+setInterval(highlight, 300000);
+// Reload the list every 60 seconds (60,000 ms)
+setInterval(reload,     60000);
 
 $(document).ready(function() {
 	$('#form').submit(dispatch);
-	$('.edit').live('keypress', function(event) {
-		var key = (event.charCode) ? event.charCode : ((event.which) ? event.which : event.keyCode);
-		if (key == 13)
+	$('.edit').live('keydown', function(event) {
+		if (event.keyCode == 13)
 			$('#form').submit();
 	});
-});
 
-// Add handler for keyboard input
-if (window.addEventListener)
-	window.addEventListener('keydown', key_handler, false);
-else if (window.attachEvent)
-	window.document.attachEvent('onkeydown', key_handler);
+	$(window).keydown(key_handler);
+});
 
 ///////
 // KEYBOARD HANDLER
 ///////
 function key_handler(event)
 {
-	event = (event) ? event : ((window.event) ? event : null);
-
-	if (event) {
-		key = (event.charCode) ? event.charCode : ((event.which) ? event.which : event.keyCode);
-		if (event.altKey && String.fromCharCode(key).toLowerCase() == 'n') // Alt+N (new)
-			new_item_form();
-		else if (key == 27)
-			clear_edits();
-	}
+	key = event.keyCode;
+	if (event.altKey && String.fromCharCode(key).toLowerCase() == 'n') // Alt+N (new)
+		new_item_form();
+	else if (key == 27)
+		clear_edits();
 }
 
 ///////
