@@ -127,78 +127,44 @@ function show_color_key()
 function populate(full)
 {
 	// Get the table body
-	var tbody = document.getElementById('content').getElementsByTagName('tbody')[0];
+	var table = document.getElementById('content');
 
-	if (full) {
-		// Show initial/static boxes
-		if (!template) {
-			show_options();
-			if (use_mark)
-				show_color_key();
+	// Show initial/static boxes
+	if (!template) {
+		show_options();
+		if (use_mark)
+			show_color_key();
+	}
+
+	var tbody = document.createElement('tbody');
+
+	delete used_tags;
+	used_tags = new Hash();
+
+	// Add rows
+	var things = items.get_items();
+	var len = things.length;
+	for (var i = 0; i < len; i++) {
+		var c = things[i];
+
+		// Figure out if any of the item's tags match
+		var itags = c.tags();
+		var tlen  = itags.length;
+		var ok    = (tlen == 0 && (show_tags.length == 0 || show_tags.hasItem(0)))  ? true : false;
+		for (var j = 0; j < tlen; j++) {
+			if (show_tags.length == 0 || show_tags.hasItem(itags[j]))
+				ok = true;
+			used_tags.setItem(itags[j], 1);
 		}
 
-		// Empty the table
-		remove_all_children(tbody);
-
-		delete used_tags;
-		used_tags = new Hash();
-
-		// Add rows
-		var things = items.get_items();
-		var len = things.length;
-		for (var i = 0; i < len; i++) {
-			var c = things[i];
-
-			// Figure out if any of the item's tags match
-			var itags = c.tags();
-			var tlen  = itags.length;
-			var ok    = (tlen == 0 && (show_tags.length == 0 || show_tags.hasItem(0)))  ? true : false;
-			for (var j = 0; j < tlen; j++) {
-				if (show_tags.length == 0 || show_tags.hasItem(itags[j]))
-					ok = true;
-				used_tags.setItem(itags[j], 1);
-			}
-
-			if (ok) {
-				var row = tbody.insertRow(-1);
-				populate_row(row, c);
-			}
-		}
-	} else {
-		var item_list = items.get_items();
-		var row_num = 0;
-		var len = item_list.length;
-		for (var i = 0; i < len; i++) {
-			var item = item_list[i];
-
-			// If item was deleted, remove its row
-			if (item.deleted()) {
-				var row = document.getElementById('item' + item.id());
-				if (row)
-					row.parentNode.removeChild(row);
-				continue;
-			}
-
-			// If item is new, add it
-			if (item.is_new()) {
-				var row = tbody.insertRow(row_num);
-				populate_row(row, item);
-			} else if (item.is_changed()) {
-				// Item has changed
-
-				// Remove existing row for item
-				var row = document.getElementById('item' + item.id());
-				if (row)
-					row.parentNode.removeChild(row);
-
-				// Add new row
-				row = tbody.insertRow(row_num);
-				populate_row(row, item);
-			}
-
-			row_num++;
+		if (ok) {
+			var row = tbody.insertRow(-1);
+			populate_row(row, c);
 		}
 	}
+
+	var originalBody = table.getElementsByTagName('tbody')[0];
+	table.replaceChild(tbody, originalBody);
 
 	items.clear_flags();
 
