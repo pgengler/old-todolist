@@ -51,8 +51,14 @@ var Picker = function(options)
 		document.body.appendChild(picker);
 
 		// Add event handlers
-		$('input.picker').click(function(e) { me.select_day(e); }).mouseover(function(e) { me.highlight($(this)); }).mouseout(function(e) { me.unhighlight($(this)); });
-		$('input#picker_pick').unbind('click').datepicker({ buttonText: 'Pick', onSelect: this.select_date, defaultDate: m_date, dateFormat: 'yy-mm-dd' });
+		$('input.picker')
+			.click(function(e) { me.select_day(e); })
+			.mouseover(function(e) { me.highlight($(this)); })
+			.mouseout(function(e) { me.unhighlight($(this)); })
+			.keydown(function(e) { me.keyboard(e, $(this)); });
+		$('input#picker_pick')
+			.unbind('click')
+			.datepicker({ buttonText: 'Pick', onSelect: this.select_date, defaultDate: m_date, dateFormat: 'yy-mm-dd' });
 
 		// Position near the element that opened this
 		$(picker).css(elem.position());
@@ -62,14 +68,6 @@ var Picker = function(options)
 
 		// Animate opening
 		$(picker).slideDown('fast', m_anim_callback);
-
-		// Add keyboard handler
-		if ('addEventListener' in window)
-			window.addEventListener('keydown', this.keyboard, true);
-		else if ('attachEvent' in window)
-			document.attachEvent('onkeydown', this.keyboard);
-		else
-			window.onkeydown = this.keyboard;
 	};
 
 	this.highlight = function(elem)
@@ -85,106 +83,103 @@ var Picker = function(options)
 		$('input.hover').removeClass('hover');
 	};
 
-	this.keyboard = function(event)
+	this.keyboard = function(event, elem)
 	{
-		event = (event) ? event : ((window.event) ? event : null);
+		var key  = event.which;
+		var char = String.fromCharCode(key).toLowerCase();
 
-		if (event) {
-			var key  = (event.charCode) ? event.charCode : ((event.which) ? event.which : event.keyCode);
-			var char = String.fromCharCode(key).toLowerCase();
+		var stop = false;
 
-			var stop = false;
+		switch (key) {
+			/* Escape key: close whole dropdown */
+			case 27:
+				me.hide(true);
+				stop = true;
+				break;
 
-			switch (key) {
-				/* Escape key: close whole dropdown */
-				case 27:
-					me.hide(true);
-					stop = true;
+			/* Enter key: Submit current selection, if any */
+			case 13:
+				if (m_selected)
+					$('#picker_' + m_selected).click();
+				stop = true;
+				break;
+
+			/* Up arrow: Move selection one element higher (wraps) */
+			case 38: // Up arrow
+				var picker = $('#picker');
+				if (!m_selected)
+					m_selected = 0;
+				var current = $('#picker_' + m_selected);
+				me.unhighlight(current);
+
+				if (current.prev().length != 0) {
+					me.highlight(current.prev());
+					m_selected = current.prev().attr('id').replace('picker_', '');
+				} else {
+					me.highlight(picker.children(':last-child'))
+					m_selected = picker.children(':last-child').attr('id').replace('picker_', '');
+				}
+				stop = true;
+				break;
+
+			/* Down arrow: Move selection one element lower (wraps) */
+			case 40:
+				var picker = $('#picker');
+				if (!m_selected)
+					m_selected = 0;
+				var current = $('#picker_' + m_selected);
+				me.unhighlight(current);
+
+				if (current.next().length != 0) {
+					me.highlight(current.next());
+					m_selected = current.next().attr('id').replace('picker_', '');
+				} else {
+					me.highlight(picker.children(':first-child'))
+					m_selected = picker.children(':first-child').attr('id').replace('picker_', '');
+				}
+				stop = true;
+				break;
+
+			/* Right arrow: If 'Pick ->' element is selected, show datepicker control */
+			case 39:
+				// Check if the datepicker entry is selected
+				if (m_selected != 'pick')
 					break;
+				$('#picker_pick').datepicker('show');
+				stop = true;
+				break;
 
-				/* Enter key: Submit current selection, if any */
-				case 13:
-					if (m_selected)
-						$('#picker_' + m_selected).click();
+			/* Other key: Check if it matches an accelerator key */
+			default:
+				/*
+				  Use character codes instead of ASCII characters because the minus sign (-)
+				  generates a code that ends up in the range of lowercase letters in ASCII.
+					(Todo #2002)
+				*/
+
+				// Chrome gives a different key value for the hyphen than FF
+				if (key == 189) {
+					key = 109;
+				}
+				var keys = [
+					109, /* '-' (Firefox) */
+					83,  /* 'S' */
+					77,  /* 'M' */
+					84,  /* 'T' */
+					87,  /* 'W' */
+					72,  /* 'H' */
+					70,  /* 'F' */
+					65   /* 'A' */
+				];
+				var pos = keys.indexOf(key);
+				if (pos != -1) {
+					var button = document.getElementById('picker_' + pos);
+					if (button) button.click();
 					stop = true;
-					break;
-
-				/* Up arrow: Move selection one element higher (wraps) */
-				case 38: // Up arrow
-					var picker = $('#picker');
-					if (!m_selected)
-						m_selected = 0;
-					var current = $('#picker_' + m_selected);
-					me.unhighlight(current);
-
-					if (current.prev().length != 0) {
-						me.highlight(current.prev());
-						m_selected = current.prev().attr('id').replace('picker_', '');
-					} else {
-						me.highlight(picker.children(':last-child'))
-						m_selected = picker.children(':last-child').attr('id').replace('picker_', '');
-					}
-					stop = true;
-					break;
-
-				/* Down arrow: Move selection one element lower (wraps) */
-				case 40:
-					var picker = $('#picker');
-					if (!m_selected)
-						m_selected = 0;
-					var current = $('#picker_' + m_selected);
-					me.unhighlight(current);
-
-					if (current.next().length != 0) {
-						me.highlight(current.next());
-						m_selected = current.next().attr('id').replace('picker_', '');
-					} else {
-						me.highlight(picker.children(':first-child'))
-						m_selected = picker.children(':first-child').attr('id').replace('picker_', '');
-					}
-					stop = true;
-					break;
-
-				/* Right arrow: If 'Pick ->' element is selected, show datepicker control */
-				case 39:
-					// Check if the datepicker entry is selected
-					if (m_selected != 'pick')
-						break;
-					$('#picker_pick').datepicker('show');
-					stop = true;
-					break;
-
-				/* Other key: Check if it matches an accelerator key */
-				default:
-					/*
-					  Use character codes instead of ASCII characters because the minus sign (-)
-					  generates a code that ends up in the range of lowercase letters in ASCII.
-						(Todo #2002)
-					*/
-					var keys = [
-						109, /* '-' */
-						83,  /* 'S' */
-						77,  /* 'M' */
-						84,  /* 'T' */
-						87,  /* 'W' */
-						72,  /* 'H' */
-						70,  /* 'F' */
-						65   /* 'A' */
-					];
-					var pos = keys.indexOf(key);
-					if (pos != -1) {
-						var button = document.getElementById('picker_' + pos);
-						if (button) button.click();
-						stop = true;
-					}
-			}
+				}
 		}
 
 		if (stop) {
-			if ('stopPropagation' in event)
-				event.stopPropagation();
-			if ('preventDefault' in event)
-				event.preventDefault();
 			return false;
 		}
 		return true;
