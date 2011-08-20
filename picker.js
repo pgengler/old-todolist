@@ -180,6 +180,7 @@ var Picker = function(options)
 		}
 
 		if (stop) {
+			event.preventDefault();
 			return false;
 		}
 		return true;
