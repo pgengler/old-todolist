@@ -184,6 +184,20 @@ function populate(full)
 	populate_tag_selector();
 }
 
+function time_class(item)
+{
+	var today = new Date();
+
+	if (item.date() && item.date().equals(today))
+		return 'today';
+	else if (item.date() && item.date() < today)
+		return 'past';
+	else if (item.date() && item.date() > today)
+		return 'future';
+
+	return 'undated';
+}
+
 function populate_row(row, item)
 {
 	if (!row)
@@ -192,7 +206,7 @@ function populate_row(row, item)
 	remove_all_children(row);
 
 	row.setAttribute('id', 'item' + item.id());
-	var cls = 'future';
+	var cls = time_class(item);
 	if (item.done())
 		cls += ' done';
 	if (item.marked())
@@ -868,14 +882,7 @@ function highlight()
 		var mark = row.hasClass('mark');
 
 		row.removeClass();
-		if (item.date() && item.date().equals(today))
-			row.addClass('today');
-		else if (item.date() && item.date() < today)
-			row.addClass('past');
-		else if (item.date() && item.date() > today)
-			row.addClass('future');
-		else
-			row.addClass('undated');
+		row.addClass(time_class(item));
 
 		if (done)
 			row.addClass('done');
