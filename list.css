@@ -129,7 +129,8 @@ img.tagmenu {
 }
 
 div#extra {
-	float: right;
+	position: fixed;
+	right: 4px;
 	text-align: left;
 	width: 10%;
 }
