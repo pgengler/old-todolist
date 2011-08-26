@@ -406,12 +406,12 @@ function add_item_tag(item_id, tag_id)
 	// Make Ajax request to add tag
 	var ajax = new pgengler.Ajax(base_url, process);
 
-	ajax.send({
+	ajax.send(extend({
 		action:    'additemtag',
 		item:      item_id,
 		timestamp: last_timestamp,
 		tag:       tag_id
-	});
+	}, get_view()));
 }
 
 function remove_item_tag(item_id, tag_id)
@@ -424,12 +424,12 @@ function remove_item_tag(item_id, tag_id)
 	// Make Ajax request to add tag
 	var ajax = new pgengler.Ajax(base_url, process);
 
-	ajax.send({
+	ajax.send(extend({
 		action:    'delitemtag',
 		item:      item_id,
 		timestamp: last_timestamp,
 		tag:       tag_id
-	});	
+	}, get_view()));
 }
 
 function save_item_tags(id)
