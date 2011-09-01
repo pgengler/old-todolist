@@ -552,9 +552,7 @@ sub list_items()
 	} elsif ($view || !$Config::use_rolling) {
 		# Figure out which days are in the same week
 		unless ($view) {
-			my $t = time();
-			my @nowparts = localtime($t);
-			$view = sprintf("%04d-%02d-%02d", $nowparts[5] + 1900, $nowparts[4] + 1, $nowparts[3]);
+			$view = strftime('%Y-%m-%d', localtime);
 		}
 		my ($year, $month, $day) = split(/-/, $view);
 		my $unixtime = mktime(0, 0, 0, int($day), int($month) - 1, int($year) - 1900);
@@ -563,8 +561,7 @@ sub list_items()
 
 		for (my $i = 0; $i < 7; $i++) {
 			my $offset = ($i - $weekday) * 60 * 60 * 24;
-			my @dateparts = localtime($unixtime + $offset);
-			my $date = sprintf("%04d-%02d-%02d", $dateparts[5] + 1900, $dateparts[4] + 1, $dateparts[3]);
+			my $date = strftime('%Y-%m-%d', localtime($unixtime + $offset));
 
 			unless (&Common::template_loaded($date)) {
 				&Common::load_template($date);
@@ -591,8 +588,7 @@ sub list_items()
 		# Load template for any days that aren't covered
 		my $unixdate = time();
 		for (my $i = 0; $i < 7; $i++, $unixdate += (60 * 60 * 24)) {
-			my @dateparts = localtime($unixdate);
-			my $date = sprintf("%04d-%02d-%02d", $dateparts[5] + 1900, $dateparts[4] + 1, $dateparts[3]);
+			my $date = strftime('%Y-%m-%d', localtime($unixdate));
 
 			unless (&Common::template_loaded($date)) {
 				&Common::load_template($date);
