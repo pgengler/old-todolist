@@ -544,7 +544,7 @@ sub list_items()
 		my $query = qq~
 			SELECT id, IF(day IS NOT NULL, day, ?) day, event, location, start, end, mark, deleted, `timestamp`
 			FROM template_items
-			WHERE timestamp >= ? $excl_deleted
+			WHERE timestamp > ? $excl_deleted
 			ORDER BY day, start, end
 		~;
 		$Common::db->prepare($query);
