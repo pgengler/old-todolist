@@ -870,12 +870,6 @@ function highlight()
 		if (!item)
 			continue;
 
-		var keep_until = item.keep_until();
-		if (keep_until && keep_until < today) {
-			rows[i].parentNode.removeChild(rows[i]);
-			continue;
-		}
-
 		var done = row.hasClass('done');
 		var mark = row.hasClass('mark');
 
