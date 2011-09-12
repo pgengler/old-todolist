@@ -28,8 +28,6 @@ var new_tag_style     = 1;
 // INITIALIZATION
 ///////
 
-// Refresh the highlighting every 5 minutes (300,000 ms)
-setInterval(highlight, 300000);
 // Reload the list every 60 seconds (60,000 ms)
 setInterval(reload,     60000);
 
