@@ -313,8 +313,14 @@ function Items()
 
 	this.get_items = function()
 	{
-		m_items.sort(function(a, b) { return a.compareTo(b); });
-		return m_items;
+		var now = new Date();
+
+		var valid_items = m_items.filter(function() {
+			return (!this.deleted() || (this.deleted() && this.keep_until() < now));
+		});
+
+		valid_items.sort(function(a, b) { return a.compareTo(b); });
+		return valid_items;
 	}
 
 	this.get = function(id)
@@ -346,4 +352,31 @@ Date.prototype.compareTo = function(date)
 		return 1;
 
 	return 0;
+}
+
+
+if (typeof Array.prototype.filter !== 'function') {
+	Array.prototype.filter = function(func) {
+		if (this == null) {
+			throw new TypeError();
+		}
+
+		var t = Object(this);  
+		var len = t.length >>> 0;  
+		if (typeof func !== "function") {
+			throw new TypeError();
+		}
+
+		var res = [];  
+		for (var i = 0; i < len; i++) {
+			if (i in t) {
+				var val = t[i]; // in case func mutates this
+				if (func.call(this, val, i, t)) {
+					res.push(val);
+				}
+			}
+		}
+
+		return res;
+	};
 }
