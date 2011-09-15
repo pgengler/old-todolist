@@ -316,7 +316,7 @@ function Items()
 		var now = new Date();
 
 		var valid_items = m_items.filter(function(item) {
-			return (!item.deleted() || item.keep_until() < now);
+			return (!item.deleted() && item.keep_until() < now);
 		});
 
 		valid_items.sort(function(a, b) { return a.compareTo(b); });
