@@ -29,7 +29,7 @@ var new_tag_style     = 1;
 ///////
 
 // Reload the list every 60 seconds (60,000 ms)
-setInterval(reload,     60000);
+setInterval(reload, 60000);
 
 $(document).ready(function() {
 	$('#form').submit(dispatch);
