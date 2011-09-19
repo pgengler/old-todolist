@@ -133,9 +133,9 @@ sub load_template()
 	# Query to insert items into 'todo' table
 	$query = qq~
 		INSERT INTO todo
-		(`date`, event, location, start, end, mark)
+		(`date`, event, location, start, end, mark, timestamp)
 		VALUES
-		(?, ?, ?, ?, ?, ?)
+		(?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
 	~;
 	my $insert = $db->prepare($query);
 
