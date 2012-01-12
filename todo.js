@@ -1311,7 +1311,6 @@ function set_date(id, day, date)
 		action:    'date',
 		id:        id,
 		date:      d ? d.strftime('%Y-%m-%d') : '',
-		timestamp: last_timestamp
 	}, get_view()));
 }
 
