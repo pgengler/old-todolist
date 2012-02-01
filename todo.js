@@ -274,12 +274,20 @@ function populate_row(row, item)
 
 function populate_tag_selector()
 {
+	// Get count of untagged unfinished items
+	var matching_items = items.filter_by_tag(null).filter_by_unfinished().get_items();
+
+	var none_label = '[none]';
+	if (matching_items.length > 0) {
+		none_label += ' (' + matching_items.length + ')';
+	}
+
 	var tag_list = {
 		element: 'ul', id: 'showtaglist', children: [
 			{
 				element: 'span', id: 'showtag0', onclick: 'toggle_tag_display(0)',
 				cssclass: 'tag' + (show_tags.hasItem(0) ? '' : ' unselected'),
-				text: '[none]' + (!show_tags.hasItem(0) ? '' : String.fromCharCode(10004))
+				text: none_label + (!show_tags.hasItem(0) ? '' : String.fromCharCode(10004))
 			}
 		]
 	};
@@ -291,12 +299,19 @@ function populate_tag_selector()
 		if (!used_tags.hasItem(tag.id()))
 			continue;
 
+		matching_items = items.filter_by_tag(tag.name()).filter_by_unfinished().get_items();
+
+		var label = tag.name();
+		if (matching_items.length > 0) {
+			label += ' (' + matching_items.length + ')';
+		}
+
 		tag_list.children.push({
 			element: 'li',
 			children: [ {
 				element: 'span', id: 'showtag' + tag.id(), onclick: 'toggle_tag_display(' + tag.id() + ')',
 				cssclass: 'tag tag' + tag.style() + (show_tags.hasItem(tag.id()) ? '' : ' unselected'),
-				text: tag.name() + (!show_tags.hasItem(tag.id()) ? '' : String.fromCharCode(10004))
+				text: label + (!show_tags.hasItem(tag.id()) ? '' : String.fromCharCode(10004))
 			} ]
 		});
 	}

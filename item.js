@@ -127,6 +127,23 @@ function Item(values)
 	{
 		m_tags.push(tag);
 	}
+	// Determine if the item has the given tag.
+	// If 'tag' evaluates to 'false', return true if the item has no tags.
+	this.has_tag = function(tag)
+	{
+		if (tag) {
+			for (var i = 0; i < m_tags.length; i++) {
+				if (tags.get(m_tags[i]).name() == tag) {
+					return true;
+				}
+			}
+		} else {
+			if (m_tags.length == 0) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	this.timestamp = function(timestamp)
 	{
@@ -331,6 +348,34 @@ function Items()
 				return m_items[i];
 		}
 		return null;
+	}
+
+	this.filter_by_tag = function(tag)
+	{
+		var matching_item_set = new Items();
+
+		var len = m_items.length;
+		for (var i = 0; i < len; i++) {
+			if (m_items[i].has_tag(tag)) {
+				matching_item_set.add(m_items[i]);
+			}
+		}
+
+		return matching_item_set;
+	}
+
+	this.filter_by_unfinished = function()
+	{
+		var matching_item_set = new Items();
+
+		var len = m_items.length;
+		for (var i = 0; i < len; i++) {
+			if (!m_items[i].done()) {
+				matching_item_set.add(m_items[i]);
+			}
+		}
+
+		return matching_item_set;
 	}
 }
 
