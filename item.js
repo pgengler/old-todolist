@@ -147,7 +147,7 @@ function Item(values)
 
 	this.timestamp = function(timestamp)
 	{
-		if (m_timestamp !== undefined)
+		if (typeof m_timestamp !== 'undefined')
 			m_timestamp = timestamp;
 		return m_timestamp ? m_timestamp : 0;
 	}

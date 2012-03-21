@@ -1126,7 +1126,7 @@ function new_item_select_date(day, date)
 	if (template)
 		return template_new_item_select_day(day);
 
-	if (day !== undefined && day != -1) {
+	if (typeof day !== 'undefined' && day !== null && day != -1) {
 		if (rolling && get_view().view == null) {
 			var today = new Date();
 			var start = new Date();
@@ -1147,7 +1147,7 @@ function new_item_select_date(day, date)
 				d.setDate(start.getDate() + day);
 			}
 		}
-	} else if (date !== undefined) {
+	} else if (typeof date !== 'undefined' && date !== null) {
 		d = date_from_string(date);
 	}
 
@@ -1296,7 +1296,7 @@ function set_date(id, day, date)
 
 	if (template) {
 		return template_set_day(id, day);
-	} else if (day !== undefined && day != -1) {
+	} else if (typeof day !== 'undefined' && day !== null && day != -1) {
 		if (rolling && get_view().view == null) {
 			var today = new Date();
 			var start = new Date();
@@ -1317,7 +1317,7 @@ function set_date(id, day, date)
 				d.setDate(start.getDate() + day);
 			}
 		}
-	} else if (date !== undefined) {
+	} else if (typeof date !== 'undefined' && date !== null) {
 		d = date_from_string(date);
 	}
 
