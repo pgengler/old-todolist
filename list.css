@@ -217,3 +217,7 @@ input#newdate {
 	background-color: #ccc;
 	width: 95%;
 }
+
+#ui-datepicker-div {
+	display: none;
+}
