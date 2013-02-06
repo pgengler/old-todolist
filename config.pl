@@ -3,14 +3,13 @@ package Config;
 use strict;
 
 # URL info
-our $url          = 'http://personal.pgengler.net/todo/';
+our $url          = 'http://todolist.pgengler.net/';
 
 # Database connection info
 our $db_host      = 'localhost';
-our $db_user      = 'jsurrati_pgptodo'; # username used to connect to the database
-our $db_pass      = 'todo11!!';         # password used to connect to the database
-our $db_name      = 'jsurrati_pgptodo'; # name of the database to use (NOTE: DATABASE, not TABLES)
-#our $db_name     = 'jsurrati_pgptododev';
+our $db_user      = 'todolist'; # username used to connect to the database
+our $db_pass      = 'todo11!!'; # password used to connect to the database
+our $db_name      = 'todolist'; # name of the database to use (NOTE: DATABASE, not TABLES)
 our $db_prefix    = '';
 
 #######
