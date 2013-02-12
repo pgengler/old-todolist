@@ -1770,17 +1770,6 @@ function get_view(always_return_date)
 	return { view: null };
 }
 
-function extend(obj1, obj2)
-{
-	if (!obj1)
-		return obj2;
-	if (!obj2)
-		return obj1;
-	for (var name in obj2)
-		obj1[name] = obj2[name];
-	return obj1;
-}
-
 function date_from_string(str)
 {
 	var parts = str.split(/-/);
