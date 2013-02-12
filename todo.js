@@ -33,7 +33,7 @@ setInterval(reload, 60000);
 
 $(document).ready(function() {
 	$('#form').submit(dispatch);
-	$('.edit').live('keydown', function(event) {
+	$(document.body).on('keydown', '.edit', function(event) {
 		if (event.keyCode == 13)
 			$('#form').submit();
 	});
