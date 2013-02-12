@@ -1209,7 +1209,7 @@ function submit_new_item()
 		start:     start,
 		end:       end,
 		timestamp: last_timestamp
-	}, get_view()))
+	}, get_view());
 	var $request = $.post(base_url, params).done(process);
 
 	// Provide some feedback to let the user know that something's happening
