@@ -417,14 +417,13 @@ function add_item_tag(item_id, tag_id)
 	save_button.innerHTML = 'Saving...';
 
 	// Make Ajax request to add tag
-	var ajax = new pgengler.Ajax(base_url, process);
-
-	ajax.send(extend({
+	var params = $.extend({
 		action:    'additemtag',
 		item:      item_id,
 		timestamp: last_timestamp,
 		tag:       tag_id
-	}, get_view()));
+	}, get_view());
+	var $request = $.post(base_url, params).done(process);
 }
 
 function remove_item_tag(item_id, tag_id)
@@ -435,14 +434,14 @@ function remove_item_tag(item_id, tag_id)
 	save_button.innerHTML = 'Saving...';
 
 	// Make Ajax request to add tag
-	var ajax = new pgengler.Ajax(base_url, process);
-
-	ajax.send(extend({
+	var params = $.extend({
 		action:    'delitemtag',
 		item:      item_id,
 		timestamp: last_timestamp,
 		tag:       tag_id
-	}, get_view()));
+	}, get_view());
+
+	var $request = $.post(base_url, params).done(process);
 }
 
 function save_item_tags(id)
@@ -464,14 +463,13 @@ function save_item_tags(id)
 	}
 
 	// Make Ajax request to save tags
-	var ajax = new pgengler.Ajax(base_url, process);
-
-	ajax.send(extend({
+	var params = $.extend({
 		action:    'itemtags',
 		id:        id,
 		timestamp: last_timestamp,
 		tags:      new_tags.join(',')
-	}, get_view()));
+	}, get_view());
+	var $request = $.post(base_url, params).done(process);
 }
 
 ///////
@@ -641,13 +639,12 @@ function set_tag_style(tag_id, style)
 		var tag = tags.get(tag_id);
 		tag.set_style(style);
 
-		var ajax = new pgengler.Ajax(base_url, load_tags);
-
-		ajax.send(extend({
+		var params = $.extend({
 			action: 'savetag',
 			id: tag_id,
 			style: ((style == 0) ? -1 : style)
-		}, get_view()));
+		}, get_view());
+		var $request = $.post(base_url, params).done(load_tags);
 
 		// Refresh tags
 		refresh_tags();
@@ -792,7 +789,7 @@ function hide_add_tag()
 
 function save_tags()
 {
-	var ajax = new pgengler.Ajax(base_url, function(xml) { load_tags(xml); edit_tags(); refresh_tags(); populate_tag_selector(); });
+	var params = { };
 
 	if (!document.getElementById('edittagid'))
 		return false;
@@ -806,11 +803,11 @@ function save_tags()
 		var name = document.getElementById('addtagname').value;
 
 		if (name.trim()) {
-			ajax.send({
+			params = {
 				action: 'addtag',
 				name: name,
 				style: new_tag_style
-			});
+			};
 			hide_add_tag();
 		}
 	} else {
@@ -819,14 +816,21 @@ function save_tags()
 		var name = document.getElementById('edittagname').value;
 
 		if (name.trim()) {
-			ajax.send({
+			params = {
 				action: 'savetag',
 				id: id,
 				name: name
-			});
+			};
 			hide_rename_tag();
 		}
 	}
+
+	$.post(base_url, params).done(function(xml) {
+		load_tags(xml);
+		edit_tags();
+		refresh_tags();
+		populate_tag_selector();
+	});
 
 	return false;
 }
@@ -836,12 +840,16 @@ function remove_tag(id)
 	var tag = tags.get(id);
 
 	if (confirm("Are you sure you want to remove the tag '" + tag.name() + "'?")) {
-		var ajax = new pgengler.Ajax(base_url, function(xml) { process(xml); edit_tags(); populate_tag_selector(); });
-		ajax.send(extend({
+		var params = $.extend({
 			action: 'removetag',
 			id: id,
 			week: week
-		}, get_view()));
+		}, get_view());
+		var $request = $.post(base_url, params).done(function(xml) {
+			process(xml);
+			edit_tags();
+			populate_tag_selector();
+		});
 	}
 }
 
@@ -854,13 +862,12 @@ function reload()
 	if (currently_editing != 0)
 		return;
 
-	var ajax = new pgengler.Ajax(base_url, process);
-
-	ajax.send({
+	var params = {
 		action:    'load',
 		view:      get_view().view || '',
 		timestamp: last_timestamp
-	});
+	};
+	var $request = $.get(base_url, params).done(process);
 }
 
 ///////
@@ -980,11 +987,11 @@ function dispatch()
 		}
 
 		// Build param object
-		var params = {
+		var params = $.extend({
 			action: 'save',
 			id: currently_editing,
 			changed: changed
-		};
+		}, get_view());
 		if (update_event)
 			params['event'] = event;
 		if (update_location)
@@ -1004,9 +1011,7 @@ function dispatch()
 
 		row.appendChild(create_element({ element: 'td', colspan: use_mark ? 6 : 5, cssclass: 'nodec', style: 'font-style: italic; text-align: center', text: 'Processing...' }));
 
-		var ajax = new pgengler.Ajax(base_url, process);
-
-		ajax.send(extend(params, get_view()));
+		var $request = $.post(base_url, params).done(process);
 	}
 	return false;
 }
@@ -1196,9 +1201,7 @@ function submit_new_item()
 		return;
 	}
 
-	var ajax = new pgengler.Ajax(base_url, process);
-
-	ajax.send(extend({
+	var params = $.extend({
 		action:    'add',
 		date:      template ? new_day : (new_date ? new_date.strftime('%Y-%m-%d') : null),
 		event:     event,
@@ -1206,7 +1209,8 @@ function submit_new_item()
 		start:     start,
 		end:       end,
 		timestamp: last_timestamp
-	}, get_view()));
+	}, get_view()))
+	var $request = $.post(base_url, params).done(process);
 
 	// Provide some feedback to let the user know that something's happening
 	var row = document.getElementById('newrow');
@@ -1321,23 +1325,23 @@ function set_date(id, day, date)
 		d = date_from_string(date);
 	}
 
-	var ajax = new pgengler.Ajax(base_url, process)
-	ajax.send(extend({
+	var params = $.extend({
 		action:    'date',
 		id:        id,
 		date:      d ? d.strftime('%Y-%m-%d') : '',
-	}, get_view()));
+	}, get_view());
+	var $request = $.post(base_url, params).done(process);
 }
 
 function template_set_day(id, day)
 {
-	var ajax = new pgengler.Ajax(base_url, process);
-	ajax.send(extend({
+	var params = $.extend({
 		action:    'day',
 		id:        id,
 		day:       day,
 		timestamp: last_timestamp
-	}, get_view()));
+	}, get_view());
+	var $request = $.post(base_url, params).done(process);
 }
 
 function show_event_edit(id)
@@ -1481,13 +1485,12 @@ function show_times_edit(id)
 ///////
 function toggle_done(id)
 {
-	var ajax = new pgengler.Ajax(base_url, process);
-
-	ajax.send(extend({
+	var params = $.extend({
 		action:    'done',
 		id:        id,
 		timestamp: last_timestamp
-	}, get_view()));
+	}, get_view());
+	var $request = $.post(base_url, params).done(process);
 
 	// Get the current row
 	var row = document.getElementById('item' + id);
@@ -1502,12 +1505,12 @@ function toggle_done(id)
 function toggle_mark(id)
 {
 	if (use_mark) {
-		var ajax = new pgengler.Ajax(base_url, process);
-		ajax.send(extend({
+		var params = $.extend({
 			action:    'mark',
 			id:        id,
 			timestamp: last_timestamp
-		}, get_view()));
+		}, get_view());
+		$.post(base_url, params).done(process);
 
 		// Get the current row
 		var row = document.getElementById('item' + id);
@@ -1526,13 +1529,12 @@ function delete_item(id)
 	var row = document.getElementById('item' + id);
 	row.parentNode.removeChild(row);
 
-	var ajax = new pgengler.Ajax(base_url, process);
-
-	ajax.send(extend({
+	var params = $.extend({
 		action:    'delete',
 		id:        id,
 		timestamp: last_timestamp
-	}, get_view()));
+	}, get_view());
+	var $request = $.post(base_url, params).done(process);
 
 	currently_editing = 0;
 }
@@ -1685,14 +1687,12 @@ function move_unfinished()
 	if (template || (rolling && get_view().view == null))
 		return;
 
-	// Create Ajax object
-	var ajax = new pgengler.Ajax(base_url, process);
-
 	// Make Ajax request
-	ajax.send(extend({
+	var params = $.extend({
 		action:    'move',
 		timestamp: last_timestamp
-	}, get_view()));
+	}, get_view());
+	var $request = $.post(base_url, params).done(process);
 }
 
 ///////

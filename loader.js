@@ -31,12 +31,11 @@ function init()
 	}
 
 	// Make Ajax request
-	var ajax = new pgengler.Ajax(base_url, process);
-
-	ajax.send({
+	var params = {
 		action: 'load',
 		view:   date || '',
-	});
+	};
+	var $request = $.get(base_url, params).done(process);
 }
 
 function check_hashchange()
@@ -97,12 +96,11 @@ function do_load()
 		]
 	}));
 
-	var ajax = new pgengler.Ajax(base_url, process);
-
-	ajax.send({
+	var params = {
 		action: 'load',
 		view:   date || ''
-	});
+	};
+	var $request = $.get(base_url, params).done(process);
 }
 
 function process(response)
