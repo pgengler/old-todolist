@@ -46,11 +46,11 @@ sub load_html_template()
 	return $html;
 }
 
-sub load_template($)
+sub load_template_html($)
 {
 	my ($name) = @_;
 
-	return Template::HTML->new($name, Cwd::getcwd() . 'templates/');
+	return Template::HTML->new($name, Cwd::getcwd() . '/templates');
 }
 
 #######
@@ -65,11 +65,10 @@ sub error()
 		$message = 'A database error has occurred.';
 	}
 
-	my $html = &load_html_template('error');
-
-	$html->param(message => $message);
-
-	&output($html);
+	my $template = load_template_html('error');
+	output_html($template, {
+		'message' => $message,
+	});
 
 	exit;
 }
@@ -191,6 +190,17 @@ sub output()
 	if ($tmpl) {
 		print $tmpl->output();
 	}
+}
+
+#######
+## HTML OUTPUT
+#######
+sub output_html($;$)
+{
+	my ($template, $output_vars) = @_;
+
+	print header({ 'charset' => 'UTF-8' });
+	print $template->process($output_vars);
 }
 
 #######

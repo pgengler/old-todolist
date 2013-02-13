@@ -3,13 +3,13 @@
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
 	<head>
 		<title>Error - Todo</title>
-		<link href='<!-- TMPL_VAR name='url' -->list.css' type='text/css' rel='stylesheet' />
+		<link href='[% url %]list.css' type='text/css' rel='stylesheet' />
 	</head>
  	<body>
 		<h1>Error</h1>
 
 		<div id='error'>
-			<!-- TMPL_VAR name='message' escape='html' -->
+			[% message | html %]
 		</div>
 	</body>
 </html>
