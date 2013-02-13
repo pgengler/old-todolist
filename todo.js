@@ -64,17 +64,10 @@ function show_options()
 
 	options_box = new Box('options', 'Options', 'extra');
 
-	var options = [
-		{ element: 'li', children: [ { element: 'a', href: index_url + '#template', onclick: "return load('template')", text: 'Edit template' } ] }
-	];
-
-	if (!template && get_view().view != null)
-		options.push({
-			element: 'li', children: [ { element: 'a', href: 'javascript:move_unfinished()', text: 'Move unfinished items to next week' } ]
-		});
-
 	var options_list = create_element({
-		element: 'ul', id: 'optionslist', children: options
+		element: 'ul', id: 'optionslist', children: [
+			{ element: 'li', children: [ { element: 'a', href: index_url + '#template', onclick: "return load('template')", text: 'Edit template' } ] }
+		]
 	});
 
 	options_box.content.appendChild(options_list);
@@ -1677,20 +1670,6 @@ function get_day_from_value(value)
 	} else {
 		return '--';
 	}
-}
-
-function move_unfinished()
-{
-	// Don't allow if editing template
-	if (template)
-		return;
-
-	// Make Ajax request
-	var params = $.extend({
-		action:    'move',
-		timestamp: last_timestamp
-	}, get_view());
-	var $request = $.post(base_url, params).done(process);
 }
 
 ///////

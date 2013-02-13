@@ -18,7 +18,6 @@ my %actions = (
 	'done'       => \&toggle_item_done,
 	'delete'     => \&delete_item,
 	'mark'       => \&toggle_marked,
-	'move'       => \&move_unfinished,
 	'load'       => \&list_items,
 	'additemtag' => \&add_item_tag,
 	'delitemtag' => \&remove_item_tag,
@@ -380,36 +379,6 @@ sub toggle_marked()
 	~;
 	$Common::db->prepare($query);
 	$Common::db->execute($item->{'mark'}, $id);
-
-	&list_items();
-}
-
-#######
-## MOVE UNFINISHED ITEMS TO NEXT WEEK
-#######
-sub move_unfinished()
-{
-	# Get params
-	my $view = $Common::cgi->param('view');
-
-	# Find start date of week containing the 'view' day
-	my $query = qq~
-		SELECT DATE_SUB(?, INTERVAL (DAYOFWEEK(?) - 1) DAY) AS start
-	~;
-	$Common::db->prepare($query);
-	my $sth = $Common::db->execute($view, $view);
-
-	my $start = $sth->fetchrow_hashref()->{'start'};
-
-	# For any unfinished items in the same week as this, add 7 days to their date (move to the following week, on the same day of the week)
-	$query = qq~
-		UPDATE todo t SET
-			`date`      = DATE_ADD(`date`, INTERVAL 7 DAY),
-			`timestamp` = UNIX_TIMESTAMP()
-		WHERE `date` BETWEEN ? AND DATE_ADD(?, INTERVAL 6 DAY) AND done = 0
-	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($start, $start);
 
 	&list_items();
 }
