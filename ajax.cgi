@@ -10,14 +10,8 @@ use lib ('.');
 use Common;
 use JSON;
 use POSIX;
-use XML::Simple;
 
 require 'config.pl';
-
-#######
-## GLOBAL VARIABLES
-#######
-my $parser = new XML::Simple;
 
 #######
 ## DISPATCHING
