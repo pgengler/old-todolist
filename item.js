@@ -2,15 +2,15 @@ function Item(values)
 {
 	var m_id         = values.id;
 	var m_deleted    = values.deleted || 0;
-	var m_date       = values.date || null;
+	var m_date       = values.date ? new Date(Date.parse(values.date)) : null;
 	var m_day        = values.day == null ? -1 : values.day;
 	var m_event      = values.event || '';
 	var m_location   = values.location || null;
 	var m_start      = values.start || -1;
 	var m_end        = values.end || -1;
-	var m_done       = values.done || 0;
-	var m_marked     = values.marked || 0;
-	var m_keep_until = values.keep_until || null;
+	var m_done       = (parseInt(values.done, 10) > 0);
+	var m_marked     = (parseInt(values.marked, 10) > 0);
+	var m_keep_until = values.keep_until ? new Date(Date.parse(values.keep_until)) : null;
 	var m_tags       = values.tags || [ ];
 	var m_timestamp  = values.timestamp || 0;
 

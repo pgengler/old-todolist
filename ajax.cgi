@@ -8,6 +8,7 @@ use lib ('.');
 ## INCLUDES
 #######
 use Common;
+use JSON;
 use POSIX;
 use XML::Simple;
 
@@ -621,29 +622,29 @@ sub list_items()
 		}
 		$max_timestamp = $item->{'timestamp'} if ($item->{'timestamp'} > $max_timestamp);
 
-		my $sth = $Common::db->execute($item->{'id'});
-		my @tags;
-
-		while (my $tag = $sth->fetchrow_hashref()) {
-			push @tags, $tag;
+		if ($item->{'keep_until'}) {
+			$item->{'keep_until'} = s/ /T/;
 		}
-		$item->{'tags'} = \@tags;
+
+		my $sth = $Common::db->execute($item->{'id'});
+		$item->{'tags'} = [ map { $_->{'id'} } @{ $sth->fetchall_arrayref({}) } ];
 
 		push @items, $item;
 	}
 
-	# Load XML template
-	my $xml = &Common::load_xml_template('items');
+	my $output_vars = {
+		'items'     => \@items,
+		'tags'      => get_tags(),
+		'timestamp' => ($max_timestamp || $timestamp),
+	};
+	if ($timestamp == 0) {
+		$output_vars->{'full'} = JSON::true;
+	}
+	if ($view && $view eq 'template') {
+		$output_vars->{'template'} = JSON::true;
+	}
 
-	# Set template params
-	$xml->param(items     => \@items);
-	$xml->param(tags      => &get_tags());
-	$xml->param(template  => 1) if ($view && $view eq 'template');
-	$xml->param(timestamp => $max_timestamp || $timestamp);
-	$xml->param(full      => $timestamp == 0);
-
-	# Output
-	&Common::output($xml, 1);
+	Common::output_json($output_vars);
 }
 
 sub get_tags()

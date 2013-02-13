@@ -105,21 +105,19 @@ function do_load()
 
 function process(response)
 {
-	var root = response.getElementsByTagName('todo')[0];
-
 	// Cancel any edits/menus
 	clear_edits();
 	hide_tags_menu();
 
-	template       = parseInt(root.getAttribute('template'));
-	last_timestamp = parseInt(root.getAttribute('timestamp'));
-	var full       = parseInt(root.getAttribute('full'));
+	template       = response.template;
+	last_timestamp = parseInt(response.timestamp, 10);
+	var full       = response.full;
 
 	// Load tag data
-	load_tags(root.getElementsByTagName('tags')[0]);
+	load_tags(response.tags);
 
 	// Load item data
-	load_items(root.getElementsByTagName('items')[0], full);
+	load_items(response.items, full);
 
 	populate(full);
 
@@ -128,30 +126,27 @@ function process(response)
 		update_links();
 }
 
-function load_tags(xml)
+function load_tags(taglist)
 {
-	var taglist = xml.getElementsByTagName('tag');
-	var len     = taglist.length;
-
 	delete tags;
 	tags = new Tags();
 
+	var len  = taglist.length;
 	for (var i = 0; i < len; i++) {
-		tags.add(Tag.from_xml(taglist[i]));
+		tags.add(new Tag(taglist[i]));
 	}
 }
 
-function load_items(xml, full)
+function load_items(things, full)
 {
 	if (full) {
 		delete items;
 		items = new Items();
 	}
 
-	var things = xml.getElementsByTagName('item');
-
 	var len = things.length;
-	for (var i = 0; i < len; i++)
-		items.add_or_update(Item.from_xml(things[i]));
+	for (var i = 0; i < len; i++) {
+		items.add_or_update(new Item(things[i]));
+	}
 }
 

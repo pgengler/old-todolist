@@ -1,8 +1,8 @@
-function Tag(id, style, name)
+function Tag(values)
 {
-	var m_id    = id;
-	var m_style = style;
-	var m_name  = name;
+	var m_id    = values.id;
+	var m_style = values.style;
+	var m_name  = values.name;
 
 	this.id = function()
 	{
