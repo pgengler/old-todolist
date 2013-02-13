@@ -10,10 +10,11 @@ use strict;
 #######
 require 'config.pl';
 
-use CGI;
+use CGI qw/ header /;
 use CGI::Carp 'fatalsToBrowser';
 use Database;
 use HTML::Template;
+use JSON;
 use POSIX;
 
 #######
@@ -202,5 +203,15 @@ sub output()
 	}
 }
 
-1;
+#######
+## JSON OUTPUT
+#######
+sub output_json($)
+{
+	my ($output_vars) = @_;
 
+	print header({ 'type' => 'application/json', 'charset' => 'UTF-8' });
+	print JSON::to_json($output_vars);
+}
+
+1;
