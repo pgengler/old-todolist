@@ -1,5 +1,0 @@
-<moved week='<!-- TMPL_VAR name='week_id' -->'>
-	<!-- TMPL_LOOP name='items' -->
-	<item id='<!-- TMPL_VAR name='id' -->' />
-	<!-- /TMPL_LOOP -->
-</moved>
