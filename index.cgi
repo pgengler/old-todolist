@@ -14,9 +14,5 @@ my $output_vars = {
 	'use_mark'     => $Config::use_mark,
 };
 
-if ($date eq 'template') {
-	$output_vars->{'template'} = 1;
-}
-
 # Output
 Common::output_html('index', $output_vars);
