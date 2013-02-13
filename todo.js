@@ -68,7 +68,7 @@ function show_options()
 		{ element: 'li', children: [ { element: 'a', href: index_url + '#template', onclick: "return load('template')", text: 'Edit template' } ] }
 	];
 
-	if (!template && (!rolling || get_view().view != null))
+	if (!template && get_view().view != null)
 		options.push({
 			element: 'li', children: [ { element: 'a', href: 'javascript:move_unfinished()', text: 'Move unfinished items to next week' } ]
 		});
@@ -904,7 +904,7 @@ function highlight()
 	}
 
 	// Set page title
-	if (!template && (rolling && get_view().view == null))
+	if (!template && get_view().view == null)
 		document.title = ('Todo - ' + (new Date()).strftime('%Y-%m-%d'));
 	else if (template)
 		document.title = 'Todo - Template';
@@ -1093,7 +1093,7 @@ function new_item_show_picker()
 
 	var start_date = null, start_day = 0;
 	if (!template) {
-		if (rolling && get_view().view == null) {
+		if (get_view().view == null) {
 			start_date = new Date();
 			start_day = start_date.getDay();
 			start_date.setDate(start_date.getDate() - start_date.getDay());
@@ -1131,7 +1131,7 @@ function new_item_select_date(day, date)
 		return template_new_item_select_day(day);
 
 	if (typeof day !== 'undefined' && day !== null && day != -1) {
-		if (rolling && get_view().view == null) {
+		if (get_view().view == null) {
 			var today = new Date();
 			var start = new Date();
 			start.setDate(start.getDate() - start.getDay());
@@ -1260,7 +1260,7 @@ function show_date_edit(id)
 
 	var start_date = null, start_day = 0;
 	if (!template) {
-		if (rolling && get_view().view == null) {
+		if (get_view().view == null) {
 			start_date = new Date();
 			start_day = start_date.getDay();
 			start_date.setDate(start_date.getDate() - start_date.getDay());
@@ -1300,7 +1300,7 @@ function set_date(id, day, date)
 	if (template) {
 		return template_set_day(id, day);
 	} else if (typeof day !== 'undefined' && day !== null && day != -1) {
-		if (rolling && get_view().view == null) {
+		if (get_view().view == null) {
 			var today = new Date();
 			var start = new Date();
 			start.setDate(start.getDate() - start.getDay());
@@ -1682,8 +1682,8 @@ function get_day_from_value(value)
 
 function move_unfinished()
 {
-	// Don't allow if using rolling view or editing template
-	if (template || (rolling && get_view().view == null))
+	// Don't allow if editing template
+	if (template)
 		return;
 
 	// Make Ajax request

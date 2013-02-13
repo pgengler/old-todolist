@@ -28,7 +28,4 @@ our $undated_last = 0;
 # Format for showing dates (for $show_date, above, and day dropdown box)
 our $date_format  = "%a (%m/%d)";
 
-# Use rolling seven-day view?
-our $use_rolling  = 1;
-
 1;

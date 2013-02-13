@@ -549,11 +549,7 @@ sub list_items()
 		~;
 		$Common::db->prepare($query);
 		$sth = $Common::db->execute($Config::undated_last ? 7 : -1, $timestamp);
-	} elsif ($view || !$Config::use_rolling) {
-		# Figure out which days are in the same week
-		unless ($view) {
-			$view = strftime('%Y-%m-%d', localtime);
-		}
+	} elsif ($view) {
 		my ($year, $month, $day) = split(/-/, $view);
 		my $unixtime = mktime(0, 0, 0, int($day), int($month) - 1, int($year) - 1900);
 		my @parts = localtime($unixtime);
