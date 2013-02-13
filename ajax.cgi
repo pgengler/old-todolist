@@ -510,14 +510,7 @@ sub error()
 {
 	my $msg = shift;
 
-	# Load XML template
-	my $xml = &Common::load_xml_template('error');
-
-	# Set template params
-	$xml->param(msg => $msg);
-
-	# Output
-	&Common::output($xml, 1);
+	Common::output_json({ 'error' => $msg });
 
 	exit;
 }

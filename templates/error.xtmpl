@@ -1,3 +1,0 @@
-<error>
-	<message><!-- TMPL_VAR name='msg' escape='html' --></message>
-</error>
