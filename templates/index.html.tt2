@@ -28,8 +28,9 @@
 			var undated_last = [% undated_last ? 'true' : 'false' %];
 			var show_date    = [% show_date ? 'true' : 'false' %];
 			var images_url   = '[% images_url %]';
-			var template     = [% template ? 'true' : 'false' %];
 			var date_format  = "[% date_format %]";
+
+			var template = false;
 		</script>
 	</head>
  	<body>
