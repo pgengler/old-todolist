@@ -30,21 +30,24 @@ if ($actions{ $action }) {
 
 sub show_list()
 {
-	# Load HTML template
-	my $html = &Common::load_html_template('todo');
-
 	# Get CGI params
 	my $date = $Common::cgi->param('day');
 
-	$html->param(url          => $Config::url);
-	$html->param(show_date    => $Config::show_date);
-	$html->param(use_mark     => $Config::use_mark ? 1 : 0);
-	$html->param(date_format  => $Config::date_format);
-	$html->param(index_url    => $Config::url);
-	$html->param(images_url   => $Config::url . '/images');
-	$html->param(undated_last => $Config::undated_last);
-	$html->param(template     => 1) if ($date eq 'template');
+	my $output_vars = {
+		'date_format'  => $Config::date_format,
+		'images_url'   => "${Config::url}/images",
+		'index_url'    => $Config::url,
+		'show_date'    => $Config::show_date,
+		'undated_last' => $Config::undated_last,
+		'url'          => $Config::url,
+		'use_mark'     => $Config::use_mark,
+	};
+
+	if ($date eq 'template') {
+		$output_vars->{'template'} = 1;
+	}
 
 	# Output
-	&Common::output($html);
+	my $template = Common::load_template_html('index');
+	Common::output_html($template, $output_vars);
 }

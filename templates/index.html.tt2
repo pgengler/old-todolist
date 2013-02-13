@@ -2,54 +2,46 @@
 <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.1//EN' 'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd'>
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>
 	<head>
-		<!-- TMPL_IF week_start -->
-		<title>Todo - Week of <!-- TMPL_VAR name='week_start' --></title>
-		<!-- TMPL_ELSE -->
-			<!-- TMPL_IF template -->
-		<title>Todo - Template</title>
-			<!-- TMPL_ELSE -->
 		<title>Todo</title>
-			<!-- /TMPL_IF -->
-		<!-- /TMPL_IF -->
 		<link href='http://common.pgengler.net/css/boxes.css' type='text/css' rel='stylesheet' />
 		<link href='http://common.pgengler.net/css/jquery-ui.custom.css' type='text/css' rel='stylesheet' />
-		<link href='<!-- TMPL_VAR name='url' -->list.css' type='text/css' rel='stylesheet' />
-		<link href='<!-- TMPL_VAR name='url' -->picker.css' type='text/css' rel='stylesheet' />
-		<link href='<!-- TMPL_VAR name='url' -->tags.css' type='text/css' rel='stylesheet' />
-		<link href='<!-- TMPL_VAR name='url' -->print.css' type='text/css' rel='stylesheet' media='print' />
+		<link href='[% url %]list.css' type='text/css' rel='stylesheet' />
+		<link href='[% url %]picker.css' type='text/css' rel='stylesheet' />
+		<link href='[% url %]tags.css' type='text/css' rel='stylesheet' />
+		<link href='[% url %]print.css' type='text/css' rel='stylesheet' media='print' />
 		<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>
 		<script type='text/javascript' src='http://common.pgengler.net/js/jquery-ui/ui.core.js'></script>
 		<script type='text/javascript' src='http://common.pgengler.net/js/jquery-ui/ui.datepicker.js'></script>
 		<script type='text/javascript' src='http://common.pgengler.net/js/hashtable.js'></script>
 		<script type='text/javascript' src='http://common.pgengler.net/js/create_element.js'></script>
 		<script type='text/javascript' src='http://common.pgengler.net/js/boxes.js'></script>
-		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->tag.js'></script>
-		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->item.js'></script>
-		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->todo.js'></script>
-		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->loader.js'></script>
-		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->picker.js'></script>
-		<script type='text/javascript' src='<!-- TMPL_VAR name='url' -->strftime.js'></script>
+		<script type='text/javascript' src='[% url %]tag.js'></script>
+		<script type='text/javascript' src='[% url %]item.js'></script>
+		<script type='text/javascript' src='[% url %]todo.js'></script>
+		<script type='text/javascript' src='[% url %]loader.js'></script>
+		<script type='text/javascript' src='[% url %]picker.js'></script>
+		<script type='text/javascript' src='[% url %]strftime.js'></script>
 		<script type='text/javascript'>
-			var index_url    = '<!-- TMPL_VAR name='index_url' -->';
+			var index_url    = '[% index_url %]';
 			var base_url     = index_url + 'ajax.cgi';
-			var use_mark     = <!-- TMPL_VAR name='use_mark' -->;
-			var undated_last = <!-- TMPL_VAR name='undated_last' -->;
-			var show_date    = <!-- TMPL_VAR name='show_date' -->;
-			var images_url   = '<!-- TMPL_VAR name='images_url' -->';
-			var template     = <!-- TMPL_VAR name='template' default='0' -->;
-			var date_format  = "<!-- TMPL_VAR name='date_format' -->";
+			var use_mark     = [% use_mark ? 'true' : 'false' %];
+			var undated_last = [% undated_last ? 'true' : 'false' %];
+			var show_date    = [% show_date ? 'true' : 'false' %];
+			var images_url   = '[% images_url %]';
+			var template     = [% template ? 'true' : 'false' %];
+			var date_format  = "[% date_format %]";
 		</script>
 	</head>
  	<body>
-		<h1 id='weekof'>
-			Week of <!-- TMPL_VAR name='week_start' -->
+		<h1 id='weekof' style='display: none'>
+			Week of [% week_start %]
 		</h1>
 		<form action='#' method='post' id='form'>
 		<fieldset>
-		<input type='hidden' name='week' id='week' value='<!-- TMPL_VAR name='week_id' -->' />
-		<!-- TMPL_IF template -->
+		<input type='hidden' name='week' id='week' value='[% week_id %]' />
+		[% IF template %]
 		<input type='hidden' name='template' id='template' value='1' />
-		<!-- /TMPL_IF -->
+		[% END %]
 		<div id='extra'>
 
 		</div>
@@ -71,18 +63,18 @@
 					<th class='times'>
 						Time
 					</th>
-					<!-- TMPL_IF use_mark -->
+					[% IF use_mark %]
 					<th class='mark'>
 						&nbsp;
 					</th>
-					<!-- /TMPL_IF -->
+					[% END %]
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
 					<td colspan='6'>
 						<div style='font-weight: bold; font-size: 150%'>
-							<img src='<!-- TMPL_VAR name='url' -->images/loading.gif' alt='Loading' />
+							<img src='[% url %]images/loading.gif' alt='Loading' />
 							Loading ...
 						</div>
 					</td>
@@ -97,23 +89,23 @@
 					<td style='width: 33%; text-align: left'>
 						<strong>Previous week</strong>
 						<br />
-						<a href='<!-- TMPL_VAR name='url' --><!-- TMPL_VAR name='prev_week' -->/' id='prevweek'>
-							Week of <!-- TMPL_VAR name='prev_week' -->
+						<a href='[% url %][% prev_week %]/' id='prevweek'>
+							Week of [% prev_week %]
 						</a>
 					</td>
 					<td style='width: 34%; text-align: center'>
-						<!-- TMPL_UNLESS current_week -->
+						[% UNLESS current_week %]
 						<br />
-						<a href='<!-- TMPL_VAR name='url' -->' id='currweek'>
+						<a href='[% url %]' id='currweek'>
 							View current week
 						</a>
-						<!-- /TMPL_UNLESS -->
+						[% END %]
 					</td>
 					<td style='text-align: right'>
 						<strong>Next week</strong>
 						<br />
-						<a href='<!-- TMPL_VAR name='url' --><!-- TMPL_VAR name='next_week' -->/' id='nextweek'>
-							Week of <!-- TMPL_VAR name='next_week' -->
+						<a href='[% url %][% next_week %]/' id='nextweek'>
+							Week of [% next_week %]
 						</a>
 					</td>
 				</tr>
