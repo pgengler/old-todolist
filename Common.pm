@@ -173,33 +173,6 @@ sub load_template()
 }
 
 #######
-## ITEM TO XML
-## Returns an HTML::Template object to get the XML for the item
-#######
-sub item_to_xml()
-{
-	my $item = shift;
-
-	# Load XML template
-	my $xml = &load_xml_template('item');
-
-	# Set template params
-	$xml->param(id        => $item->{'id'});
-	$xml->param(day       => $item->{'day'});
-	$xml->param(date      => $item->{'date'});
-	$xml->param(event     => $item->{'event'});
-	$xml->param(location  => $item->{'location'});
-	$xml->param(start     => $item->{'start'});
-	$xml->param(end       => $item->{'end'});
-	$xml->param(done      => $item->{'done'});
-	$xml->param(mark      => $item->{'mark'});
-	$xml->param(tags      => $item->{'tags'});
-	$xml->parm(keep_until => $item->{'keep_until'});
-	
-	return $xml;
-}
-
-#######
 ## TRIM SPACES
 #######
 sub trim()
