@@ -33,20 +33,7 @@ $db->init($Config::db_user, $Config::db_pass, $Config::db_name, 'localhost', \&e
 #######
 ## LOAD HTML TEMPLATE
 ######
-sub load_html_template()
-{
-	my $name = shift;
-
-	my $html = new HTML::Template(
-		filename          => 'templates/' . $name . '.tmpl',
-		global_vars       => 1,
-		loop_context_vars => 1
-	);
-
-	return $html;
-}
-
-sub load_template_html($)
+sub load_html_template($)
 {
 	my ($name) = @_;
 
@@ -65,7 +52,7 @@ sub error()
 		$message = 'A database error has occurred.';
 	}
 
-	my $template = load_template_html('error');
+	my $template = load_html_template('error');
 	output_html($template, {
 		'message' => $message,
 	});
@@ -177,19 +164,6 @@ sub trim()
 	$str =~ s/^\s*(.+)\s*$/$1/;
 
 	return $str;
-}
-
-#######
-## OUTPUT
-#######
-sub output()
-{
-	my ($tmpl) = @_;
-
-	print $cgi->header( -charset => 'UTF-8' );
-	if ($tmpl) {
-		print $tmpl->output();
-	}
 }
 
 #######
