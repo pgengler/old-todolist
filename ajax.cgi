@@ -905,18 +905,7 @@ sub list_tags()
 	$Common::db->prepare($query);
 	my $sth = $Common::db->execute();
 
-	my @tags;
+	my $tags = $sth->fetchall_arrayref({});
 
-	while (my $tag = $sth->fetchrow_hashref()) {
-		push @tags, $tag;
-	}
-
-	# Load XML template
-	my $xml = &Common::load_xml_template('tags');
-
-	# Set template params
-	$xml->param(tags => \@tags);
-
-	# Output
-	&Common::output($xml, 1);
+	Common::output_json($tags);
 }

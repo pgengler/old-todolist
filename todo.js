@@ -824,8 +824,8 @@ function save_tags()
 		}
 	}
 
-	$.post(base_url, params).done(function(xml) {
-		load_tags(xml);
+	$.post(base_url, params).done(function(data) {
+		load_tags(data);
 		edit_tags();
 		refresh_tags();
 		populate_tag_selector();
@@ -842,10 +842,9 @@ function remove_tag(id)
 		var params = $.extend({
 			action: 'removetag',
 			id: id,
-			week: week
 		}, get_view());
-		var $request = $.post(base_url, params).done(function(xml) {
-			process(xml);
+		var $request = $.post(base_url, params).done(function(data) {
+			process(data);
 			edit_tags();
 			populate_tag_selector();
 		});
