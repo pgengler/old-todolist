@@ -2,20 +2,11 @@
 
 use strict;
 
-use lib ('.');
-
-#######
-## INCLUDES
-#######
 use Common;
 use JSON;
 use POSIX;
 
 require 'config.pl';
-
-#######
-## DISPATCHING
-#######
 
 my $action = $Common::cgi->param('action');
 
@@ -40,6 +31,8 @@ my %actions = (
 if ($action && $actions{ $action }) {
 	$actions{ $action }->();
 }
+
+##############
 
 #######
 ## ADD NEW ITEM
