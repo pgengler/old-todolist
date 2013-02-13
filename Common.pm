@@ -8,14 +8,18 @@ use strict;
 #######
 ## INCLUDES
 #######
+use lib qw/ lib /;
 require 'config.pl';
 
 use CGI qw/ header /;
 use CGI::Carp 'fatalsToBrowser';
+use Cwd;
 use Database;
 use HTML::Template;
 use JSON;
 use POSIX;
+
+use Template::HTML;
 
 #######
 ## GLOBALS
@@ -40,6 +44,13 @@ sub load_html_template()
 	);
 
 	return $html;
+}
+
+sub load_template($)
+{
+	my ($name) = @_;
+
+	return Template::HTML->new($name, Cwd::getcwd() . 'templates/');
 }
 
 #######
