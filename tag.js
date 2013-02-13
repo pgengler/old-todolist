@@ -26,15 +26,6 @@ function Tag(values)
 	}
 }
 
-Tag.from_xml = function(xml)
-{
-	var id    = parseInt(xml.getAttribute('id'));
-	var style = parseInt(xml.getAttribute('style'));
-	var name  = xml.firstChild.nodeValue;
-
-	return new Tag(id, style, name);
-}
-
 function Tags()
 {
 	var m_tags = [];

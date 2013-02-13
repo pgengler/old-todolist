@@ -227,57 +227,6 @@ function Item(values)
 	}
 }
 
-Item.from_xml = function(xml)
-{
-	var values = {
-		id:         parseInt(xml.getAttribute('id')),
-		deleted:    parseInt(xml.getAttribute('deleted')),
-		date:       null,
-		day:        null,
-		event:      xml.getElementsByTagName('event')[0].firstChild.nodeValue,
-		location:   xml.getElementsByTagName('location')[0].firstChild ? xml.getElementsByTagName('location')[0].firstChild.nodeValue : null,
-
-		// Start & end times are not passed through parseInt because we want to preserve leading zeroes
-		start:      xml.getElementsByTagName('start')[0].firstChild ? xml.getElementsByTagName('start')[0].firstChild.nodeValue : -1,
-		end:        xml.getElementsByTagName('end')[0].firstChild ? xml.getElementsByTagName('end')[0].firstChild.nodeValue : -1,
-
-		done:       parseInt(xml.getAttribute('done')),
-		marked:     parseInt(xml.getAttribute('marked')),
-		keep_until: null,
-		timestamp:  parseInt(xml.getAttribute('timestamp')),
-
-		tags:       [ ]
-	};
-
-	if (xml.getAttribute('date')) {
-		var parts = xml.getAttribute('date').split('-');
-		values.date = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59);
-	}
-
-	if (values.date == null)
-		values.day = (typeof xml.getAttribute('day') !== 'undefined' && xml.getAttribute('day') !== '') ? parseInt(xml.getAttribute('day'), 10) : null;
-
-	if (xml.getElementsByTagName('tag').length > 0) {
-		var tags = xml.getElementsByTagName('tag');
-		var len  = tags.length;
-
-		for (var i = 0; i < len; i++)
-			values.tags.push(parseInt(tags[i].getAttribute('id')));
-	}
-
-	if (xml.getElementsByTagName('keep_until').length > 0) {
-	 var pieces = xml.getElementsByTagName('keep_until')[0].firstChild.nodeValue.split(' ');
-
-		// pieces[0] is date (YYYY-MM-DD), pieces[1] is time (HH:MM:SS)
-		var date_parts = pieces[0].split('-');
-		var time_parts = pieces[1].split(':');
-
-		values.keep_until = new Date(date_parts[0], date_parts[1] - 1, date_parts[2], time_parts[0], time_parts[1], time_parts[2]);
-	}
-
-	return new Item(values);
-}
-
 function Items()
 {
 	var m_items = [];
