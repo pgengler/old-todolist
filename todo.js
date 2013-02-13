@@ -65,7 +65,6 @@ function show_options()
 	options_box = new Box('options', 'Options', 'extra');
 
 	var options = [
-		{ element: 'li', children: [ { element: 'a', href: 'javascript:load_template()', text: 'Load template' } ] },
 		{ element: 'li', children: [ { element: 'a', href: index_url + '#template', onclick: "return load('template')", text: 'Edit template' } ] }
 	];
 
