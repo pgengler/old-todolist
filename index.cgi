@@ -48,6 +48,5 @@ sub show_list()
 	}
 
 	# Output
-	my $template = Common::load_html_template('index');
-	Common::output_html($template, $output_vars);
+	Common::output_html('index', $output_vars);
 }

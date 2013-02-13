@@ -52,8 +52,7 @@ sub error()
 		$message = 'A database error has occurred.';
 	}
 
-	my $template = load_html_template('error');
-	output_html($template, {
+	output_html('error', {
 		'message' => $message,
 	});
 
@@ -171,9 +170,11 @@ sub trim()
 #######
 sub output_html($;$)
 {
-	my ($template, $output_vars) = @_;
+	my ($template_name, $output_vars) = @_;
 
 	print header({ 'charset' => 'UTF-8' });
+
+	my $template = load_html_template($template_name);
 	print $template->process($output_vars);
 }
 
