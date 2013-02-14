@@ -2,7 +2,7 @@ function Item(values)
 {
 	var m_id         = values.id;
 	var m_deleted    = values.deleted || 0;
-	var m_date       = values.date ? new Date(Date.parse(values.date + 'T00:00:00')) : null;
+	var m_date       = values.date ? new Date(Date.parse(values.date + 'T12:00:00')) : null;
 	var m_day        = values.day == null ? -1 : values.day;
 	var m_event      = values.event || '';
 	var m_location   = values.location || null;
