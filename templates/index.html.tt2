@@ -9,9 +9,8 @@
 		<link href='[% url %]picker.css' type='text/css' rel='stylesheet' />
 		<link href='[% url %]tags.css' type='text/css' rel='stylesheet' />
 		<link href='[% url %]print.css' type='text/css' rel='stylesheet' media='print' />
-		<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>
-		<script type='text/javascript' src='http://common.pgengler.net/js/jquery-ui/ui.core.js'></script>
-		<script type='text/javascript' src='http://common.pgengler.net/js/jquery-ui/ui.datepicker.js'></script>
+		<script src='//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js'></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
 		<script type='text/javascript' src='http://common.pgengler.net/js/hashtable.js'></script>
 		<script type='text/javascript' src='http://common.pgengler.net/js/create_element.js'></script>
 		<script type='text/javascript' src='http://common.pgengler.net/js/boxes.js'></script>
