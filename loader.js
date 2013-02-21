@@ -17,6 +17,8 @@ function init()
 {
 	var date = null;
 
+	$('body').on('click', '.new-item', new_item_form);
+
 	// Do we have a date?
 	if (location.hash && location.hash != '') {
 		var parts;
@@ -124,6 +126,11 @@ function process(response)
 	// Update previous week/next week links, if necessary
 	if (!template && get_view().view != null)
 		update_links();
+
+	// Insert 'add new item' button, if needed
+	if ($('.new-item').length == 0) {
+		$('<button type="button" class="new-item">Add new item</button>').insertAfter('#content');
+	}
 }
 
 function load_tags(taglist)

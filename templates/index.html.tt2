@@ -83,8 +83,6 @@
 			</tbody>
 		</table>
 		<div>
-			<a href="javascript:new_item_form()">Add new item</a>
-			<br />
 			<table width='100%' class='hidden' id='weeks'>
 				<tr>
 					<td style='width: 33%; text-align: left'>
