@@ -9,7 +9,7 @@ function Item(values)
 	var m_start      = values.start || -1;
 	var m_end        = values.end || -1;
 	var m_done       = (parseInt(values.done, 10) > 0);
-	var m_marked     = (parseInt(values.marked, 10) > 0);
+	var m_marked     = (parseInt(values.mark, 10) > 0);
 	var m_keep_until = values.keep_until ? new Date(Date.parse(values.keep_until)) : null;
 	var m_tags       = values.tags || [ ];
 	var m_timestamp  = values.timestamp || 0;
