@@ -75,7 +75,7 @@ sub add_new_item()
 			INSERT INTO ${Config::db_prefix}template_items
 			(day, event, location, start, "end", "timestamp")
 			VALUES
-			(?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+			(?, ?, ?, ?, ?, EXTRACT(epoch FROM now()))
 		~;
 		$Common::db->statement($query)->execute($date >= 0 ? $date : undef, $event, $location, $start, $end);
 	} else {
@@ -83,7 +83,7 @@ sub add_new_item()
 			INSERT INTO ${Config::db_prefix}todo
 			(date, event, location, start, "end", "timestamp")
 			VALUES
-			(?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+			(?, ?, ?, ?, ?, EXTRACT(epoch FROM now()))
 		~;
 		$Common::db->statement($query)->execute($date, $event, $location, $start, $end);
 	}
@@ -113,7 +113,7 @@ sub change_day()
 		my $query = qq~
 			UPDATE todo SET
 				date      = NULL,
-				timestamp = UNIX_TIMESTAMP()
+				timestamp = EXTRACT(epoch FROM now())
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($item->{'id'});
@@ -125,7 +125,7 @@ sub change_day()
 			my $query = qq~
 				UPDATE todo SET
 					date        = DATE_ADD("date", INTERVAL ? DAY),
-					"timestamp" = UNIX_TIMESTAMP()
+					"timestamp" = EXTRACT(epoch FROM now())
 				WHERE id = ?
 			~;
 			$Common::db->statement($query)->execute($day == 8 ? 7 : ($day - $item->{'day'} + 1), $item->{'id'});
@@ -133,7 +133,7 @@ sub change_day()
 			my $query = qq~
 				UPDATE todo SET
 					date        = DATE_ADD(DATE_SUB(?, INTERVAL DAYOFWEEK(?) - 1 DAY), INTERVAL ? DAY),
-					"timestamp" = UNIX_TIMESTAMP()
+					"timestamp" = EXTRACT(epoch FROM now())
 				WHERE id = ?
 			~;
 			$Common::db->statement($query)->execute($view, $view, $day, $item->{'id'});
@@ -155,7 +155,7 @@ sub template_change_day()
 		my $query = qq~
 			UPDATE template_items SET
 				day         = ?,
-				"timestamp" = UNIX_TIMESTAMP()
+				"timestamp" = EXTRACT(epoch FROM now())
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($day, $id);
@@ -164,7 +164,7 @@ sub template_change_day()
 		my $query = qq~
 			UPDATE template_items SET
 				day         = NULL,
-				"timestamp" = UNIX_TIMESTAMP()
+				"timestamp" = EXTRACT(epoch FROM now())
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($id);
@@ -193,7 +193,7 @@ sub change_date()
 	my $query = qq~
 		UPDATE todo SET
 			date        = ?,
-			"timestamp" = UNIX_TIMESTAMP()
+			"timestamp" = EXTRACT(epoch FROM now())
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($date ? $date : undef, $item->{'id'});
@@ -231,7 +231,7 @@ sub save_item()
 		my $query = qq~
 			UPDATE $table SET
 				event       = ?,
-				"timestamp" = UNIX_TIMESTAMP()
+				"timestamp" = EXTRACT(epoch FROM now())
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($event, $id);
@@ -243,7 +243,7 @@ sub save_item()
 		my $query = qq~
 			UPDATE $table SET
 				location    = ?,
-				"timestamp" = UNIX_TIMESTAMP()
+				"timestamp" = EXTRACT(epoch FROM now())
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($location, $id);
@@ -256,7 +256,7 @@ sub save_item()
 			UPDATE $table SET
 				start       = ?,
 				"end"       = ?,
-				"timestamp" = UNIX_TIMESTAMP()
+				"timestamp" = EXTRACT(epoch FROM now())
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($start, $end, $id);
@@ -297,7 +297,7 @@ sub delete_item()
 		UPDATE $item_table
 		SET
 			deleted     = 1,
-			"timestamp" = UNIX_TIMESTAMP()
+			"timestamp" = EXTRACT(epoch FROM now())
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($id);
@@ -326,7 +326,7 @@ sub toggle_item_done()
 		UPDATE todo SET
 			done        = ?,
 			keep_until  = IF(?, DATE_ADD(NOW(), INTERVAL 1 DAY), NULL),
-			"timestamp" = UNIX_TIMESTAMP()
+			"timestamp" = EXTRACT(epoch FROM now())
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($item->{'done'}, $item->{'done'}, $id);
@@ -360,7 +360,7 @@ sub toggle_marked()
 	my $query = qq~
 		UPDATE $table SET
 			mark        = ?,
-			"timestamp" = UNIX_TIMESTAMP()
+			"timestamp" = EXTRACT(epoch FROM now())
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($item->{'mark'}, $id);
@@ -452,14 +452,14 @@ sub list_items()
 
 	my $statement;
 
-	my $excl_deleted = ($timestamp > 0) ? '' : 'AND deleted IS NULL';
+	my $excl_deleted = ($timestamp > 0) ? '' : 'AND deleted = false';
 
 	if ($view eq 'template') {
 		# Load template items
 		my $query = qq~
 			SELECT id, day, event, location, start, "end", mark, deleted, "timestamp"
 			FROM template_items
-			WHERE "timestamp" >= ? AND deleted IS NULL
+			WHERE "timestamp" >= ? AND deleted = false
 			ORDER BY day, start, "end"
 		~;
 		$statement = $Common::db->statement($query)->execute($timestamp);
@@ -612,7 +612,7 @@ sub add_item_tag()
 	$sql = qq~
 		UPDATE $table
 		SET
-			"timestamp" = UNIX_TIMESTAMP()
+			"timestamp" = EXTRACT(epoch FROM now())
 		WHERE id = ?
 	~;
 	$Common::db->statement($sql)->execute($item->{'id'});
@@ -652,7 +652,7 @@ sub remove_item_tag()
 	$sql = qq~
 		UPDATE $table
 		SET
-			"timestamp" = UNIX_TIMESTAMP()
+			"timestamp" = EXTRACT(epoch FROM now())
 		WHERE id = ?
 	~;
 	$Common::db->statement($sql)->execute($item->{'id'});
@@ -714,7 +714,7 @@ sub update_item_tags()
 	$query = qq~
 		UPDATE $table
 		SET
-			"timestamp" = UNIX_TIMESTAMP()
+			"timestamp" = EXTRACT(epoch FROM now())
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($item->{'id'});
