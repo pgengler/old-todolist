@@ -77,10 +77,8 @@ sub template_loaded()
 		FROM template_loaded
 		WHERE `date` = ?
 	~;
-	$db->prepare($query);
-	my $sth = $db->execute($date, $date);
-	my $data = $sth->fetchrow_hashref();
-	
+	my $data = $db->statement($query)->execute($date, $date)->fetch;
+
 	my $loaded = ($data->{'loaded'} || $data->{'older'});
 
 	return $loaded;
@@ -103,8 +101,7 @@ sub load_template()
 		FROM template_items
 		WHERE day = DAYOFWEEK(?) AND COALESCE(deleted, 0) = 0
 	~;
-	$db->prepare($query);
-	my $get_items = $db->execute($date);
+	my $get_items = $db->statement($query)->execute($date);
 
 	# Query for getting tags from a template item
 	$query = qq~
@@ -112,7 +109,7 @@ sub load_template()
 		FROM template_item_tags
 		WHERE item_id = ?
 	~;
-	my $get_tags = $db->prepare($query);
+	my $get_tags = $db->statement($query);
 
 	# Query to insert items into 'todo' table
 	$query = qq~
@@ -120,8 +117,9 @@ sub load_template()
 		(`date`, event, location, start, end, mark, timestamp)
 		VALUES
 		(?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+		RETURNING id
 	~;
-	my $insert = $db->prepare($query);
+	my $insert = $db->statement($query);
 
 	# Query to add tags to new item
 	$query = qq~
@@ -130,15 +128,14 @@ sub load_template()
 		VALUES
 		(?, ?)
 	~;
-	my $add_tags = $db->prepare($query);
+	my $add_tags = $db->statement($query);
 
-	while (my $item = $get_items->fetchrow_hashref()) {
-		$insert->execute($date, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'mark'} || 0);
-		my $new_id = $insert->{'mysql_insertid'};
+	while (my $item = $get_items->fetch) {
+		my $new_id = $insert->execute($date, $item->{'event'}, $item->{'location'}, $item->{'start'}, $item->{'end'}, $item->{'mark'} || 0)->fetch('id');
 
 		# Get tags for this template item
 		$get_tags->execute($item->{'id'});
-		while (my $tag = $get_tags->fetchrow_hashref()) {
+		while (my $tag = $get_tags->fetch) {
 			$add_tags->execute($new_id, $tag->{'tag_id'});
 		}
 	}
@@ -150,8 +147,7 @@ sub load_template()
 		VALUES
 		(?)
 	~;
-	$db->prepare($query);
-	$db->execute($date);
+	$db->statement($query)->execute($date);
 
 	$db->commit_transaction();
 }
