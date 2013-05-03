@@ -14,7 +14,7 @@ require 'config.pl';
 use CGI qw/ header /;
 use CGI::Carp 'fatalsToBrowser';
 use Cwd;
-use Database;
+use Database::Postgres;
 use HTML::Template;
 use JSON;
 use POSIX;
@@ -25,8 +25,12 @@ use Template::HTML;
 ## GLOBALS
 #######
 our $cgi = new CGI;
-our $db = new Database;
-$db->init($Config::db_user, $Config::db_pass, $Config::db_name, 'localhost', \&error);
+our $db = Database::Postgres->new(
+	'database' => $Config::db_name,
+	'username' => $Config::db_user,
+	'password' => $Config::db_pass,
+	'error'    => \&error,
+);
 
 ##############
 
