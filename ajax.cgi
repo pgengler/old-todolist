@@ -457,21 +457,18 @@ sub list_items()
 	if ($view eq 'template') {
 		# Load template items
 		my $query = qq~
-			SELECT id, IF(day IS NOT NULL, day, ?) day, event, location, start, end, mark, deleted, "timestamp"
+			SELECT id, day, event, location, start, "end", mark, deleted, "timestamp"
 			FROM template_items
 			WHERE "timestamp" >= ? AND deleted IS NULL
 			ORDER BY day, start, "end"
 		~;
-		$statement = $Common::db->statement($query)->execute($Config::undated_last ? 7 : -1, $timestamp);
+		$statement = $Common::db->statement($query)->execute($timestamp);
 	} elsif ($view) {
-		my ($year, $month, $day) = split(/-/, $view);
-		my $unixtime = mktime(0, 0, 0, int($day), int($month) - 1, int($year) - 1900);
-		my @parts = localtime($unixtime);
-		my $weekday = $parts[6];
+		$view = Date->new($view);
+		my $weekday = $view->day_of_week;
 
 		for (my $i = 0; $i < 7; $i++) {
-			my $offset = ($i - $weekday) * 60 * 60 * 24;
-			my $date = strftime('%Y-%m-%d', localtime($unixtime + $offset));
+			my $date = $view + $i;
 
 			unless (&Common::template_loaded($date)) {
 				&Common::load_template($date);
@@ -479,25 +476,27 @@ sub list_items()
 		}
 
 		# Get all items in the same week as the given date
+		my $first_day_of_week = $view - $view->day_of_week;
+		my $last_day_of_week  = $view + (6 - $view->day_of_week);
 		my $query = qq~
 			SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, t.deleted, t.timestamp
 			FROM todo t
 			WHERE
 				(
-					(t.date >= DATE_SUB(?, INTERVAL (DAYOFWEEK(?) - 1) DAY))
+					(t.date >= ?)
 					AND
-					(t.date <= DATE_ADD(?, INTERVAL (7 - DAYOFWEEK(?)) DAY))
+					(t.date <= ?)
 					OR
-					(t.date IS NULL AND (t.done = 0 OR t.keep_until > NOW()))
+					(t.date IS NULL AND (t.done = false OR t.keep_until > NOW()))
 				) AND timestamp >= ? $excl_deleted
 			ORDER BY "date", t.start, t.end, t.event, t.done
 		~;
-		$statement = $Common::db->statement($query)->execute($view, $view, $view, $view, $timestamp);
+		$statement = $Common::db->statement($query)->execute($first_day_of_week, $last_day_of_week, $timestamp);
 	} else {
 		# Load template for any days that aren't covered
-		my $unixdate = time();
-		for (my $i = 0; $i < 7; $i++, $unixdate += (60 * 60 * 24)) {
-			my $date = strftime('%Y-%m-%d', localtime($unixdate));
+		my $now = Date->now;
+		for (my $i = 0; $i < 7; $i++) {
+			my $date = $now + $i;
 
 			unless (&Common::template_loaded($date)) {
 				&Common::load_template($date);
@@ -505,20 +504,21 @@ sub list_items()
 		}
 
 		# Get all unfinished items older than today, plus all items within six days of today
+		my $last_day_to_show = $now + 6;
 		my $query = qq~
 			SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, t.keep_until, t.deleted, t.timestamp
 			FROM todo t
 			WHERE
 				(
-					(t.done = 1 AND t.keep_until > NOW())
+					(t.done = true AND t.keep_until > NOW())
 					OR
-					(t.done = 0 AND "date" < DATE_ADD(NOW(), INTERVAL 6 DAY))
+					(t.done = false AND "date" <= ?)
 					OR
-					(t.done = 0 AND "date" IS NULL)
+					(t.done = false AND "date" IS NULL)
 				) AND timestamp >= ? $excl_deleted
-			ORDER BY "date", start, end, event, done
+			ORDER BY "date", start, "end", event, done
 		~;
-		$statement = $Common::db->statement($query)->execute($timestamp);
+		$statement = $Common::db->statement($query)->execute($last_day_to_show, $timestamp);
 	}
 
 	my @items;
@@ -528,7 +528,7 @@ sub list_items()
 		SELECT t.id
 		FROM tags t
 		LEFT JOIN $table it ON it.tag_id = t.id
-		WHERE it.item_id = ? AND t.active = 1
+		WHERE it.item_id = ? AND t.active = true
 		ORDER BY t.name
 	~;
 	my $get_tags = $Common::db->statement($query);
@@ -570,7 +570,7 @@ sub get_tags()
 	my $query = qq~
 		SELECT id, name, style
 		FROM tags
-		WHERE active = 1
+		WHERE active = true
 		ORDER BY name
 	~;
 	my $tags = $Common::db->statement($query)->execute->fetchall;

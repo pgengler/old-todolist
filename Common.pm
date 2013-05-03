@@ -14,11 +14,12 @@ require 'config.pl';
 use CGI qw/ header /;
 use CGI::Carp 'fatalsToBrowser';
 use Cwd;
-use Database::Postgres;
 use HTML::Template;
 use JSON;
 use POSIX;
 
+use Database::Postgres;
+use Date;
 use Template::HTML;
 
 #######
@@ -73,13 +74,18 @@ sub template_loaded()
 	my $date = shift;
 
 	my $query = qq~
-		SELECT COUNT(*) AS loaded, IF(? < DATE(NOW()), 1, 0) AS older
+		SELECT COUNT(*) AS loaded
 		FROM template_loaded
 		WHERE "date" = ?
 	~;
-	my $data = $db->statement($query)->execute($date, $date)->fetch;
+	my $loaded = $db->statement($query)->execute($date)->fetch('loaded');
 
-	my $loaded = ($data->{'loaded'} || $data->{'older'});
+	if (!$loaded) {
+		$date = Date->new($date);
+		if ($date < Date->now) {
+			$loaded = 1;
+		}
+	}
 
 	return $loaded;
 }
@@ -93,15 +99,17 @@ sub load_template()
 	# Get parameters
 	my $date = shift;
 
+	$date = Date->new($date);
+
 	$db->start_transaction();
 
 	# Get all template items for the day
 	my $query = qq~
-		SELECT id, event, location, start, end, mark
+		SELECT id, event, location, start, "end", mark
 		FROM template_items
-		WHERE day = DAYOFWEEK(?) AND COALESCE(deleted, 0) = 0
+		WHERE day = ? AND deleted = false
 	~;
-	my $get_items = $db->statement($query)->execute($date);
+	my $get_items = $db->statement($query)->execute($date->day_of_week);
 
 	# Query for getting tags from a template item
 	$query = qq~
