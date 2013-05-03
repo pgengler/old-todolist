@@ -762,7 +762,7 @@ sub remove_tag()
 	# Mark as inactive (so it's not used; effectively the same as doing a DELETE)
 	my $query = qq~
 		UPDATE tags
-		SET active = 0
+		SET active = false
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($tag_id);
