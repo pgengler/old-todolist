@@ -77,8 +77,7 @@ sub add_new_item()
 			VALUES
 			(?, ?, ?, ?, ?, UNIX_TIMESTAMP())
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($date >= 0 ? $date : undef, $event, $location, $start, $end);
+		$Common::db->statement($query)->execute($date >= 0 ? $date : undef, $event, $location, $start, $end);
 	} else {
 		my $query = qq~
 			INSERT INTO ${Config::db_prefix}todo
@@ -86,8 +85,7 @@ sub add_new_item()
 			VALUES
 			(?, ?, ?, ?, ?, UNIX_TIMESTAMP())
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($date, $event, $location, $start, $end);
+		$Common::db->statement($query)->execute($date, $event, $location, $start, $end);
 	}
 
 	&list_items();
@@ -118,8 +116,7 @@ sub change_day()
 				timestamp = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($item->{'id'});
+		$Common::db->statement($query)->execute($item->{'id'});
 	} else {
 		$item->{'day'} = -1 unless defined($item->{'day'});
 
@@ -131,8 +128,7 @@ sub change_day()
 					`timestamp` = UNIX_TIMESTAMP()
 				WHERE id = ?
 			~;
-			$Common::db->prepare($query);
-			$Common::db->execute($day == 8 ? 7 : ($day - $item->{'day'} + 1), $item->{'id'});
+			$Common::db->statement($query)->execute($day == 8 ? 7 : ($day - $item->{'day'} + 1), $item->{'id'});
 		} else {
 			my $query = qq~
 				UPDATE todo SET
@@ -140,8 +136,7 @@ sub change_day()
 					`timestamp` = UNIX_TIMESTAMP()
 				WHERE id = ?
 			~;
-			$Common::db->prepare($query);
-			$Common::db->execute($view, $view, $day, $item->{'id'});
+			$Common::db->statement($query)->execute($view, $view, $day, $item->{'id'});
 		}
 	}
 
@@ -163,8 +158,7 @@ sub template_change_day()
 				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($day, $id);
+		$Common::db->statement($query)->execute($day, $id);
 	} else {
 		# No day
 		my $query = qq~
@@ -173,8 +167,7 @@ sub template_change_day()
 				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($id);
+		$Common::db->statement($query)->execute($id);
 	}
 	&list_items();
 }
@@ -203,8 +196,7 @@ sub change_date()
 			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($date ? $date : undef, $item->{'id'});
+	$Common::db->statement($query)->execute($date ? $date : undef, $item->{'id'});
 
 	&list_items();
 }
@@ -242,8 +234,7 @@ sub save_item()
 				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($event, $id);
+		$Common::db->statement($query)->execute($event, $id);
 	}
 
 	if ($changed & 2) {
@@ -255,8 +246,7 @@ sub save_item()
 				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($location, $id);
+		$Common::db->statement($query)->execute($location, $id);
 	}
 
 	if ($changed & 4) {
@@ -269,8 +259,7 @@ sub save_item()
 				`timestamp` = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($start, $end, $id);
+		$Common::db->statement($query)->execute($start, $end, $id);
 	}
 
 	&list_items();
@@ -301,8 +290,7 @@ sub delete_item()
 		DELETE FROM $tags_table
 		WHERE item_id = ?
 	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($id);
+	$Common::db->statement($query)->execute($id);
 
 	# Now mark the item as deleted
 	$query = qq~
@@ -312,8 +300,7 @@ sub delete_item()
 			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($id);
+	$Common::db->statement($query)->execute($id);
 
 	# If we made it this far without errors, commit the transaction
 	$Common::db->commit_transaction();
@@ -342,8 +329,7 @@ sub toggle_item_done()
 			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($item->{'done'}, $item->{'done'}, $id);
+	$Common::db->statement($query)->execute($item->{'done'}, $item->{'done'}, $id);
 
 	&list_items();
 }
@@ -377,8 +363,7 @@ sub toggle_marked()
 			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($item->{'mark'}, $id);
+	$Common::db->statement($query)->execute($item->{'mark'}, $id);
 
 	&list_items();
 }
@@ -396,10 +381,7 @@ sub get_item_by_id()
 		FROM todo t
 		WHERE t.id = ?
 	~;
-	$Common::db->prepare($query);
-	my $sth = $Common::db->execute($id);
-
-	my $item = $sth->fetchrow_hashref();
+	my $item = $Common::db->statement($query)->execute($id)->fetch;
 
 	# Get tags
 	$query = qq~
@@ -409,14 +391,7 @@ sub get_item_by_id()
 		WHERE it.item_id = ? AND t.active = 1
 		ORDER BY t.name
 	~;
-	$Common::db->prepare($query);
-	$sth = $Common::db->execute($item->{'id'});
-
-	my @tags;
-	while (my $tag = $sth->fetchrow_hashref()) {
-		push @tags, $tag;
-	}
-	$item->{'tags'} = \@tags;
+	$item->{'tags'} = $Common::db->statement($query)->execute($item->{'id'})->fetchall;
 
 	return $item;
 }
@@ -433,10 +408,7 @@ sub get_template_item()
 		FROM template_items
 		WHERE id = ?
 	~;
-	$Common::db->prepare($query);
-	my $sth = $Common::db->execute($id);
-
-	my $item = $sth->fetchrow_hashref();
+	my $item = $Common::db->statement($query)->execute($id)->fetch;
 
 	return undef unless ($item && $item->{'id'});
 
@@ -448,14 +420,7 @@ sub get_template_item()
 		WHERE tt.item_id = ? AND t.active = 1
 		ORDER BY t.name
 	~;
-	$Common::db->prepare($query);
-	$sth = $Common::db->execute($item->{'id'});
-
-	my @tags;
-	while (my $tag = $sth->fetchrow_hashref()) {
-		push @tags, $tag;
-	}
-	$item->{'tags'} = \@tags;
+	$item->{'tags'} = $Common::db->statement($query)->execute($item->{'id'})->fetchall;
 
 	return $item;
 }
@@ -485,7 +450,7 @@ sub list_items()
 		undef $view;
 	}
 
-	my $sth;
+	my $statement;
 
 	my $excl_deleted = ($timestamp > 0) ? '' : 'AND deleted IS NULL';
 
@@ -497,8 +462,7 @@ sub list_items()
 			WHERE timestamp >= ? AND deleted IS NULL
 			ORDER BY day, start, end
 		~;
-		$Common::db->prepare($query);
-		$sth = $Common::db->execute($Config::undated_last ? 7 : -1, $timestamp);
+		$statement = $Common::db->statement($query)->execute($Config::undated_last ? 7 : -1, $timestamp);
 	} elsif ($view) {
 		my ($year, $month, $day) = split(/-/, $view);
 		my $unixtime = mktime(0, 0, 0, int($day), int($month) - 1, int($year) - 1900);
@@ -528,8 +492,7 @@ sub list_items()
 				) AND timestamp >= ? $excl_deleted
 			ORDER BY `date`, t.start, t.end, t.event, t.done
 		~;
-		$Common::db->prepare($query);
-		$sth = $Common::db->execute($view, $view, $view, $view, $timestamp);
+		$statement = $Common::db->statement($query)->execute($view, $view, $view, $view, $timestamp);
 	} else {
 		# Load template for any days that aren't covered
 		my $unixdate = time();
@@ -555,8 +518,7 @@ sub list_items()
 				) AND timestamp >= ? $excl_deleted
 			ORDER BY `date`, start, end, event, done
 		~;
-		$Common::db->prepare($query);
-		$sth = $Common::db->execute($timestamp);
+		$statement = $Common::db->statement($query)->execute($timestamp);
 	}
 
 	my @items;
@@ -569,10 +531,10 @@ sub list_items()
 		WHERE it.item_id = ? AND t.active = 1
 		ORDER BY t.name
 	~;
-	$Common::db->prepare($query);
+	my $get_tags = $Common::db->statement($query);
 
 	my $max_timestamp = 0;
-	while (my $item = $sth->fetchrow_hashref()) {
+	while (my $item = $statement->fetch) {
 		unless ($Config::use_mark) {
 			$item->{'mark'} = 0;
 		}
@@ -582,8 +544,8 @@ sub list_items()
 			$item->{'keep_until'} = s/ /T/;
 		}
 
-		my $sth = $Common::db->execute($item->{'id'});
-		$item->{'tags'} = [ map { $_->{'id'} } @{ $sth->fetchall_arrayref({}) } ];
+		my $tags = $get_tags->execute($item->{'id'})->fetchall;
+		$item->{'tags'} = [ map { $_->{'id'} } @$tags ];
 
 		push @items, $item;
 	}
@@ -611,16 +573,9 @@ sub get_tags()
 		WHERE active = 1
 		ORDER BY name
 	~;
-	$Common::db->prepare($query);
-	my $sth = $Common::db->execute();
+	my $tags = $Common::db->statement($query)->execute->fetchall;
 
-	my @tags;
-
-	while (my $tag = $sth->fetchrow_hashref()) {
-		push @tags, $tag;
-	}
-
-	return \@tags;
+	return $tags;
 }
 
 sub add_item_tag()
@@ -650,8 +605,7 @@ sub add_item_tag()
 		VALUES
 		(?, ?)
 	~;
-	$Common::db->prepare($sql);
-	$Common::db->execute($item_id, $tag_id);
+	$Common::db->statement($sql)->execute($item_id, $tag_id);
 
 	# Update item timestamp
 	$table = ($view && $view eq 'template') ? 'template_items' : 'todo';
@@ -661,8 +615,7 @@ sub add_item_tag()
 			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
-	$Common::db->prepare($sql);
-	$Common::db->execute($item->{'id'});
+	$Common::db->statement($sql)->execute($item->{'id'});
 
 	&list_items();
 }
@@ -692,8 +645,7 @@ sub remove_item_tag()
 		DELETE FROM $table
 		WHERE item_id = ? AND tag_id = ?
 	~;
-	$Common::db->prepare($sql);
-	$Common::db->execute($item_id, $tag_id);
+	$Common::db->statement($sql)->execute($item_id, $tag_id);
 
 	# Update item timestamp
 	$table = ($view && $view eq 'template') ? 'template_items' : 'todo';
@@ -703,8 +655,7 @@ sub remove_item_tag()
 			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
-	$Common::db->prepare($sql);
-	$Common::db->execute($item->{'id'});
+	$Common::db->statement($sql)->execute($item->{'id'});
 
 	&list_items();
 }
@@ -738,8 +689,7 @@ sub update_item_tags()
 		DELETE FROM $table
 		WHERE item_id = ?
 	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($item->{'id'});
+	$Common::db->statement($query)->execute($item->{'id'});
 
 	# Split tags param into parts
 	my @tags = split(/,/, $item_tags);
@@ -752,10 +702,10 @@ sub update_item_tags()
 			VALUES
 			(?, ?)
 		~;
-		$Common::db->prepare($query);
+		my $add_tag_to_item = $Common::db->statement($query);
 
 		foreach my $tag (@tags) {
-			$Common::db->execute($item->{'id'}, $tag);
+			$add_tag_to_item->execute($item->{'id'}, $tag);
 		}
 	}
 
@@ -767,8 +717,7 @@ sub update_item_tags()
 			`timestamp` = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($item->{'id'});
+	$Common::db->statement($query)->execute($item->{'id'});
 
 	$Common::db->commit_transaction();
 
@@ -792,8 +741,7 @@ sub add_tag()
 		VALUES
 		(?, ?)
 	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($name, $style);
+	$Common::db->statement($query)->execute($name, $style);
 
 	&list_tags();
 }
@@ -812,8 +760,7 @@ sub remove_tag()
 		SET active = 0
 		WHERE id = ?
 	~;
-	$Common::db->prepare($query);
-	$Common::db->execute($tag_id);
+	$Common::db->statement($query)->execute($tag_id);
 
 	&list_items();
 }
@@ -834,8 +781,7 @@ sub save_tag()
 			SET name = ?
 			WHERE id = ?
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($name, $tag_id);
+		$Common::db->statement($query)->execute($name, $tag_id);
 	}
 	if ($style) {
 		if (int($style) == -1) {
@@ -846,8 +792,7 @@ sub save_tag()
 			SET style = ?
 			WHERE id = ?
 		~;
-		$Common::db->prepare($query);
-		$Common::db->execute($style, $tag_id);
+		$Common::db->statement($query)->execute($style, $tag_id);
 	}
 
 	&list_tags();
@@ -864,10 +809,7 @@ sub list_tags()
 		WHERE active = 1
 		ORDER BY name
 	~;
-	$Common::db->prepare($query);
-	my $sth = $Common::db->execute();
-
-	my $tags = $sth->fetchall_arrayref({});
+	my $tags = $Common::db->statement($query)->execute->fetchall;
 
 	Common::output_json($tags);
 }
