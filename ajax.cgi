@@ -296,7 +296,7 @@ sub delete_item()
 	$query = qq~
 		UPDATE $item_table
 		SET
-			deleted     = 1,
+			deleted     = true,
 			"timestamp" = EXTRACT(epoch FROM now())
 		WHERE id = ?
 	~;
@@ -321,15 +321,20 @@ sub toggle_item_done()
 
 	$item->{'done'} = !$item->{'done'};
 
+	my $keep_until;
+	if ($item->{'done'}) {
+		$keep_until = Datetime->now + 1;
+	}
+
 	# Update item
 	my $query = qq~
 		UPDATE todo SET
 			done        = ?,
-			keep_until  = IF(?, DATE_ADD(NOW(), INTERVAL 1 DAY), NULL),
+			keep_until  = ?,
 			"timestamp" = EXTRACT(epoch FROM now())
 		WHERE id = ?
 	~;
-	$Common::db->statement($query)->execute($item->{'done'}, $item->{'done'}, $id);
+	$Common::db->statement($query)->execute($item->{'done'}, $keep_until, $id);
 
 	&list_items();
 }
@@ -377,7 +382,7 @@ sub get_item_by_id()
 
 	# Load the item
 	my $query = qq~
-		SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, DAYOFWEEK(t.date) "day"
+		SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, EXTRACT(dow FROM t.date) AS "day"
 		FROM todo t
 		WHERE t.id = ?
 	~;
@@ -388,7 +393,7 @@ sub get_item_by_id()
 		SELECT t.id, t.name, t.style
 		FROM tags t
 		LEFT JOIN item_tags it ON it.tag_id = t.id
-		WHERE it.item_id = ? AND t.active = 1
+		WHERE it.item_id = ? AND t.active = true
 		ORDER BY t.name
 	~;
 	$item->{'tags'} = $Common::db->statement($query)->execute($item->{'id'})->fetchall;
@@ -417,7 +422,7 @@ sub get_template_item()
 		SELECT t.id, t.name, t.style
 		FROM tags t
 		LEFT JOIN template_item_tags tt ON tt.tag_id = t.id
-		WHERE tt.item_id = ? AND t.active = 1
+		WHERE tt.item_id = ? AND t.active = true
 		ORDER BY t.name
 	~;
 	$item->{'tags'} = $Common::db->statement($query)->execute($item->{'id'})->fetchall;
@@ -806,7 +811,7 @@ sub list_tags()
 	my $query = qq~
 		SELECT id, name, style
 		FROM tags
-		WHERE active = 1
+		WHERE active = true
 		ORDER BY name
 	~;
 	my $tags = $Common::db->statement($query)->execute->fetchall;
