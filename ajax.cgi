@@ -319,7 +319,7 @@ sub toggle_item_done()
 	# Get the item
 	my $item = &get_item_by_id($id);
 
-	$item->{'done'} = !$item->{'done'};
+	$item->{'done'} = $item->{'done'} ? 0 : 1;
 
 	my $keep_until;
 	if ($item->{'done'}) {
@@ -359,7 +359,7 @@ sub toggle_marked()
 		$item = &get_item_by_id($id);
 	}
 
-	$item->{'mark'} = !$item->{'mark'};
+	$item->{'mark'} = $item->{'mark'} ? 0 : 1;
 
 	# Update item
 	my $query = qq~
