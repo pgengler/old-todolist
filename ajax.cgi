@@ -409,7 +409,7 @@ sub get_template_item()
 	my $id = shift;
 
 	my $query = qq~
-		SELECT id, day, event, location, start, end, mark
+		SELECT id, day, event, location, start, "end", mark
 		FROM template_items
 		WHERE id = ?
 	~;
