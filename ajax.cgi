@@ -73,7 +73,7 @@ sub add_new_item()
 		$date = int($date);
 		my $query = qq~
 			INSERT INTO ${Config::db_prefix}template_items
-			(day, event, location, start, end, `timestamp`)
+			(day, event, location, start, "end", "timestamp")
 			VALUES
 			(?, ?, ?, ?, ?, UNIX_TIMESTAMP())
 		~;
@@ -81,7 +81,7 @@ sub add_new_item()
 	} else {
 		my $query = qq~
 			INSERT INTO ${Config::db_prefix}todo
-			(date, event, location, start, end, `timestamp`)
+			(date, event, location, start, "end", "timestamp")
 			VALUES
 			(?, ?, ?, ?, ?, UNIX_TIMESTAMP())
 		~;
@@ -124,8 +124,8 @@ sub change_day()
 			# Update the record
 			my $query = qq~
 				UPDATE todo SET
-					date        = DATE_ADD(`date`, INTERVAL ? DAY),
-					`timestamp` = UNIX_TIMESTAMP()
+					date        = DATE_ADD("date", INTERVAL ? DAY),
+					"timestamp" = UNIX_TIMESTAMP()
 				WHERE id = ?
 			~;
 			$Common::db->statement($query)->execute($day == 8 ? 7 : ($day - $item->{'day'} + 1), $item->{'id'});
@@ -133,7 +133,7 @@ sub change_day()
 			my $query = qq~
 				UPDATE todo SET
 					date        = DATE_ADD(DATE_SUB(?, INTERVAL DAYOFWEEK(?) - 1 DAY), INTERVAL ? DAY),
-					`timestamp` = UNIX_TIMESTAMP()
+					"timestamp" = UNIX_TIMESTAMP()
 				WHERE id = ?
 			~;
 			$Common::db->statement($query)->execute($view, $view, $day, $item->{'id'});
@@ -155,7 +155,7 @@ sub template_change_day()
 		my $query = qq~
 			UPDATE template_items SET
 				day         = ?,
-				`timestamp` = UNIX_TIMESTAMP()
+				"timestamp" = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($day, $id);
@@ -164,7 +164,7 @@ sub template_change_day()
 		my $query = qq~
 			UPDATE template_items SET
 				day         = NULL,
-				`timestamp` = UNIX_TIMESTAMP()
+				"timestamp" = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($id);
@@ -193,7 +193,7 @@ sub change_date()
 	my $query = qq~
 		UPDATE todo SET
 			date        = ?,
-			`timestamp` = UNIX_TIMESTAMP()
+			"timestamp" = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($date ? $date : undef, $item->{'id'});
@@ -231,7 +231,7 @@ sub save_item()
 		my $query = qq~
 			UPDATE $table SET
 				event       = ?,
-				`timestamp` = UNIX_TIMESTAMP()
+				"timestamp" = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($event, $id);
@@ -243,7 +243,7 @@ sub save_item()
 		my $query = qq~
 			UPDATE $table SET
 				location    = ?,
-				`timestamp` = UNIX_TIMESTAMP()
+				"timestamp" = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($location, $id);
@@ -255,8 +255,8 @@ sub save_item()
 		my $query = qq~
 			UPDATE $table SET
 				start       = ?,
-				end         = ?,
-				`timestamp` = UNIX_TIMESTAMP()
+				"end"       = ?,
+				"timestamp" = UNIX_TIMESTAMP()
 			WHERE id = ?
 		~;
 		$Common::db->statement($query)->execute($start, $end, $id);
@@ -297,7 +297,7 @@ sub delete_item()
 		UPDATE $item_table
 		SET
 			deleted     = 1,
-			`timestamp` = UNIX_TIMESTAMP()
+			"timestamp" = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($id);
@@ -326,7 +326,7 @@ sub toggle_item_done()
 		UPDATE todo SET
 			done        = ?,
 			keep_until  = IF(?, DATE_ADD(NOW(), INTERVAL 1 DAY), NULL),
-			`timestamp` = UNIX_TIMESTAMP()
+			"timestamp" = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($item->{'done'}, $item->{'done'}, $id);
@@ -360,7 +360,7 @@ sub toggle_marked()
 	my $query = qq~
 		UPDATE $table SET
 			mark        = ?,
-			`timestamp` = UNIX_TIMESTAMP()
+			"timestamp" = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($item->{'mark'}, $id);
@@ -377,7 +377,7 @@ sub get_item_by_id()
 
 	# Load the item
 	my $query = qq~
-		SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, DAYOFWEEK(t.date) `day`
+		SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, DAYOFWEEK(t.date) "day"
 		FROM todo t
 		WHERE t.id = ?
 	~;
@@ -457,10 +457,10 @@ sub list_items()
 	if ($view eq 'template') {
 		# Load template items
 		my $query = qq~
-			SELECT id, IF(day IS NOT NULL, day, ?) day, event, location, start, end, mark, deleted, `timestamp`
+			SELECT id, IF(day IS NOT NULL, day, ?) day, event, location, start, end, mark, deleted, "timestamp"
 			FROM template_items
-			WHERE timestamp >= ? AND deleted IS NULL
-			ORDER BY day, start, end
+			WHERE "timestamp" >= ? AND deleted IS NULL
+			ORDER BY day, start, "end"
 		~;
 		$statement = $Common::db->statement($query)->execute($Config::undated_last ? 7 : -1, $timestamp);
 	} elsif ($view) {
@@ -490,7 +490,7 @@ sub list_items()
 					OR
 					(t.date IS NULL AND (t.done = 0 OR t.keep_until > NOW()))
 				) AND timestamp >= ? $excl_deleted
-			ORDER BY `date`, t.start, t.end, t.event, t.done
+			ORDER BY "date", t.start, t.end, t.event, t.done
 		~;
 		$statement = $Common::db->statement($query)->execute($view, $view, $view, $view, $timestamp);
 	} else {
@@ -512,11 +512,11 @@ sub list_items()
 				(
 					(t.done = 1 AND t.keep_until > NOW())
 					OR
-					(t.done = 0 AND `date` < DATE_ADD(NOW(), INTERVAL 6 DAY))
+					(t.done = 0 AND "date" < DATE_ADD(NOW(), INTERVAL 6 DAY))
 					OR
-					(t.done = 0 AND `date` IS NULL)
+					(t.done = 0 AND "date" IS NULL)
 				) AND timestamp >= ? $excl_deleted
-			ORDER BY `date`, start, end, event, done
+			ORDER BY "date", start, end, event, done
 		~;
 		$statement = $Common::db->statement($query)->execute($timestamp);
 	}
@@ -612,7 +612,7 @@ sub add_item_tag()
 	$sql = qq~
 		UPDATE $table
 		SET
-			`timestamp` = UNIX_TIMESTAMP()
+			"timestamp" = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->statement($sql)->execute($item->{'id'});
@@ -652,7 +652,7 @@ sub remove_item_tag()
 	$sql = qq~
 		UPDATE $table
 		SET
-			`timestamp` = UNIX_TIMESTAMP()
+			"timestamp" = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->statement($sql)->execute($item->{'id'});
@@ -714,7 +714,7 @@ sub update_item_tags()
 	$query = qq~
 		UPDATE $table
 		SET
-			`timestamp` = UNIX_TIMESTAMP()
+			"timestamp" = UNIX_TIMESTAMP()
 		WHERE id = ?
 	~;
 	$Common::db->statement($query)->execute($item->{'id'});

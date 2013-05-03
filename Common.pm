@@ -75,7 +75,7 @@ sub template_loaded()
 	my $query = qq~
 		SELECT COUNT(*) AS loaded, IF(? < DATE(NOW()), 1, 0) AS older
 		FROM template_loaded
-		WHERE `date` = ?
+		WHERE "date" = ?
 	~;
 	my $data = $db->statement($query)->execute($date, $date)->fetch;
 
@@ -114,7 +114,7 @@ sub load_template()
 	# Query to insert items into 'todo' table
 	$query = qq~
 		INSERT INTO todo
-		(`date`, event, location, start, end, mark, timestamp)
+		("date", event, location, start, "end", mark, timestamp)
 		VALUES
 		(?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
 		RETURNING id
@@ -143,7 +143,7 @@ sub load_template()
 	# Mark the template as loaded for this day
 	$query = qq~
 		INSERT INTO template_loaded
-		(`date`)
+		("date")
 		VALUES
 		(?)
 	~;
