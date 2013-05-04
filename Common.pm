@@ -125,7 +125,7 @@ sub load_template()
 		INSERT INTO todo
 		("date", event, location, start, "end", mark, timestamp)
 		VALUES
-		(?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+		(?, ?, ?, ?, ?, ?, EXTRACT(epoch FROM now()))
 		RETURNING id
 	~;
 	my $insert = $db->statement($query);
