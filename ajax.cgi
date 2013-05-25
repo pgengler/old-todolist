@@ -469,11 +469,11 @@ sub list_items()
 		~;
 		$statement = $Common::db->statement($query)->execute($timestamp);
 	} elsif ($view) {
-		$view = Date->new($view);
-		my $weekday = $view->day_of_week;
+		my $view_date = Date->new($view);
+		my $weekday = $view_date->day_of_week;
 
 		for (my $i = 0; $i < 7; $i++) {
-			my $date = $view + $i;
+			my $date = $view_date + $i;
 
 			unless (&Common::template_loaded($date)) {
 				&Common::load_template($date);
@@ -481,8 +481,8 @@ sub list_items()
 		}
 
 		# Get all items in the same week as the given date
-		my $first_day_of_week = $view - $view->day_of_week;
-		my $last_day_of_week  = $view + (6 - $view->day_of_week);
+		my $first_day_of_week = $view_date - $view_date->day_of_week;
+		my $last_day_of_week  = $view_date + (6 - $view_date->day_of_week);
 		my $query = qq~
 			SELECT t.id, t.event, t.location, t.start, t.end, t.done, t.mark, t.date, t.deleted, t.timestamp
 			FROM todo t

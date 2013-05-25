@@ -6,8 +6,10 @@ use warnings;
 use POSIX qw/ mktime strftime /;
 
 use overload '<=>' => 'compare_to';
+use overload 'cmp' => 'compare_to';
 use overload '""'  => 'to_s';
 use overload '+'   => 'add';
+use overload '-'   => 'subtract';
 
 sub new
 {
@@ -60,6 +62,15 @@ sub add
 	my ($days) = @_;
 
 	my $str = sprintf('%04d-%02d-%02d', $self->year, $self->month, $self->day + $days);
+	Date->new($str);
+}
+
+sub subtract
+{
+	my $self = shift;
+	my ($days) = @_;
+
+	my $str = sprintf('%04d-%02d-%02d', $self->year, $self->month, $self->day - $days);
 	Date->new($str);
 }
 
