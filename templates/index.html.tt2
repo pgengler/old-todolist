@@ -48,7 +48,7 @@
 		<table cellspacing='1' cellpadding='1' id='content'>
 			<thead>
 				<tr id='header'>
-					<th class='done'>
+					<th id='done'>
 						&nbsp;
 					</th>
 					<th class='day'>
