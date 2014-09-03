@@ -205,7 +205,7 @@ function populate_row(row, item)
 
 	// Create cell for 'done' box
 	row.appendChild(create_element({
-		element: 'td', cssclass: 'done',
+		element: 'td',
 		children: [
 			{ element: 'input', type: 'checkbox', id: 'done' + item.id(), onclick: 'toggle_done(' + item.id() + ')' }
 		]
